@@ -29,11 +29,8 @@ export default function LoginPage() {
     }}>
       <div className="card animate-spring" style={{ width: '100%', maxWidth: 320, padding: 24, textAlign: 'center' }}>
         {/* Logo */}
-        <div style={{ width: 100, height: 100, margin: '0 auto 4px' }}>
-          {catAnim
-            ? <Lottie animationData={catAnim} loop={true} style={{ width: 100, height: 100 }} />
-            : <div style={{ width: 100, height: 100, borderRadius: 14, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🐱</div>
-          }
+        <div style={{ width: 100, height: 100, margin: '0 auto -20px' }}>
+          {catAnim && <Lottie animationData={catAnim} loop={true} style={{ width: 100, height: 100 }} />}
         </div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 22, marginBottom: 4 }}>
           JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
