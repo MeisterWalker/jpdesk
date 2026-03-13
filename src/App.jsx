@@ -6,6 +6,7 @@ import InfoPage from './pages/InfoPage'
 import BreakPage, { useBreakEngine } from './pages/BreakPage'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import DoodleLayer from './DoodleLayer'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 
@@ -198,7 +199,6 @@ function AppInner() {
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
   }, [dragging, dragOffset, expanded])
 
-  if (authLoading) return null
   if (authLoading) return (
     <div style={{
       position: 'fixed', inset: 0,
@@ -222,7 +222,9 @@ function AppInner() {
   if (!user) return <LoginPage />
 
   return (
-    <div
+    <>
+      <DoodleLayer />
+      <div id="app-root">
       ref={barRef}
       data-theme={theme}
       style={{
@@ -340,6 +342,8 @@ function AppInner() {
         </div>
       )}
     </div>
+    </div>
+    </>
   )
 }
 
