@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import DoodleLayer from './DoodleLayer'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
+import JPCalc from './JPCalc'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
@@ -257,6 +258,7 @@ function AppInner() {
   return (
     <>
       <DoodleLayer />
+      <JPCalc />
       <div
       ref={barRef}
       data-theme={theme}
