@@ -26,6 +26,7 @@ function CopyBtn({ getText }) {
 }
 
 function ScriptCard({ script, onDelete, onEdit, onFavorite }) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
   const [vars, setVars] = useState({})
   const [showAI, setShowAI] = useState(false)
@@ -99,7 +100,15 @@ REWRITE:
           <button onClick={() => onFavorite(script)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, opacity: script.is_favorite ? 1 : 0.3, padding: '2px 3px' }}>★</button>
           {/* 🤖 AI Check hidden — re-enable when credits are topped up */}
           <button onClick={() => onEdit(script)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, opacity: 0.5, padding: '2px 3px' }}>✏️</button>
-          <button onClick={() => onDelete(script.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, opacity: 0.4, padding: '2px 3px' }}>🗑</button>
+          {confirmDelete ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#EF4444' }}>Delete?</span>
+              <button onClick={() => { onDelete(script.id); setConfirmDelete(false) }} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 5, border: '1px solid #EF4444', background: 'rgba(239,68,68,0.12)', color: '#EF4444', cursor: 'pointer', fontFamily: 'JetBrains Mono' }}>Yes</button>
+              <button onClick={() => setConfirmDelete(false)} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 5, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'JetBrains Mono' }}>No</button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmDelete(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, opacity: 0.65, padding: '2px 3px', filter: 'brightness(1.8)' }}>🗑</button>
+          )}
         </div>
       </div>
 

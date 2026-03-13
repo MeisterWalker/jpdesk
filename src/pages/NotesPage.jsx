@@ -25,6 +25,7 @@ function CopyBtn({ text }) {
 }
 
 function NoteCard({ note, onPin, onDelete, onEdit }) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
   const tag = TAG_COLORS.find(t => t.id === note.color_tag)
   return (
@@ -55,7 +56,15 @@ function NoteCard({ note, onPin, onDelete, onEdit }) {
           <CopyBtn text={note.content} />
           <button onClick={() => onPin(note)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, opacity: note.pinned ? 1 : 0.3, padding: '2px 3px' }}>📌</button>
           <button onClick={() => onEdit(note)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, opacity: 0.5, padding: '2px 3px' }}>✏️</button>
-          <button onClick={() => onDelete(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, opacity: 0.4, padding: '2px 3px' }}>🗑</button>
+          {confirmDelete ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#EF4444' }}>Delete?</span>
+              <button onClick={() => { onDelete(note.id); setConfirmDelete(false) }} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 5, border: '1px solid #EF4444', background: 'rgba(239,68,68,0.12)', color: '#EF4444', cursor: 'pointer', fontFamily: 'JetBrains Mono' }}>Yes</button>
+              <button onClick={() => setConfirmDelete(false)} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 5, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'JetBrains Mono' }}>No</button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmDelete(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, opacity: 0.65, padding: '2px 3px', filter: 'brightness(1.8)' }}>🗑</button>
+          )}
         </div>
       </div>
 
