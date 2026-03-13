@@ -13,16 +13,30 @@ const BRANDS = [
 const DEPT_TYPES = ['Customer Service', 'Collections', 'Fraud', 'Payments', 'Disputes', 'Operations', 'Supervisor', 'Other']
 
 const BANKS = [
-  { id: 'wellsfargo', name: 'Wells Fargo',     emoji: '🏦', color: '#D4111E', soft: 'rgba(212,17,30,0.08)',  border: 'rgba(212,17,30,0.2)',  number: '1-800-869-3557' },
-  { id: 'chase',      name: 'Chase',           emoji: '🏛️', color: '#117ACA', soft: 'rgba(17,122,202,0.08)', border: 'rgba(17,122,202,0.2)', number: '1-800-935-9935' },
-  { id: 'jpmorgan',   name: 'JPMorgan',        emoji: '🏢', color: '#2C2C6C', soft: 'rgba(44,44,108,0.08)',  border: 'rgba(44,44,108,0.2)',  number: '1-212-270-6000' },
-  { id: 'bofa',       name: 'Bank of America', emoji: '🔴', color: '#E31837', soft: 'rgba(227,24,55,0.08)',  border: 'rgba(227,24,55,0.2)',  number: '1-800-432-1000' },
-  { id: 'citi',       name: 'Citibank',        emoji: '🌐', color: '#003B70', soft: 'rgba(0,59,112,0.08)',   border: 'rgba(0,59,112,0.2)',   number: '1-800-374-9700' },
-  { id: 'usbank',     name: 'U.S. Bank',       emoji: '🇺🇸', color: '#003087', soft: 'rgba(0,48,135,0.08)',  border: 'rgba(0,48,135,0.2)',   number: '1-800-872-2657' },
-  { id: 'tdbank',     name: 'TD Bank',         emoji: '🟢', color: '#1A7D2D', soft: 'rgba(26,125,45,0.08)',  border: 'rgba(26,125,45,0.2)',  number: '1-888-751-9000' },
-  { id: 'capital1',   name: 'Capital One',     emoji: '💳', color: '#D03027', soft: 'rgba(208,48,39,0.08)',  border: 'rgba(208,48,39,0.2)',  number: '1-877-383-4802' },
-  { id: 'discover',   name: 'Discover',        emoji: '🟠', color: '#FF6600', soft: 'rgba(255,102,0,0.08)',  border: 'rgba(255,102,0,0.2)',  number: '1-800-347-2683' },
-  { id: 'pnc',        name: 'PNC Bank',        emoji: '🏗️', color: '#F15A22', soft: 'rgba(241,90,34,0.08)',  border: 'rgba(241,90,34,0.2)',  number: '1-888-762-2265' },
+  // ── Major Banks ──────────────────────────────────────────────────────────
+  { id: 'wellsfargo', cat: 'bank', name: 'Wells Fargo',      emoji: '🏦', color: '#D4111E', soft: 'rgba(212,17,30,0.08)',  border: 'rgba(212,17,30,0.2)',  number: '1-800-869-3557' },
+  { id: 'chase',      cat: 'bank', name: 'Chase',            emoji: '🏛️', color: '#117ACA', soft: 'rgba(17,122,202,0.08)', border: 'rgba(17,122,202,0.2)', number: '1-800-935-9935' },
+  { id: 'jpmorgan',   cat: 'bank', name: 'JPMorgan',         emoji: '🏢', color: '#2C2C6C', soft: 'rgba(44,44,108,0.08)',  border: 'rgba(44,44,108,0.2)',  number: '1-212-270-6000' },
+  { id: 'bofa',       cat: 'bank', name: 'Bank of America',  emoji: '🔴', color: '#E31837', soft: 'rgba(227,24,55,0.08)',  border: 'rgba(227,24,55,0.2)',  number: '1-800-432-1000' },
+  { id: 'citi',       cat: 'bank', name: 'Citibank',         emoji: '🌐', color: '#003B70', soft: 'rgba(0,59,112,0.08)',   border: 'rgba(0,59,112,0.2)',   number: '1-800-374-9700' },
+  { id: 'usbank',     cat: 'bank', name: 'U.S. Bank',        emoji: '🇺🇸', color: '#003087', soft: 'rgba(0,48,135,0.08)',  border: 'rgba(0,48,135,0.2)',   number: '1-800-872-2657' },
+  { id: 'tdbank',     cat: 'bank', name: 'TD Bank',          emoji: '🟢', color: '#1A7D2D', soft: 'rgba(26,125,45,0.08)',  border: 'rgba(26,125,45,0.2)',  number: '1-888-751-9000' },
+  { id: 'capital1',   cat: 'bank', name: 'Capital One',      emoji: '💳', color: '#D03027', soft: 'rgba(208,48,39,0.08)',  border: 'rgba(208,48,39,0.2)',  number: '1-877-383-4802' },
+  { id: 'discover',   cat: 'bank', name: 'Discover',         emoji: '🟠', color: '#FF6600', soft: 'rgba(255,102,0,0.08)',  border: 'rgba(255,102,0,0.2)',  number: '1-800-347-2683' },
+  { id: 'pnc',        cat: 'bank', name: 'PNC Bank',         emoji: '🏗️', color: '#F15A22', soft: 'rgba(241,90,34,0.08)',  border: 'rgba(241,90,34,0.2)',  number: '1-888-762-2265' },
+  { id: 'regions',    cat: 'bank', name: 'Regions Bank',     emoji: '🌄', color: '#006747', soft: 'rgba(0,103,71,0.08)',   border: 'rgba(0,103,71,0.2)',   number: '1-800-734-4667' },
+  { id: 'truist',     cat: 'bank', name: 'Truist Bank',      emoji: '💜', color: '#4B286D', soft: 'rgba(75,40,109,0.08)',  border: 'rgba(75,40,109,0.2)',  number: '1-844-487-8478' },
+  { id: 'ally',       cat: 'bank', name: 'Ally Bank',        emoji: '🚗', color: '#7B2D8B', soft: 'rgba(123,45,139,0.08)', border: 'rgba(123,45,139,0.2)', number: '1-877-247-2559' },
+  { id: 'synchrony',  cat: 'bank', name: 'Synchrony Bank',   emoji: '💰', color: '#00A0D2', soft: 'rgba(0,160,210,0.08)',  border: 'rgba(0,160,210,0.2)',  number: '1-866-226-5638' },
+  // ── Credit Unions ─────────────────────────────────────────────────────────
+  { id: 'navyfcu',    cat: 'cu',   name: 'Navy Federal CU',  emoji: '⚓', color: '#003366', soft: 'rgba(0,51,102,0.08)',   border: 'rgba(0,51,102,0.2)',   number: '1-888-842-6328' },
+  { id: 'pennfcu',    cat: 'cu',   name: 'PenFed CU',        emoji: '🦅', color: '#003087', soft: 'rgba(0,48,135,0.08)',   border: 'rgba(0,48,135,0.2)',   number: '1-800-247-5626' },
+  { id: 'becu',       cat: 'cu',   name: 'BECU',             emoji: '🐝', color: '#F5A800', soft: 'rgba(245,168,0,0.08)',  border: 'rgba(245,168,0,0.2)',  number: '1-800-233-2328' },
+  { id: 'schoolsfcu', cat: 'cu',   name: 'Schools First FCU', emoji: '📚', color: '#0066CC', soft: 'rgba(0,102,204,0.08)', border: 'rgba(0,102,204,0.2)',  number: '1-800-462-8328' },
+  { id: 'suncoast',   cat: 'cu',   name: 'Suncoast CU',      emoji: '☀️', color: '#F47920', soft: 'rgba(244,121,32,0.08)', border: 'rgba(244,121,32,0.2)', number: '1-800-999-5887' },
+  { id: 'alliantcu',  cat: 'cu',   name: 'Alliant CU',       emoji: '🤝', color: '#00833E', soft: 'rgba(0,131,62,0.08)',   border: 'rgba(0,131,62,0.2)',   number: '1-800-328-1935' },
+  { id: 'goldenone',  cat: 'cu',   name: 'Golden 1 CU',      emoji: '🥇', color: '#C9973A', soft: 'rgba(201,151,58,0.08)', border: 'rgba(201,151,58,0.2)', number: '1-877-465-3361' },
+  { id: 'americafirst', cat: 'cu', name: 'America First CU', emoji: '🌟', color: '#CC0000', soft: 'rgba(204,0,0,0.08)',    border: 'rgba(204,0,0,0.2)',    number: '1-800-999-3961' },
 ]
 
 function DeptRows({ items, color }) {
@@ -239,7 +253,14 @@ export default function InfoPage() {
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Customer service numbers</div>
             {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#6366F1', padding: '3px 9px' }}>👑 Edit numbers</span>}
           </div>
-          {BANKS.map(bank => (
+
+          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, paddingLeft: 2 }}>🏦 Major Banks</div>
+          {BANKS.filter(b => b.cat === 'bank').map(bank => (
+            <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
+          ))}
+
+          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, marginTop: 14, paddingLeft: 2 }}>🤝 Credit Unions</div>
+          {BANKS.filter(b => b.cat === 'cu').map(bank => (
             <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
           ))}
         </>
