@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './index.css'
+import { supabase } from './lib/supabase'
 import NotesPage from './pages/NotesPage'
 import ScriptsPage from './pages/ScriptsPage'
 import InfoPage from './pages/InfoPage'
@@ -156,6 +157,23 @@ function GentlemanLogo() {
 function AppInner() {
   const { theme, toggleTheme } = useTheme()
   const { user, profile, loading: authLoading, signOut, isAdmin } = useAuth()
+  const [onlineCount, setOnlineCount] = useState(1)
+
+  useEffect(() => {
+    if (!user) return
+    const channel = supabase.channel('online-users', { config: { presence: { key: user.id } } })
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState()
+        setOnlineCount(Object.keys(state).length)
+      })
+      .subscribe(async status => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ user_id: user.id, username: profile?.username || 'user', online_at: new Date().toISOString() })
+        }
+      })
+    return () => { supabase.removeChannel(channel) }
+  }, [user, profile])
   const [expanded, setExpanded] = useState(true)
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
@@ -334,9 +352,16 @@ function AppInner() {
           {/* Footer */}
           <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.0 · BY JOHN PAUL LACARON</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
-              <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>LIVE</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>👥</span>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineCount} online</span>
+              </div>
+              <div style={{ width: 1, height: 10, background: 'var(--border)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>LIVE</span>
+              </div>
             </div>
           </div>
         </div>
