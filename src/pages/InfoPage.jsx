@@ -94,17 +94,12 @@ export default function InfoPage() {
   const [editTarget, setEditTarget] = useState(null)
   const [showPwGate, setShowPwGate] = useState(false)
   const [activeTab, setActiveTab] = useState('brands')
-  const [bankNumbers, setBankNumbers] = useState(() => {
-    const saved = localStorage.getItem('jpdesk_bank_numbers')
-    return saved ? JSON.parse(saved) : {}
-  })
+  const [bankNumbers, setBankNumbers] = useState({})
 
   const getBankNumber = (id, defaultNum) => bankNumbers[id] ?? defaultNum
 
   const handleBankEdit = (id, number) => {
-    const updated = { ...bankNumbers, [id]: number }
-    setBankNumbers(updated)
-    localStorage.setItem('jpdesk_bank_numbers', JSON.stringify(updated))
+    setBankNumbers(prev => ({ ...prev, [id]: number }))
   }
 
   const fetchInfos = useCallback(async () => {
