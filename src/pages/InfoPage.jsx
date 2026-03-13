@@ -165,7 +165,7 @@ function BankCard({ bank, isAdmin, onEdit }) {
           {bank.emoji}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 13, color: bank.color }}>{bank.name}</div>
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 13, color: 'rgba(200,205,220,0.85)' }}>{bank.name}</div>
           {editing
             ? <input value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => e.key === 'Enter' && save()} autoFocus
                 style={{ fontSize: 12, fontFamily: 'JetBrains Mono', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '2px 6px', color: 'var(--text-primary)', width: 140, marginTop: 2, outline: 'none' }} />
