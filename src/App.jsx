@@ -193,6 +193,7 @@ function AppInner() {
   const [expanded, setExpanded]     = useState(true)
   const [showDesk, setShowDesk]     = useState(true)
   const [showCalc, setShowCalc]     = useState(false)
+  const [focused, setFocused]       = useState('desk') // 'desk' | 'calc'
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -268,7 +269,7 @@ function AppInner() {
       }}>
         {/* JPDesk toggle */}
         <button
-          onClick={() => setShowDesk(v => !v)}
+          onClick={() => { setShowDesk(v => !v); setFocused('desk') }}
           title="JPDesk"
           style={{
             width: 42, height: 42, borderRadius: 13,
@@ -283,7 +284,7 @@ function AppInner() {
         </button>
         {/* JPCalc toggle */}
         <button
-          onClick={() => setShowCalc(v => !v)}
+          onClick={() => { setShowCalc(v => !v); setFocused('calc') }}
           title="JPCalc"
           style={{
             width: 42, height: 42, borderRadius: 13,
@@ -300,12 +301,13 @@ function AppInner() {
       {showDesk && <div
       ref={barRef}
       data-theme={theme}
+      onMouseDown={() => setFocused('desk')}
       style={{
         position: 'fixed',
         left: position.x,
         top: position.y,
         width: expanded ? 460 : 340,
-        zIndex: 9999,
+        zIndex: focused === 'desk' ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
         border: '1px solid var(--border)',
@@ -444,7 +446,7 @@ function AppInner() {
       )}
     </div>}
 
-      {showCalc && <JPCalc />}
+      {showCalc && <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />}
 
     {/* Hydration reminder toast */}
     {showHydration && !hydrationDismissed && (

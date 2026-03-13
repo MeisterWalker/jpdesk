@@ -8,7 +8,7 @@ const BTN_ROWS = [
   ['0', '.', '⌫', '='],
 ]
 
-export default function JPCalc() {
+export default function JPCalc({ focused = true, onFocus = () => {} }) {
   const [expanded, setExpanded]     = useState(true)
   const [display, setDisplay]       = useState('0')
   const [prev, setPrev]             = useState(null)
@@ -101,13 +101,13 @@ export default function JPCalc() {
     <div
       ref={ref}
       data-theme="dark"
-      onMouseDown={onMouseDown}
+      onMouseDown={(e) => { onFocus(); onMouseDown(e) }}
       style={{
         position: 'fixed',
         left: position.x,
         top: position.y,
         width: 210,
-        zIndex: 9998,
+        zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
         border: '1px solid var(--border)',
