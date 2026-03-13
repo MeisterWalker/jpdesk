@@ -18,6 +18,66 @@ export default function AdminPage() {
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
+  const [syncing, setSyncing] = useState({})
+  const [syncAll, setSyncAll] = useState(false)
+
+  const syncUserData = async (userId) => {
+    setSyncing(p => ({ ...p, [userId]: true }))
+
+    // Get admin profile
+    const { data: adminProfile } = await supabase
+      .from('profiles').select('id').eq('role', 'admin').limit(1).single()
+    if (!adminProfile) { setSyncing(p => ({ ...p, [userId]: false })); return }
+
+    // Get all admin scripts
+    const { data: adminScripts } = await supabase
+      .from('canned_responses').select('*').eq('user_id', adminProfile.id)
+
+    if (adminScripts?.length) {
+      // Get titles user already has to avoid duplicates
+      const { data: userScripts } = await supabase
+        .from('canned_responses').select('title').eq('user_id', userId)
+      const existingTitles = new Set((userScripts || []).map(s => s.title))
+
+      const newOnes = adminScripts
+        .filter(s => !existingTitles.has(s.title))
+        .map(({ id, user_id, ...rest }) => ({
+          ...rest, user_id: userId, created_at: new Date().toISOString()
+        }))
+
+      if (newOnes.length) await supabase.from('canned_responses').insert(newOnes)
+    }
+
+    // Get all admin notes
+    const { data: adminNotes } = await supabase
+      .from('notes').select('*').eq('user_id', adminProfile.id)
+
+    if (adminNotes?.length) {
+      const { data: userNotes } = await supabase
+        .from('notes').select('title').eq('user_id', userId)
+      const existingTitles = new Set((userNotes || []).map(n => n.title))
+
+      const newOnes = adminNotes
+        .filter(n => !existingTitles.has(n.title))
+        .map(({ id, user_id, ...rest }) => ({
+          ...rest, user_id: userId, created_at: new Date().toISOString()
+        }))
+
+      if (newOnes.length) await supabase.from('notes').insert(newOnes)
+    }
+
+    setSyncing(p => ({ ...p, [userId]: false }))
+    setMsg('✅ Synced ' + (users.find(u => u.id === userId)?.username || 'user') + ' successfully!')
+  }
+
+  const syncAllUsers = async () => {
+    setSyncAll(true); setMsg('')
+    const nonAdmins = users.filter(u => u.role !== 'admin')
+    for (const u of nonAdmins) await syncUserData(u.id)
+    setSyncAll(false)
+    setMsg('✅ All users synced!')
+  }
+
   const createUser = async () => {
     if (!form.email || !form.username) { setMsg('Email and username are required.'); return }
     setSaving(true); setMsg('')
@@ -74,6 +134,20 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Sync panel */}
+      <div className="card" style={{ padding: '11px 13px', marginBottom: 12, background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>🔄 Sync Notes & Scripts</div>
+            <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 2 }}>Push your latest notes/scripts to all users</div>
+          </div>
+          <button onClick={syncAllUsers} disabled={syncAll || loading} className="btn btn-brand"
+            style={{ fontSize: 11, padding: '5px 12px', background: syncAll ? 'var(--surface-2)' : undefined }}>
+            {syncAll ? '⏳ Syncing...' : '🔄 Sync All'}
+          </button>
+        </div>
+      </div>
+
       {/* Add user form */}
       {showForm && (
         <div className="card animate-slideUp" style={{ padding: 13, marginBottom: 12 }}>
@@ -115,9 +189,17 @@ export default function AdminPage() {
             <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>{u.full_name || u.username}</div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 1 }}>@{u.username} · {u.role}</div>
           </div>
-          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: u.role === 'admin' ? 'rgba(99,102,241,0.15)' : 'var(--surface-2)', color: u.role === 'admin' ? '#6366F1' : 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase' }}>
-            {u.role}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            {u.role !== 'admin' && (
+              <button onClick={() => syncUserData(u.id)} disabled={syncing[u.id]}
+                className="btn btn-ghost" style={{ fontSize: 10, padding: '3px 8px' }}>
+                {syncing[u.id] ? '⏳' : '🔄'}
+              </button>
+            )}
+            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: u.role === 'admin' ? 'rgba(99,102,241,0.15)' : 'var(--surface-2)', color: u.role === 'admin' ? '#6366F1' : 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase' }}>
+              {u.role}
+            </span>
+          </div>
         </div>
       ))}
     </div>
