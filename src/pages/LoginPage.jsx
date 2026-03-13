@@ -66,8 +66,8 @@ export default function LoginPage() {
 
         <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 8 }}>
           <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
-            🔒 This is an invite-only workspace.<br/>
-            Don't have an account? Reach out to <span style={{ color: '#8B5CF6', fontWeight: 700 }}>JP</span> to get sorted.
+            🔒 This is an invite only workspace.<br/>
+            Don't have an account? Reach out to <span style={{ color: '#8B5CF6', fontWeight: 700 }}>JP</span> to access the tools.
           </div>
         </div>
       </div>
