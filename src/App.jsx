@@ -10,14 +10,13 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import DoodleLayer from './DoodleLayer'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
-import CalcPage from './pages/CalcPage'
+import JPCalc from './JPCalc'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
   { id: 'scripts', label: 'Scripts', icon: '💬' },
   { id: 'info',    label: 'Info',    icon: '📋' },
   { id: 'breaks',  label: 'Breaks',  icon: '⏱' },
-  { id: 'calc',    label: 'Calc',    icon: '🧮' },
   { id: 'admin',   label: 'Admin',   icon: '👑' },
 ]
 
@@ -191,7 +190,9 @@ function AppInner() {
     }, 60 * 60 * 1000)
     return () => clearInterval(timer)
   }, [user])
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded]     = useState(true)
+  const [showDesk, setShowDesk]     = useState(true)
+  const [showCalc, setShowCalc]     = useState(false)
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -259,7 +260,44 @@ function AppInner() {
   return (
     <>
       <DoodleLayer />
-      <div
+
+      {/* ── Dock Bar ── */}
+      <div style={{
+        position: 'fixed', bottom: 16, right: 16, zIndex: 99999,
+        display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center',
+      }}>
+        {/* JPDesk toggle */}
+        <button
+          onClick={() => setShowDesk(v => !v)}
+          title="JPDesk"
+          style={{
+            width: 42, height: 42, borderRadius: 13,
+            background: showDesk ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: showDesk ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, transition: 'all 0.2s',
+          }}
+        >
+          🎩
+        </button>
+        {/* JPCalc toggle */}
+        <button
+          onClick={() => setShowCalc(v => !v)}
+          title="JPCalc"
+          style={{
+            width: 42, height: 42, borderRadius: 13,
+            background: showCalc ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: showCalc ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, transition: 'all 0.2s',
+          }}
+        >
+          🧮
+        </button>
+      </div>
+      {showDesk && <div
       ref={barRef}
       data-theme={theme}
       style={{
@@ -363,7 +401,6 @@ function AppInner() {
             {activeTab === 'scripts' && <ScriptsPage />}
             {activeTab === 'info'    && <InfoPage />}
             {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
-            {activeTab === 'calc'    && <CalcPage />}
             {activeTab === 'admin'   && <AdminPage />}
           </div>
 
@@ -405,7 +442,9 @@ function AppInner() {
           </div>
         </div>
       )}
-    </div>
+    </div>}
+
+      {showCalc && <JPCalc />}
 
     {/* Hydration reminder toast */}
     {showHydration && !hydrationDismissed && (
