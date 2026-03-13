@@ -23,51 +23,58 @@ export default function AdminPage() {
 
   const syncUserData = async (userId) => {
     setSyncing(p => ({ ...p, [userId]: true }))
+    setMsg('')
 
-    // Get admin profile
-    const { data: adminProfile } = await supabase
-      .from('profiles').select('id').eq('role', 'admin').limit(1).single()
-    if (!adminProfile) { setSyncing(p => ({ ...p, [userId]: false })); return }
+    try {
+      // Get current user's own notes and scripts (admin is logged in)
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser) throw new Error('Not logged in')
 
-    // Get all admin scripts
-    const { data: adminScripts } = await supabase
-      .from('canned_responses').select('*').eq('user_id', adminProfile.id)
+      // Get admin notes
+      const { data: adminNotes, error: notesErr } = await supabase
+        .from('notes').select('*').eq('user_id', currentUser.id)
+      if (notesErr) throw notesErr
 
-    if (adminScripts?.length) {
-      // Get titles user already has to avoid duplicates
-      const { data: userScripts } = await supabase
-        .from('canned_responses').select('title').eq('user_id', userId)
-      const existingTitles = new Set((userScripts || []).map(s => s.title))
+      // Get admin scripts
+      const { data: adminScripts, error: scriptsErr } = await supabase
+        .from('canned_responses').select('*').eq('user_id', currentUser.id)
+      if (scriptsErr) throw scriptsErr
 
-      const newOnes = adminScripts
-        .filter(s => !existingTitles.has(s.title))
-        .map(({ id, user_id, ...rest }) => ({
-          ...rest, user_id: userId, created_at: new Date().toISOString()
-        }))
-
-      if (newOnes.length) await supabase.from('canned_responses').insert(newOnes)
-    }
-
-    // Get all admin notes
-    const { data: adminNotes } = await supabase
-      .from('notes').select('*').eq('user_id', adminProfile.id)
-
-    if (adminNotes?.length) {
+      // Get user's existing notes titles
       const { data: userNotes } = await supabase
         .from('notes').select('title').eq('user_id', userId)
-      const existingTitles = new Set((userNotes || []).map(n => n.title))
+      const existingNoteTitles = new Set((userNotes || []).map(n => n.title))
 
-      const newOnes = adminNotes
-        .filter(n => !existingTitles.has(n.title))
-        .map(({ id, user_id, ...rest }) => ({
-          ...rest, user_id: userId, created_at: new Date().toISOString()
-        }))
+      // Get user's existing script titles
+      const { data: userScripts } = await supabase
+        .from('canned_responses').select('title').eq('user_id', userId)
+      const existingScriptTitles = new Set((userScripts || []).map(s => s.title))
 
-      if (newOnes.length) await supabase.from('notes').insert(newOnes)
+      // Insert new notes only
+      const newNotes = (adminNotes || [])
+        .filter(n => !existingNoteTitles.has(n.title))
+        .map(({ id, user_id, ...rest }) => ({ ...rest, user_id: userId, created_at: new Date().toISOString() }))
+      if (newNotes.length) {
+        const { error } = await supabase.from('notes').insert(newNotes)
+        if (error) throw error
+      }
+
+      // Insert new scripts only
+      const newScripts = (adminScripts || [])
+        .filter(s => !existingScriptTitles.has(s.title))
+        .map(({ id, user_id, ...rest }) => ({ ...rest, user_id: userId, created_at: new Date().toISOString() }))
+      if (newScripts.length) {
+        const { error } = await supabase.from('canned_responses').insert(newScripts)
+        if (error) throw error
+      }
+
+      const username = users.find(u => u.id === userId)?.username || 'user'
+      setMsg(`✅ Synced ${username} — ${newNotes.length} notes, ${newScripts.length} scripts added.`)
+    } catch (err) {
+      setMsg('❌ Sync failed: ' + err.message)
     }
 
     setSyncing(p => ({ ...p, [userId]: false }))
-    setMsg('✅ Synced ' + (users.find(u => u.id === userId)?.username || 'user') + ' successfully!')
   }
 
   const syncAllUsers = async () => {
