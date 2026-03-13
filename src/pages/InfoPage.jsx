@@ -195,9 +195,12 @@ export default function InfoPage() {
   const [editTarget, setEditTarget]   = useState(null)
   const [activeTab, setActiveTab]     = useState('brands')
   const [bankNumbers, setBankNumbers] = useState({})
+  const [bankSearch, setBankSearch]   = useState('')
+  const [collapsed, setCollapsed]     = useState({ bank: false, cu: false })
 
   const getBankNumber = (id, def) => bankNumbers[id] ?? def
   const handleBankEdit = (id, number) => setBankNumbers(prev => ({ ...prev, [id]: number }))
+  const toggleCat = (cat) => setCollapsed(prev => ({ ...prev, [cat]: !prev[cat] }))
 
   const fetchInfos = useCallback(async () => {
     const { data, error } = await supabase.from('brand_info').select('*')
@@ -249,20 +252,65 @@ export default function InfoPage() {
 
       {activeTab === 'banks' && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Customer service numbers</div>
             {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#6366F1', padding: '3px 9px' }}>👑 Edit numbers</span>}
           </div>
 
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, paddingLeft: 2 }}>🏦 Major Banks</div>
-          {BANKS.filter(b => b.cat === 'bank').map(bank => (
-            <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
-          ))}
+          {/* Search bar */}
+          <div style={{ position: 'relative', marginBottom: 12 }}>
+            <span style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--text-muted)', pointerEvents: 'none' }}>🔍</span>
+            <input
+              value={bankSearch}
+              onChange={e => setBankSearch(e.target.value)}
+              placeholder="Search banks or credit unions..."
+              style={{ width: '100%', padding: '7px 10px 7px 28px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-primary)', fontSize: 11, fontFamily: 'JetBrains Mono', outline: 'none', boxSizing: 'border-box' }}
+            />
+            {bankSearch && (
+              <button onClick={() => setBankSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1 }}>×</button>
+            )}
+          </div>
 
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, marginTop: 14, paddingLeft: 2 }}>🤝 Credit Unions</div>
-          {BANKS.filter(b => b.cat === 'cu').map(bank => (
-            <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
-          ))}
+          {/* Major Banks */}
+          {(() => {
+            const filtered = BANKS.filter(b => b.cat === 'bank' && (!bankSearch || b.name.toLowerCase().includes(bankSearch.toLowerCase()) || b.number.includes(bankSearch)))
+            if (filtered.length === 0 && bankSearch) return null
+            return (
+              <>
+                <button onClick={() => toggleCat('bank')} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 8, border: 'none', background: 'var(--surface)', cursor: 'pointer', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, display: 'inline-block', transition: 'transform 0.2s', transform: collapsed.bank ? 'rotate(0deg)' : 'rotate(90deg)' }}>▶</span>
+                  <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>🏦 Major Banks</span>
+                  <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginLeft: 'auto' }}>{filtered.length}</span>
+                </button>
+                {!collapsed.bank && filtered.map(bank => (
+                  <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
+                ))}
+              </>
+            )
+          })()}
+
+          {/* Credit Unions */}
+          {(() => {
+            const filtered = BANKS.filter(b => b.cat === 'cu' && (!bankSearch || b.name.toLowerCase().includes(bankSearch.toLowerCase()) || b.number.includes(bankSearch)))
+            if (filtered.length === 0 && bankSearch) return null
+            return (
+              <div style={{ marginTop: collapsed.bank ? 6 : 10 }}>
+                <button onClick={() => toggleCat('cu')} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 8, border: 'none', background: 'var(--surface)', cursor: 'pointer', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, display: 'inline-block', transition: 'transform 0.2s', transform: collapsed.cu ? 'rotate(0deg)' : 'rotate(90deg)' }}>▶</span>
+                  <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>🤝 Credit Unions</span>
+                  <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginLeft: 'auto' }}>{filtered.length}</span>
+                </button>
+                {!collapsed.cu && filtered.map(bank => (
+                  <BankCard key={bank.id} bank={{ ...bank, number: getBankNumber(bank.id, bank.number) }} isAdmin={isAdmin} onEdit={handleBankEdit} />
+                ))}
+              </div>
+            )
+          })()}
+
+          {/* No results */}
+          {bankSearch && !BANKS.some(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()) || b.number.includes(bankSearch)) && (
+            <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>No results for "{bankSearch}"</div>
+          )}
         </>
       )}
 
