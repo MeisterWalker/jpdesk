@@ -157,15 +157,20 @@ function GentlemanLogo() {
 function AppInner() {
   const { theme, toggleTheme } = useTheme()
   const { user, profile, loading: authLoading, signOut, isAdmin } = useAuth()
-  const [onlineCount, setOnlineCount] = useState(1)
+  const [onlineUsers, setOnlineUsers] = useState([])
+  const [showOnline, setShowOnline]   = useState(false)
+  const [showHydration, setShowHydration] = useState(false)
+  const [hydrationDismissed, setHydrationDismissed] = useState(false)
 
+  // ── Presence ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
     const channel = supabase.channel('online-users', { config: { presence: { key: user.id } } })
     channel
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState()
-        setOnlineCount(Object.keys(state).length)
+        const users = Object.values(state).map(arr => arr[0]).filter(Boolean)
+        setOnlineUsers(users)
       })
       .subscribe(async status => {
         if (status === 'SUBSCRIBED') {
@@ -174,6 +179,16 @@ function AppInner() {
       })
     return () => { supabase.removeChannel(channel) }
   }, [user, profile])
+
+  // ── Hydration reminder every 60 min ───────────────────────────────────────
+  useEffect(() => {
+    if (!user) return
+    const timer = setInterval(() => {
+      setHydrationDismissed(false)
+      setShowHydration(true)
+    }, 60 * 60 * 1000)
+    return () => clearInterval(timer)
+  }, [user])
   const [expanded, setExpanded] = useState(true)
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
@@ -350,13 +365,34 @@ function AppInner() {
           </div>
 
           {/* Footer */}
-          <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
             <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.0 · BY JOHN PAUL LACARON</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>👥</span>
-                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineCount} online</span>
+
+              {/* Who's online */}
+              <div style={{ position: 'relative' }}>
+                <button onClick={() => setShowOnline(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>👥</span>
+                  <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineUsers.length} online</span>
+                </button>
+                {showOnline && (
+                  <div style={{ position: 'absolute', bottom: 28, right: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 0', minWidth: 160, zIndex: 999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                    <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 12px 6px', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>Online Now</div>
+                    {onlineUsers.length === 0 ? (
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', padding: '4px 12px' }}>No one yet</div>
+                    ) : onlineUsers.map((u, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px' }}>
+                        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 5px #22C55E', flexShrink: 0 }} />
+                        <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-primary)' }}>
+                          {u.username}{u.user_id === user?.id ? ' (you)' : ''}
+                        </span>
+                      </div>
+                    ))}
+                    <button onClick={() => setShowOnline(false)} style={{ width: '100%', marginTop: 4, padding: '4px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'left', borderTop: '1px solid var(--border)' }}>close</button>
+                  </div>
+                )}
               </div>
+
               <div style={{ width: 1, height: 10, background: 'var(--border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
@@ -367,6 +403,29 @@ function AppInner() {
         </div>
       )}
     </div>
+
+    {/* Hydration reminder toast */}
+    {showHydration && !hydrationDismissed && (
+      <div style={{
+        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        background: 'linear-gradient(135deg, rgba(14,165,233,0.95), rgba(99,102,241,0.95))',
+        borderRadius: 14, padding: '12px 18px', zIndex: 99999,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+        display: 'flex', alignItems: 'center', gap: 12,
+        animation: 'slideUp 0.3s ease',
+        minWidth: 240,
+      }}>
+        <span style={{ fontSize: 22 }}>💧</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: '#fff' }}>Time to hydrate!</div>
+          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'rgba(255,255,255,0.75)', marginTop: 1 }}>Take a sip of water 😊</div>
+        </div>
+        <button onClick={() => { setShowHydration(false); setHydrationDismissed(true) }}
+          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '4px 10px', fontFamily: 'JetBrains Mono' }}>
+          👍 Done
+        </button>
+      </div>
+    )}
     </>
   )
 }
