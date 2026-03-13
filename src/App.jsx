@@ -199,6 +199,26 @@ function AppInner() {
   }, [dragging, dragOffset, expanded])
 
   if (authLoading) return null
+  if (authLoading) return (
+    <div style={{
+      position: 'fixed', inset: 0,
+      background: '#0d0f1a',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      flexDirection: 'column', gap: 12,
+    }}>
+      <div style={{
+        width: 36, height: 36, borderRadius: '50%',
+        border: '3px solid rgba(99,102,241,0.2)',
+        borderTop: '3px solid #6366F1',
+        animation: 'spin 0.8s linear infinite',
+      }}/>
+      <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: 'rgba(139,92,246,0.6)', letterSpacing: '0.1em' }}>
+        LOADING...
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
+  )
+
   if (!user) return <LoginPage />
 
   return (
