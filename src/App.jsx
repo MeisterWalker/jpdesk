@@ -10,13 +10,14 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import DoodleLayer from './DoodleLayer'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
-import JPCalc from './JPCalc'
+import CalcPage from './pages/CalcPage'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
   { id: 'scripts', label: 'Scripts', icon: '💬' },
   { id: 'info',    label: 'Info',    icon: '📋' },
   { id: 'breaks',  label: 'Breaks',  icon: '⏱' },
+  { id: 'calc',    label: 'Calc',    icon: '🧮' },
   { id: 'admin',   label: 'Admin',   icon: '👑' },
 ]
 
@@ -258,7 +259,6 @@ function AppInner() {
   return (
     <>
       <DoodleLayer />
-      <JPCalc />
       <div
       ref={barRef}
       data-theme={theme}
@@ -363,6 +363,7 @@ function AppInner() {
             {activeTab === 'scripts' && <ScriptsPage />}
             {activeTab === 'info'    && <InfoPage />}
             {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
+            {activeTab === 'calc'    && <CalcPage />}
             {activeTab === 'admin'   && <AdminPage />}
           </div>
 
