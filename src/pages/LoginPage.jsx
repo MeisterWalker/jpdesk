@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import Lottie from 'lottie-react'
 
 export default function LoginPage() {
   const { signIn } = useAuth()
@@ -7,6 +8,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
+
+  const [catAnim, setCatAnim] = useState(null)
+  useEffect(() => {
+    fetch('/cat2333s.json').then(r => r.json()).then(setCatAnim).catch(() => {})
+  }, [])
 
   const handleLogin = async () => {
     if (!email || !password) return
@@ -23,8 +29,11 @@ export default function LoginPage() {
     }}>
       <div className="card animate-spring" style={{ width: '100%', maxWidth: 320, padding: 24, textAlign: 'center' }}>
         {/* Logo */}
-        <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 26 }}>
-          🎩
+        <div style={{ width: 100, height: 100, margin: '0 auto 4px' }}>
+          {catAnim
+            ? <Lottie animationData={catAnim} loop={true} style={{ width: 100, height: 100 }} />
+            : <div style={{ width: 100, height: 100, borderRadius: 14, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🐱</div>
+          }
         </div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 22, marginBottom: 4 }}>
           JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
@@ -66,8 +75,8 @@ export default function LoginPage() {
 
         <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 8 }}>
           <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
-            🔒 This is an invite only workspace.<br/>
-            Don't have an account? Reach out to <span style={{ color: '#8B5CF6', fontWeight: 700 }}>JP</span> to access the tools.
+            🔒 This is an invite-only workspace.<br/>
+            Don't have an account? Reach out to <span style={{ color: '#8B5CF6', fontWeight: 700 }}>JP</span> to get sorted.
           </div>
         </div>
       </div>
