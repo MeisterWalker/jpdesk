@@ -224,7 +224,7 @@ function AppInner() {
   return (
     <>
       <DoodleLayer />
-      <div id="app-root">
+      <div
       ref={barRef}
       data-theme={theme}
       style={{
@@ -341,7 +341,6 @@ function AppInner() {
           </div>
         </div>
       )}
-    </div>
     </div>
     </>
   )
