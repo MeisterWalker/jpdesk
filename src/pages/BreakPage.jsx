@@ -14,9 +14,8 @@ export const INITIAL_BREAK_STATE = {
 }
 
 export const ALARM_SOUNDS = [
-  { id: 'radar',  label: 'Radar',       emoji: '📡', desc: 'Classic dun-dun-dun pulse' },
-  { id: 'chime',  label: 'Soft Chime',  emoji: '🔔', desc: 'Gentle bell tones' },
-  { id: 'digital',label: 'Digital',     emoji: '💻', desc: 'Retro rising beeps' },
+  { id: 'radar',     label: 'Radar',     emoji: '📡', desc: 'iPhone radar alarm',     file: '/iPhone-Radar-Alarm.mp3' },
+  { id: 'emergency', label: 'Emergency', emoji: '🚨', desc: 'iPhone emergency alarm', file: '/iPhone-Emergency-Alarm.mp3' },
 ]
 
 function pad(n) { return String(n).padStart(2, '0') }
@@ -40,67 +39,22 @@ export function useBreakEngine() {
   const chimeRef     = useRef(null)
 
   const stopChime = () => {
-    if (chimeRef.current) { clearInterval(chimeRef.current); chimeRef.current = null }
-  }
-
-  const playSound = (soundId, audioCtx) => {
-    const now = audioCtx.currentTime
-    if (soundId === 'radar') {
-      ;[0, 0.22, 0.44, 0.66].forEach(t => {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain()
-        osc.type = 'sine'; osc.frequency.setValueAtTime(480, now + t)
-        osc.frequency.linearRampToValueAtTime(520, now + t + 0.04)
-        gain.gain.setValueAtTime(0, now + t); gain.gain.linearRampToValueAtTime(0.55, now + t + 0.01)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.18)
-        osc.connect(gain); gain.connect(audioCtx.destination)
-        osc.start(now + t); osc.stop(now + t + 0.2)
-        const o2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain()
-        o2.type = 'sine'; o2.frequency.setValueAtTime(240, now + t)
-        g2.gain.setValueAtTime(0, now + t); g2.gain.linearRampToValueAtTime(0.2, now + t + 0.01)
-        g2.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15)
-        o2.connect(g2); g2.connect(audioCtx.destination); o2.start(now + t); o2.stop(now + t + 0.18)
-      })
-    }
-    if (soundId === 'chime') {
-      const bell = (freq, startT, vol) => {
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain()
-        o.type = 'sine'; o.frequency.setValueAtTime(freq, now + startT)
-        o.frequency.exponentialRampToValueAtTime(freq * 0.95, now + startT + 0.05)
-        g.gain.setValueAtTime(0, now + startT); g.gain.linearRampToValueAtTime(vol, now + startT + 0.01)
-        g.gain.exponentialRampToValueAtTime(0.001, now + startT + 2.5)
-        o.connect(g); g.connect(audioCtx.destination); o.start(now + startT); o.stop(now + startT + 2.6)
-        const o2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain()
-        o2.type = 'sine'; o2.frequency.setValueAtTime(freq * 1.5, now + startT)
-        g2.gain.setValueAtTime(0, now + startT); g2.gain.linearRampToValueAtTime(vol * 0.4, now + startT + 0.01)
-        g2.gain.exponentialRampToValueAtTime(0.001, now + startT + 1.8)
-        o2.connect(g2); g2.connect(audioCtx.destination); o2.start(now + startT); o2.stop(now + startT + 2.0)
-      }
-      bell(880, 0, 0.35); bell(660, 0.7, 0.28)
-    }
-    if (soundId === 'digital') {
-      ;[440, 554, 659].forEach((freq, i) => {
-        const t = i * 0.28
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain()
-        osc.type = 'square'; osc.frequency.setValueAtTime(freq, now + t)
-        gain.gain.setValueAtTime(0, now + t); gain.gain.linearRampToValueAtTime(0.18, now + t + 0.01)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.25)
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now + t); osc.stop(now + t + 0.28)
-      })
+    if (chimeRef.current) {
+      chimeRef.current.pause()
+      chimeRef.current.currentTime = 0
+      chimeRef.current = null
     }
   }
 
   const startAlarm = (soundId) => {
     stopChime()
+    const sound = ALARM_SOUNDS.find(s => s.id === soundId)
+    if (!sound) return
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      playSound(soundId, ctx)
-      chimeRef.current = setInterval(() => {
-        try {
-          const ctx2 = new (window.AudioContext || window.webkitAudioContext)()
-          playSound(soundId, ctx2)
-          setTimeout(() => ctx2.close(), 3500)
-        } catch(e) {}
-      }, LOOP_INTERVALS[soundId] || 2000)
+      const audio = new Audio(sound.file)
+      audio.loop = true
+      audio.play()
+      chimeRef.current = audio
     } catch(e) {}
   }
 
@@ -390,43 +344,13 @@ function SoundPicker({ selected, onChange }) {
 
   const testSound = (id) => {
     setTesting(id)
+    const sound = ALARM_SOUNDS.find(s => s.id === id)
+    if (!sound) return
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      const now = ctx.currentTime
-      if (id === 'radar') {
-        ;[0, 0.22, 0.44, 0.66].forEach(t => {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain()
-          osc.type = 'sine'; osc.frequency.setValueAtTime(480, now + t)
-          osc.frequency.linearRampToValueAtTime(520, now + t + 0.04)
-          gain.gain.setValueAtTime(0, now + t); gain.gain.linearRampToValueAtTime(0.55, now + t + 0.01)
-          gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.18)
-          osc.connect(gain); gain.connect(ctx.destination)
-          osc.start(now + t); osc.stop(now + t + 0.2)
-        })
-        setTimeout(() => setTesting(null), 1000)
-      }
-      if (id === 'chime') {
-        const bell = (freq, startT, vol) => {
-          const o = ctx.createOscillator(); const g = ctx.createGain()
-          o.type = 'sine'; o.frequency.setValueAtTime(freq, now + startT)
-          g.gain.setValueAtTime(0, now + startT); g.gain.linearRampToValueAtTime(vol, now + startT + 0.01)
-          g.gain.exponentialRampToValueAtTime(0.001, now + startT + 2.5)
-          o.connect(g); g.connect(ctx.destination); o.start(now + startT); o.stop(now + startT + 2.6)
-        }
-        bell(880, 0, 0.35); bell(660, 0.7, 0.28)
-        setTimeout(() => setTesting(null), 2000)
-      }
-      if (id === 'digital') {
-        ;[440, 554, 659].forEach((freq, i) => {
-          const t = i * 0.28
-          const osc = ctx.createOscillator(); const gain = ctx.createGain()
-          osc.type = 'square'; osc.frequency.setValueAtTime(freq, now + t)
-          gain.gain.setValueAtTime(0, now + t); gain.gain.linearRampToValueAtTime(0.18, now + t + 0.01)
-          gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.25)
-          osc.connect(gain); gain.connect(ctx.destination); osc.start(now + t); osc.stop(now + t + 0.28)
-        })
-        setTimeout(() => setTesting(null), 1200)
-      }
+      const audio = new Audio(sound.file)
+      audio.play()
+      audio.onended = () => setTesting(null)
+      setTimeout(() => { audio.pause(); audio.currentTime = 0; setTesting(null) }, 4000)
     } catch(e) { setTesting(null) }
   }
 
