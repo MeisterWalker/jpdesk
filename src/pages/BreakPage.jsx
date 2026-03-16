@@ -35,11 +35,9 @@ export function useBreakEngine() {
   const [breakStates, setBreakStates] = useState(() =>
     Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }]))
   )
-  const [intervalState, setIntervalState] = useState({ lastBreak: null })
   const [selectedSound, setSelectedSound] = useState('radar')
   const intervalsRef = useRef({})   // { breakId: intervalId }
   const chimeRef     = useRef(null)
-  const intervalTimerRef = useRef(null)
 
   const stopChime = () => {
     if (chimeRef.current) { clearInterval(chimeRef.current); chimeRef.current = null }
@@ -139,10 +137,6 @@ export function useBreakEngine() {
     updateBreak(id, () => ({ ...INITIAL_BREAK_STATE, remaining: BREAKS.find(b => b.id === id).duration }))
   }
 
-  const resetInterval = () => {
-    setIntervalState({ lastBreak: Date.now() })
-  }
-
   // ── Master tick — runs always regardless of tab ──
   useEffect(() => {
     const tick = setInterval(() => {
@@ -170,15 +164,7 @@ export function useBreakEngine() {
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  // ── Interval tracker tick ──
-  useEffect(() => {
-    intervalTimerRef.current = setInterval(() => {
-      setIntervalState(prev => prev.lastBreak ? { ...prev, _tick: Date.now() } : prev)
-    }, 1000)
-    return () => clearInterval(intervalTimerRef.current)
-  }, [])
-
-  return { breakStates, intervalState, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, resetInterval, stopChime }
+  return { breakStates, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -398,46 +384,6 @@ function BreakCard({ brk, state, engine }) {
   )
 }
 
-// ── 2-hour interval reminder ───────────────────────────────
-function IntervalReminder({ state, onReset }) {
-  const TARGET = 2 * 60 * 60
-  const elapsed = state.lastBreak ? Math.floor((Date.now() - state.lastBreak) / 1000) : 0
-
-  const pct = Math.min(1, elapsed / TARGET)
-  const remaining = Math.max(0, TARGET - elapsed)
-  const overdue = elapsed > TARGET
-
-  return (
-    <div className="card" style={{ marginBottom: 10, padding: '12px 14px', border: `1px solid ${overdue ? 'rgba(239,68,68,0.4)' : 'var(--border)'}`, background: overdue ? 'rgba(239,68,68,0.05)' : 'var(--surface)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div>
-          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 13, color: overdue ? '#EF4444' : 'var(--text-primary)' }}>⏰ Break Interval Tracker</div>
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 2 }}>Break every 2 hours</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)' }}>{overdue ? 'OVERDUE' : 'NEXT BREAK IN'}</div>
-          <div style={{ fontSize: 16, fontFamily: 'JetBrains Mono', fontWeight: 800, color: overdue ? '#EF4444' : '#6366F1', marginTop: 1 }}>
-            {state.lastBreak ? fmtCountdown(remaining || elapsed - TARGET) : '--:--'}
-          </div>
-        </div>
-      </div>
-      <div style={{ height: 6, background: 'var(--border)', borderRadius: 99, marginBottom: 10, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct * 100}%`, background: overdue ? '#EF4444' : 'linear-gradient(90deg, #6366F1, #8B5CF6)', borderRadius: 99, transition: 'width 1s linear' }} />
-      </div>
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <button onClick={onReset} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', fontSize: 11 }}>
-          🔄 Reset Interval (just returned)
-        </button>
-        {state.lastBreak && (
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', flexShrink: 0 }}>
-            Last: {fmtTime(new Date(state.lastBreak))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ── Sound Picker ──────────────────────────────────────────
 function SoundPicker({ selected, onChange }) {
   const [testing, setTesting] = useState(null)
@@ -515,10 +461,9 @@ function SoundPicker({ selected, onChange }) {
 }
 
 export default function BreakPage({ engine }) {
-  const { breakStates, intervalState, selectedSound, setSelectedSound, resetInterval } = engine
+  const { breakStates, selectedSound, setSelectedSound } = engine
   return (
     <div style={{ padding: '12px 13px' }}>
-      <IntervalReminder state={intervalState} onReset={resetInterval} />
       <SoundPicker selected={selectedSound} onChange={setSelectedSound} />
       <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, marginTop: 4 }}>
         Break Timers
