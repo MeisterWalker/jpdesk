@@ -14,8 +14,8 @@ export const INITIAL_BREAK_STATE = {
 }
 
 export const ALARM_SOUNDS = [
-  { id: 'radar',     label: 'Radar',     emoji: '📡', desc: 'iPhone radar alarm',     file: '/iPhone-Radar-Alarm.mp3' },
-  { id: 'emergency', label: 'Emergency', emoji: '🚨', desc: 'iPhone emergency alarm', file: '/iPhone-Emergency-Alarm.mp3' },
+  { id: 'radar',     label: 'Radar',     emoji: '📡',   file: '/iPhone-Radar-Alarm.mp3' },
+  { id: 'emergency', label: 'Emergency', emoji: '🚨',   file: '/iPhone-Emergency-Alarm.mp3' },
 ]
 
 function pad(n) { return String(n).padStart(2, '0') }
