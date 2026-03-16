@@ -11,6 +11,7 @@ import DoodleLayer from './DoodleLayer'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import JPCalc from './JPCalc'
+import JPCal from './JPCal'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
@@ -193,7 +194,8 @@ function AppInner() {
   const [expanded, setExpanded]     = useState(true)
   const [showDesk, setShowDesk]     = useState(true)
   const [showCalc, setShowCalc]     = useState(false)
-  const [focused, setFocused]       = useState('desk') // 'desk' | 'calc'
+  const [showCal, setShowCal]       = useState(false)
+  const [focused, setFocused]       = useState('desk') // 'desk' | 'calc' | 'cal'
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -296,6 +298,21 @@ function AppInner() {
           }}
         >
           🧮
+        </button>
+        {/* JPCal toggle */}
+        <button
+          onClick={() => { setShowCal(v => !v); setFocused('cal') }}
+          title="JPCal"
+          style={{
+            width: 42, height: 42, borderRadius: 13,
+            background: showCal ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: showCal ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, transition: 'all 0.2s',
+          }}
+        >
+          📅
         </button>
       </div>
       {showDesk && <div
@@ -447,6 +464,7 @@ function AppInner() {
     </div>}
 
       {showCalc && <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />}
+      {showCal  && <JPCal  focused={focused === 'cal'}  onFocus={() => setFocused('cal')}  />}
 
     {/* Hydration reminder toast */}
     {showHydration && !hydrationDismissed && (

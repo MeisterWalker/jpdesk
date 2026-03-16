@@ -146,8 +146,18 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         e.preventDefault(); press(k)
       }
     }
+    const pasteHandler = (e) => {
+      const text = (e.clipboardData || window.clipboardData).getData('text')
+      const num = text.replace(/[^0-9.]/g, '')
+      if (num && !isNaN(parseFloat(num))) {
+        e.preventDefault()
+        setDisplay(num.length > 12 ? num.slice(0, 12) : num)
+        setFresh(false)
+      }
+    }
     window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    window.addEventListener('paste', pasteHandler)
+    return () => { window.removeEventListener('keydown', handler); window.removeEventListener('paste', pasteHandler) }
   }, [press])
 
   const isOp = (v) => ['+','−','×','÷'].includes(v)
