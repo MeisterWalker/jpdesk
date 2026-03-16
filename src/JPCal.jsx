@@ -60,6 +60,63 @@ function getPayDates(frequency, startDate, year, month) {
   return dates
 }
 
+const SHORT_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
+  if (!startDate) return []
+  const results = []
+  const start = new Date(startDate)
+  start.setHours(0, 0, 0, 0)
+  const from = new Date(fromDate)
+  from.setHours(0, 0, 0, 0)
+
+  if (frequency === 'weekly') {
+    let d = new Date(start)
+    while (d <= from) d.setDate(d.getDate() + 7)
+    while (results.length < count) {
+      results.push(new Date(d))
+      d.setDate(d.getDate() + 7)
+    }
+  }
+
+  if (frequency === 'biweekly') {
+    let d = new Date(start)
+    while (d <= from) d.setDate(d.getDate() + 14)
+    while (results.length < count) {
+      results.push(new Date(d))
+      d.setDate(d.getDate() + 14)
+    }
+  }
+
+  if (frequency === 'semimonthly') {
+    const day1 = start.getDate()
+    const day2 = day1 + 15
+    let y = from.getFullYear(), m = from.getMonth()
+    while (results.length < count) {
+      const lastDay = new Date(y, m + 1, 0).getDate()
+      const d1 = new Date(y, m, Math.min(day1, lastDay))
+      const d2 = new Date(y, m, Math.min(day2, lastDay))
+      if (d1 > from) results.push(d1)
+      if (results.length < count && d2 > from) results.push(d2)
+      m++; if (m > 11) { m = 0; y++ }
+    }
+  }
+
+  if (frequency === 'monthly') {
+    const day = start.getDate()
+    let y = from.getFullYear(), m = from.getMonth()
+    while (results.length < count) {
+      const lastDay = new Date(y, m + 1, 0).getDate()
+      const d = new Date(y, m, Math.min(day, lastDay))
+      if (d > from) results.push(d)
+      m++; if (m > 11) { m = 0; y++ }
+    }
+  }
+
+  return results.slice(0, count)
+}
+
 function CalendarGrid({ year, month, payDates, today }) {
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -131,6 +188,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [startDate, setStartDate]   = useState('')
 
   const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, today, 4)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
@@ -287,6 +345,38 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
 
           {/* ── Calendar grid ── */}
           <CalendarGrid year={viewYear} month={viewMonth} payDates={payDates} today={today} />
+
+          {/* ── Upcoming paydays summary ── */}
+          {startDate && upcomingDates.length > 0 && (
+            <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
+              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>
+                ⏭ Next {upcomingDates.length} Paydays
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {upcomingDates.map((d, i) => {
+                  const isNextPay = i === 0
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '5px 8px', borderRadius: 8,
+                      background: isNextPay ? 'rgba(99,102,241,0.12)' : 'var(--surface)',
+                      border: `1px solid ${isNextPay ? 'rgba(99,102,241,0.3)' : 'var(--border)'}`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 10 }}>{isNextPay ? '💰' : '📆'}</span>
+                        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isNextPay ? '#818CF8' : 'var(--text-primary)' }}>
+                          {SHORT_DAYS[d.getDay()]}, {SHORT_MONTHS[d.getMonth()]} {d.getDate()}
+                        </span>
+                      </div>
+                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isNextPay ? '#818CF8' : 'var(--text-muted)', fontWeight: isNextPay ? 700 : 400 }}>
+                        {d.getFullYear()}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* ── Footer ── */}
           <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

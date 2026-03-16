@@ -4,7 +4,7 @@ import Lottie from 'lottie-react'
 
 export default function LoginPage() {
   const { signIn } = useAuth()
-  const [email, setEmail]       = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
@@ -15,9 +15,9 @@ export default function LoginPage() {
   }, [])
 
   const handleLogin = async () => {
-    if (!email || !password) return
+    if (!username || !password) return
     setLoading(true); setError('')
-    const err = await signIn(email, password)
+    const err = await signIn(username, password)
     if (err) setError(err.message)
     setLoading(false)
   }
@@ -40,11 +40,11 @@ export default function LoginPage() {
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, textAlign: 'left' }}>Email</label>
-          <input type="email" placeholder="you@email.com" value={email}
-            onChange={e => setEmail(e.target.value)}
+          <label style={{ display: 'block', fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, textAlign: 'left' }}>Username</label>
+          <input type="text" placeholder="your username" value={username}
+            onChange={e => setUsername(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            style={{ fontSize: 13 }} autoFocus />
+            style={{ fontSize: 13 }} autoFocus autoComplete="username" />
         </div>
 
         <div style={{ marginBottom: 16 }}>

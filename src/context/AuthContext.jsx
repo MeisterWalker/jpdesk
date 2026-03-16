@@ -58,7 +58,18 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signIn = async (email, password) => {
+  const signIn = async (usernameOrEmail, password) => {
+    let email = usernameOrEmail
+    // If input doesn't look like an email, look up username in profiles
+    if (!usernameOrEmail.includes('@')) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', usernameOrEmail.toLowerCase().trim())
+        .single()
+      if (!profile?.email) return { message: 'Username not found.' }
+      email = profile.email
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return error
   }
