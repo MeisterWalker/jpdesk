@@ -1,32 +1,47 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
-console.log("Hello from Functions!")
+serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  const { routing_number } = await req.json()
+
+  try {
+    const res = await fetch(
+      'https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/jpdesk/main/public/FedACHdir.txt'
+    )
+    const text = await res.text()
+    const lines = text.split('\n').filter(l => l.length > 9)
+    const match = lines.find(l => l.substring(0, 9) === routing_number)
+
+    if (!match) {
+      return new Response(JSON.stringify({ code: 404 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    const area  = match.substring(138, 141).trim()
+    const prefix = match.substring(141, 144).trim()
+    const suffix = match.substring(144, 148).trim()
+
+    return new Response(JSON.stringify({
+      code: 200,
+      routing_number: match.substring(0, 9).trim(),
+      customer_name:  match.substring(35, 71).trim(),
+      address:        match.substring(71, 107).trim(),
+      city:           match.substring(107, 127).trim(),
+      state:          match.substring(127, 129).trim(),
+      zip:            match.substring(129, 134).trim(),
+      phone:          area && prefix && suffix ? `(${area}) ${prefix}-${suffix}` : '',
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+
+  } catch (e) {
+    return new Response(JSON.stringify({ code: 500, error: String(e) }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
 })
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/routing-lookup' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
