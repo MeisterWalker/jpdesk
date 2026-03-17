@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const ThemeContext = createContext()
 
 const ACCENTS = [
-  { id: 'indigo',  label: 'Indigo',  primary: 'var(--accent)', secondary: 'var(--accent-2)' },
+  { id: 'indigo',  label: 'Indigo',  primary: '#6366F1', secondary: '#8B5CF6' },
   { id: 'blue',    label: 'Blue',    primary: '#3B82F6', secondary: '#60A5FA' },
   { id: 'cyan',    label: 'Cyan',    primary: '#06B6D4', secondary: '#22D3EE' },
   { id: 'emerald', label: 'Emerald', primary: '#10B981', secondary: '#34D399' },
