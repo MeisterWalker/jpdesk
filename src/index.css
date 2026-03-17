@@ -37,6 +37,13 @@
   --brand-soft:   var(--birch-soft);
   --brand-border: var(--birch-border);
 
+  /* Accent colors (overridden by JPTheme) */
+  --accent:        #6366F1;
+  --accent-2:      #8B5CF6;
+  --accent-soft:   rgba(99,102,241,0.1);
+  --accent-border: rgba(99,102,241,0.25);
+  --accent-muted:  #818CF8;
+
   /* UI */
   --radius-sm:    6px;
   --radius:       12px;

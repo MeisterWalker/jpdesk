@@ -33,7 +33,7 @@ export default function LoginPage() {
           {catAnim && <Lottie animationData={catAnim} loop={true} style={{ width: 100, height: 100 }} />}
         </div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 22, marginBottom: 4 }}>
-          JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
+          JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', marginBottom: 22 }}>
           Sign in to your workspace
@@ -70,10 +70,10 @@ export default function LoginPage() {
           BY JOHN PAUL LACARON
         </div>
 
-        <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 8 }}>
+        <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--accent-soft)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 8 }}>
           <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
             🔒 This is an invite-only workspace.<br/>
-            Don't have an account? Reach out to <span style={{ color: '#8B5CF6', fontWeight: 700 }}>JP</span> to get sorted.
+            Don't have an account? Reach out to <span style={{ color: 'var(--accent-2)', fontWeight: 700 }}>JP</span> to get sorted.
           </div>
         </div>
       </div>

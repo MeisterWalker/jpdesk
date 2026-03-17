@@ -125,7 +125,7 @@ REWRITE:
           <p style={{ fontSize: 12, color: 'var(--text-body)', lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word', marginBottom: 8 }}>
             {script.body.split(/(\[[^\]]+\])/g).map((part, i) =>
               /^\[.+\]$/.test(part)
-                ? <mark key={i} style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', borderRadius: 3, padding: '0 2px', fontFamily: 'JetBrains Mono', fontSize: 11 }}>{part}</mark>
+                ? <mark key={i} style={{ background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3, padding: '0 2px', fontFamily: 'JetBrains Mono', fontSize: 11 }}>{part}</mark>
                 : part
             )}
           </p>
@@ -136,7 +136,7 @@ REWRITE:
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
                 {variables.map(v => (
                   <div key={v}>
-                    <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#6366F1', marginBottom: 2 }}>[{v}]</div>
+                    <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--accent)', marginBottom: 2 }}>[{v}]</div>
                     <input placeholder={`${v}...`} value={vars[v] || ''} onChange={e => setVars(p => ({ ...p, [v]: e.target.value }))} style={{ fontSize: 11, padding: '4px 8px' }} />
                   </div>
                 ))}
@@ -180,7 +180,7 @@ function ScriptForm({ initial, onSave, onCancel }) {
       />
       {variables.length > 0 && (
         <div style={{ marginBottom: 7, fontSize: 11, color: 'var(--text-muted)' }}>
-          Variables: {variables.map(v => <mark key={v} style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', borderRadius: 3, padding: '0 4px', marginLeft: 4, fontFamily: 'JetBrains Mono', fontSize: 10 }}>[{v}]</mark>)}
+          Variables: {variables.map(v => <mark key={v} style={{ background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 3, padding: '0 4px', marginLeft: 4, fontFamily: 'JetBrains Mono', fontSize: 10 }}>[{v}]</mark>)}
         </div>
       )}
       <div style={{ display: 'flex', gap: 7 }}>
@@ -229,7 +229,7 @@ export default function ScriptsPage() {
               border: activeCategory === cat ? '1px solid var(--border)' : '1px solid transparent',
               borderBottom: activeCategory === cat ? '1px solid var(--bg)' : 'none',
               marginBottom: activeCategory === cat ? -1 : 0,
-              color: activeCategory === cat ? '#6366F1' : 'var(--text-muted)',
+              color: activeCategory === cat ? 'var(--accent)' : 'var(--text-muted)',
               fontSize: 11, fontWeight: activeCategory === cat ? 700 : 400,
               cursor: 'pointer', transition: 'var(--transition)', fontFamily: 'JetBrains Mono',
             }}>

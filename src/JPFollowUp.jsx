@@ -4,7 +4,7 @@ import { useAuth } from './context/AuthContext'
 
 const PRIORITIES = [
   { id: 'urgent', label: 'Urgent', color: '#EF4444', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.25)' },
-  { id: 'normal', label: 'Normal', color: '#6366F1', bg: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.25)' },
+  { id: 'normal', label: 'Normal', color: 'var(--accent)', bg: 'var(--accent-soft)', border: 'var(--accent-border)' },
   { id: 'low',    label: 'Low',    color: '#22C55E', bg: 'rgba(34,197,94,0.1)',  border: 'rgba(34,197,94,0.25)' },
 ]
 
@@ -110,7 +110,7 @@ export default function JPFollowUp({ focused = true, onFocus = () => {} }) {
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
-        border: `1px solid ${focused ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+        border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease',
@@ -122,7 +122,7 @@ export default function JPFollowUp({ focused = true, onFocus = () => {} }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: 'var(--surface)', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
         <span style={{ fontSize: 14 }}>📌</span>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-          JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>FollowUp</span>
+          JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>FollowUp</span>
         </span>
         {followups.length > 0 && (
           <div style={{ background: '#EF4444', borderRadius: 99, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#fff', fontFamily: 'JetBrains Mono', padding: '0 4px' }}>
@@ -133,9 +133,9 @@ export default function JPFollowUp({ focused = true, onFocus = () => {} }) {
         <button
           onClick={() => setShowForm(v => !v)}
           style={{
-            background: showForm ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)',
+            background: showForm ? 'var(--accent-border)' : 'var(--accent-soft)',
             border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6,
-            color: '#818CF8', cursor: 'pointer', width: 24, height: 24,
+            color: 'var(--accent-muted)', cursor: 'pointer', width: 24, height: 24,
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0,
           }}
           title="Add follow-up"
@@ -194,7 +194,7 @@ export default function JPFollowUp({ focused = true, onFocus = () => {} }) {
               </div>
 
               <button onClick={addFollowup} disabled={loading || (!custName.trim() && !appId.trim())}
-                style={{ padding: '7px', borderRadius: 8, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', border: 'none', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+                style={{ padding: '7px', borderRadius: 8, background: 'linear-gradient(135deg,var(--accent),var(--accent-2))', border: 'none', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
                 {loading ? 'Saving...' : '📌 Add Follow-Up'}
               </button>
             </div>
@@ -217,7 +217,7 @@ export default function JPFollowUp({ focused = true, onFocus = () => {} }) {
                       {/* App ID + Name */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3, flexWrap: 'wrap' }}>
                         {f.app_id && (
-                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, fontWeight: 700, color: '#818CF8', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 4, padding: '1px 5px' }}>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, fontWeight: 700, color: 'var(--accent-muted)', background: 'var(--accent-soft)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 4, padding: '1px 5px' }}>
                             {f.app_id}
                           </span>
                         )}

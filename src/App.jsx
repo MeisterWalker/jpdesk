@@ -118,8 +118,8 @@ function GentlemanLogo() {
         <rect width="26" height="26" rx="7" fill="url(#ggrad)" />
         <defs>
           <linearGradient id="ggrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#6366F1" />
-            <stop offset="100%" stopColor="#8B5CF6" />
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--accent-2)" />
           </linearGradient>
         </defs>
 
@@ -284,9 +284,9 @@ function AppInner() {
           title="JPDesk"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showDesk ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showDesk ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showDesk ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showDesk ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -299,9 +299,9 @@ function AppInner() {
           title="JPCalc"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showCalc ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showCalc ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showCalc ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showCalc ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -314,9 +314,9 @@ function AppInner() {
           title="JPCal"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showCal ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showCal ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showCal ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showCal ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -329,9 +329,9 @@ function AppInner() {
           title="JPRoute"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showRoute ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showRoute ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showRoute ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showRoute ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -344,9 +344,9 @@ function AppInner() {
           title="JPPhonetic"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showPhonetic ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showPhonetic ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showPhonetic ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showPhonetic ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -359,9 +359,9 @@ function AppInner() {
           title="JPFollowUp"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showFollowUp ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showFollowUp ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showFollowUp ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showFollowUp ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -374,9 +374,9 @@ function AppInner() {
           title="JPTheme"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showTheme ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: showTheme ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showTheme ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showTheme ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s',
           }}
@@ -419,7 +419,7 @@ function AppInner() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
           <GentlemanLogo />
           <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
+            JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
           </span>
         </div>
 
@@ -470,14 +470,14 @@ function AppInner() {
                   border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
                   borderBottom: activeTab === tab.id ? '1px solid var(--bg)' : '1px solid transparent',
                   marginBottom: activeTab === tab.id ? -1 : 0,
-                  color: activeTab === tab.id ? '#6366F1' : 'var(--text-muted)',
+                  color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-muted)',
                   fontSize: 12, fontWeight: activeTab === tab.id ? 700 : 400,
                   cursor: 'pointer', transition: 'var(--transition)',
                 }}>
                 <span>{tab.icon}</span>
                 <span>{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', borderRadius: 2 }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 2 }} />
                 )}
               </button>
             ))}

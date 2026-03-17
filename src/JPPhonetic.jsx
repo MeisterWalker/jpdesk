@@ -11,7 +11,7 @@ const PHONETIC = {
 }
 
 const COLORS = [
-  '#6366F1','#8B5CF6','#EC4899','#F59E0B','#10B981','#3B82F6','#EF4444','#14B8A6',
+  'var(--accent)','var(--accent-2)','#EC4899','#F59E0B','#10B981','#3B82F6','#EF4444','#14B8A6',
   '#F97316','#84CC16','#06B6D4','#A78BFA',
 ]
 
@@ -75,7 +75,7 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
-        border: `1px solid ${focused ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+        border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease',
@@ -87,7 +87,7 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: 'var(--surface)', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
         <span style={{ fontSize: 14 }}>🔤</span>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-          JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Phonetic</span>
+          JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Phonetic</span>
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', letterSpacing: '0.04em' }}>NATO</span>
@@ -151,9 +151,9 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
             {spokenText && (
               <button onClick={copyResult} style={{
                 fontSize: 9, fontFamily: 'JetBrains Mono', padding: '2px 8px', borderRadius: 6,
-                background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
-                border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
-                color: copied ? '#22C55E' : '#818CF8', cursor: 'pointer', fontWeight: 700,
+                background: copied ? 'rgba(34,197,94,0.15)' : 'var(--accent-soft)',
+                border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'var(--accent-border)'}`,
+                color: copied ? '#22C55E' : 'var(--accent-muted)', cursor: 'pointer', fontWeight: 700,
               }}>
                 {copied ? '✓ Copied!' : '⎘ Copy'}
               </button>

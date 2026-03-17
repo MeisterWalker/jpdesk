@@ -187,7 +187,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
-        border: `1px solid ${focused ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+        border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease, border-color 0.2s ease',
@@ -205,7 +205,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
       }}>
         <span style={{ fontSize: 14 }}>🧮</span>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-          JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
+          JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
         </span>
         <div style={{ flex: 1 }} />
 
@@ -214,9 +214,9 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
           onClick={() => setMuted(v => !v)}
           title={muted ? 'Unmute sounds' : 'Mute sounds'}
           style={{
-            background: muted ? 'rgba(239,68,68,0.1)' : 'rgba(99,102,241,0.08)',
-            border: `1px solid ${muted ? 'rgba(239,68,68,0.3)' : 'rgba(99,102,241,0.2)'}`,
-            borderRadius: 6, color: muted ? '#F87171' : '#818CF8',
+            background: muted ? 'rgba(239,68,68,0.1)' : 'var(--accent-soft)',
+            border: `1px solid ${muted ? 'rgba(239,68,68,0.3)' : 'var(--accent-border)'}`,
+            borderRadius: 6, color: muted ? '#F87171' : 'var(--accent-muted)',
             cursor: 'pointer', width: 24, height: 24,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 11, transition: 'all 0.2s', flexShrink: 0,
@@ -255,7 +255,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
             }}
             title="Click to copy"
             style={{ padding: '10px 14px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' }}>
-            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#6366F1', textAlign: 'right', minHeight: 14, marginBottom: 2 }}>
+            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent)', textAlign: 'right', minHeight: 14, marginBottom: 2 }}>
               {op ? `${prev} ${op}` : '\u00a0'}
             </div>
             <div style={{
@@ -305,18 +305,18 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
                     fontSize: 13,
                     transition: 'all 0.1s',
                     background: isEquals
-                      ? 'linear-gradient(135deg,#6366F1,#8B5CF6)'
-                      : isActive  ? 'rgba(99,102,241,0.18)'
-                      : isOpBtn   ? 'rgba(99,102,241,0.08)'
+                      ? 'linear-gradient(135deg,var(--accent),var(--accent-2))'
+                      : isActive  ? 'var(--accent-soft)'
+                      : isOpBtn   ? 'var(--accent-soft)'
                       : isSpecial ? 'rgba(239,68,68,0.08)'
                       : isBacksp  ? 'rgba(245,158,11,0.08)'
                       : 'var(--surface-2)',
                     color: isEquals  ? '#fff'
-                      : isOpBtn   ? '#818CF8'
+                      : isOpBtn   ? 'var(--accent-muted)'
                       : isSpecial ? '#F87171'
                       : isBacksp  ? '#FBBF24'
                       : 'var(--text-primary)',
-                    boxShadow: isEquals ? '0 2px 12px rgba(99,102,241,0.3)' : 'none',
+                    boxShadow: isEquals ? '0 2px 12px rgba(var(--accent-rgb,99,102,241),0.3)' : 'none',
                   }}
                 >
                   {v}

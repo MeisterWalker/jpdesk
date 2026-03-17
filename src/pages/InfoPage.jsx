@@ -231,7 +231,7 @@ export default function InfoPage() {
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
             flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
             fontFamily: 'JetBrains Mono', fontSize: 11, fontWeight: 600,
-            background: activeTab === t.id ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            background: activeTab === t.id ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             color: activeTab === t.id ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s',
           }}>{t.label}</button>
         ))}
@@ -241,7 +241,7 @@ export default function InfoPage() {
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Tap a brand to expand</div>
-            {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#6366F1', padding: '3px 9px' }}>👑 Admin Mode</span>}
+            {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--accent)', padding: '3px 9px' }}>👑 Admin Mode</span>}
           </div>
           {loading
             ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
@@ -254,7 +254,7 @@ export default function InfoPage() {
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Customer service numbers</div>
-            {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#6366F1', padding: '3px 9px' }}>👑 Edit numbers</span>}
+            {isAdmin && <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--accent)', padding: '3px 9px' }}>👑 Edit numbers</span>}
           </div>
 
           {/* Search bar */}

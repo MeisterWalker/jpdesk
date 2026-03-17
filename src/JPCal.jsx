@@ -151,14 +151,14 @@ function CalendarGrid({ year, month, payDates, today }) {
             fontFamily: 'JetBrains Mono',
             fontWeight: isPay(d) ? 800 : isToday(d) ? 700 : 400,
             background: isPay(d)
-              ? 'linear-gradient(135deg,#6366F1,#8B5CF6)'
+              ? 'linear-gradient(135deg,var(--accent),var(--accent-2))'
               : isToday(d)
-              ? 'rgba(99,102,241,0.12)'
+              ? 'var(--accent-soft)'
               : 'transparent',
             color: isPay(d)
               ? '#fff'
               : isToday(d)
-              ? '#818CF8'
+              ? 'var(--accent-muted)'
               : d ? 'var(--text-primary)' : 'transparent',
             border: isToday(d) && !isPay(d) ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
             boxShadow: isPay(d) ? '0 2px 8px rgba(99,102,241,0.35)' : 'none',
@@ -236,7 +236,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
-        border: `1px solid ${focused ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+        border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease, border-color 0.2s ease',
@@ -254,7 +254,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
       }}>
         <span style={{ fontSize: 14 }}>📅</span>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-          JP<span style={{ background: 'linear-gradient(90deg,#6366F1,#8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Cal</span>
+          JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Cal</span>
         </span>
         <div style={{ flex: 1 }} />
         <button
@@ -290,9 +290,9 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
                     style={{
                       padding: '5px 4px',
                       borderRadius: 8,
-                      border: `1px solid ${frequency === f.id ? 'rgba(99,102,241,0.5)' : 'var(--border)'}`,
-                      background: frequency === f.id ? 'rgba(99,102,241,0.15)' : 'var(--surface)',
-                      color: frequency === f.id ? '#818CF8' : 'var(--text-muted)',
+                      border: `1px solid ${frequency === f.id ? 'var(--accent-border)' : 'var(--border)'}`,
+                      background: frequency === f.id ? 'var(--accent-soft)' : 'var(--surface)',
+                      color: frequency === f.id ? 'var(--accent-muted)' : 'var(--text-muted)',
                       fontFamily: 'JetBrains Mono',
                       fontSize: 10,
                       fontWeight: frequency === f.id ? 700 : 400,
@@ -359,16 +359,16 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
                     <div key={i} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '5px 8px', borderRadius: 8,
-                      background: isNextPay ? 'rgba(99,102,241,0.12)' : 'var(--surface)',
-                      border: `1px solid ${isNextPay ? 'rgba(99,102,241,0.3)' : 'var(--border)'}`,
+                      background: isNextPay ? 'var(--accent-soft)' : 'var(--surface)',
+                      border: `1px solid ${isNextPay ? 'var(--accent-border)' : 'var(--border)'}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 10 }}>{isNextPay ? '💰' : '📆'}</span>
-                        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isNextPay ? '#818CF8' : 'var(--text-primary)' }}>
+                        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-primary)' }}>
                           {SHORT_DAYS[d.getDay()]}, {SHORT_MONTHS[d.getMonth()]} {d.getDate()}
                         </span>
                       </div>
-                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isNextPay ? '#818CF8' : 'var(--text-muted)', fontWeight: isNextPay ? 700 : 400 }}>
+                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-muted)', fontWeight: isNextPay ? 700 : 400 }}>
                         {d.getFullYear()}
                       </span>
                     </div>
@@ -382,7 +382,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
           <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPCAL v1.0</span>
             {payCount > 0 && startDate ? (
-              <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', fontWeight: 700 }}>
+              <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent-muted)', fontWeight: 700 }}>
                 💰 {payCount} pay day{payCount !== 1 ? 's' : ''} this month
               </span>
             ) : (

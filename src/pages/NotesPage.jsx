@@ -7,7 +7,7 @@ const TAG_COLORS = [
   { id: 'yellow', label: 'Remind', color: '#F59E0B' },
   { id: 'red',    label: 'Urgent', color: '#EF4444' },
   { id: 'green',  label: 'Done',   color: '#22C55E' },
-  { id: 'purple', label: 'Ref',    color: '#8B5CF6' },
+  { id: 'purple', label: 'Ref',    color: 'var(--accent-2)' },
 ]
 
 function CopyBtn({ text }) {
@@ -29,7 +29,7 @@ function NoteCard({ note, onPin, onDelete, onEdit }) {
   const [collapsed, setCollapsed] = useState(true)
   const tag = TAG_COLORS.find(t => t.id === note.color_tag)
   return (
-    <div className="card animate-fadeIn" style={{ borderLeft: `3px solid ${tag?.color || '#6366F1'}`, marginBottom: 7, overflow: 'hidden' }}>
+    <div className="card animate-fadeIn" style={{ borderLeft: `3px solid ${tag?.color || 'var(--accent)'}`, marginBottom: 7, overflow: 'hidden' }}>
       {/* Title row — always visible */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 11px' }}>
         {/* Collapse toggle */}
@@ -38,7 +38,7 @@ function NoteCard({ note, onPin, onDelete, onEdit }) {
           ▶
         </button>
 
-        {note.pinned && <span style={{ fontSize: 10, color: '#6366F1', flexShrink: 0 }}>📌</span>}
+        {note.pinned && <span style={{ fontSize: 10, color: 'var(--accent)', flexShrink: 0 }}>📌</span>}
 
         {/* Title — click to expand too */}
         <span onClick={() => setCollapsed(v => !v)}

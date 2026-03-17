@@ -3,7 +3,7 @@ import { supabase } from './lib/supabase'
 import { useAuth } from './context/AuthContext'
 
 const TYPES = [
-  { id: 'info',    label: 'Info',    emoji: '📢', color: '#6366F1', bg: 'rgba(99,102,241,0.12)',  border: 'rgba(99,102,241,0.3)' },
+  { id: 'info',    label: 'Info',    emoji: '📢', color: 'var(--accent)', bg: 'var(--accent-soft)',  border: 'var(--accent-border)' },
   { id: 'warning', label: 'Warning', emoji: '⚠️', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)' },
   { id: 'urgent',  label: 'Urgent',  emoji: '🚨', color: '#EF4444', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.3)' },
   { id: 'success', label: 'Success', emoji: '✅', color: '#22C55E', bg: 'rgba(34,197,94,0.12)',  border: 'rgba(34,197,94,0.3)' },
@@ -96,8 +96,8 @@ export default function Announcements() {
           {!showCompose ? (
             <button onClick={() => setShowCompose(true)} style={{
               width: '100%', padding: '7px 14px', borderRadius: 10,
-              background: 'rgba(99,102,241,0.1)', border: '1px dashed rgba(99,102,241,0.3)',
-              color: '#818CF8', fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700,
+              background: 'var(--accent-soft)', border: '1px dashed rgba(99,102,241,0.3)',
+              color: 'var(--accent-muted)', fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.04em',
             }}>
               📢 POST ANNOUNCEMENT
@@ -119,7 +119,7 @@ export default function Announcements() {
                 style={{ width: '100%', padding: '7px 9px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontFamily: 'JetBrains Mono', fontSize: 12, boxSizing: 'border-box', outline: 'none', resize: 'none' }} />
               <div style={{ display: 'flex', gap: 6 }}>
                 <button onClick={() => setShowCompose(false)} style={{ flex: 1, padding: '7px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontSize: 11, cursor: 'pointer' }}>Cancel</button>
-                <button onClick={send} disabled={sending || !message.trim()} style={{ flex: 2, padding: '7px', borderRadius: 8, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', border: 'none', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>
+                <button onClick={send} disabled={sending || !message.trim()} style={{ flex: 2, padding: '7px', borderRadius: 8, background: 'linear-gradient(135deg,var(--accent),var(--accent-2))', border: 'none', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>
                   {sending ? 'Sending...' : '📢 Send to All'}
                 </button>
               </div>

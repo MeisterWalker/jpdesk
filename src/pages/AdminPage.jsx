@@ -68,26 +68,26 @@ function SyncModal({ targetUser, onClose, onDone }) {
         <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginBottom: 14 }}>Choose what to sync</div>
 
         {/* Notes toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'rgba(99,102,241,0.35)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'var(--accent-border)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
           onClick={() => setSyncNotes(v => !v)}>
           <div>
             <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📝 Notes</div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync all notes</div>
           </div>
-          <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? '#6366F1' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
+          <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
             <div style={{ position: 'absolute', top: 2, left: syncNotes ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
           </div>
         </div>
 
         {/* Scripts toggle */}
-        <div style={{ padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncScripts ? 'rgba(99,102,241,0.35)' : 'var(--border)'}`, background: syncScripts ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 4 }}>
+        <div style={{ padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncScripts ? 'var(--accent-border)' : 'var(--border)'}`, background: syncScripts ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: syncScripts ? 10 : 0 }}
             onClick={() => setSyncScripts(v => !v)}>
             <div>
               <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📋 Scripts</div>
               <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync by category</div>
             </div>
-            <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? '#6366F1' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
+            <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
               <div style={{ position: 'absolute', top: 2, left: syncScripts ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
             </div>
           </div>
@@ -97,9 +97,9 @@ function SyncModal({ targetUser, onClose, onDone }) {
               {SCRIPT_CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => toggleCat(cat)} style={{
                   ...btnBase,
-                  background: scriptCats.has(cat) ? 'rgba(99,102,241,0.15)' : 'transparent',
-                  color: scriptCats.has(cat) ? '#6366F1' : 'var(--text-muted)',
-                  border: `1px solid ${scriptCats.has(cat) ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+                  background: scriptCats.has(cat) ? 'var(--accent-soft)' : 'transparent',
+                  color: scriptCats.has(cat) ? 'var(--accent)' : 'var(--text-muted)',
+                  border: `1px solid ${scriptCats.has(cat) ? 'var(--accent-border)' : 'var(--border)'}`,
                 }}>
                   {scriptCats.has(cat) ? '✓ ' : ''}{cat}
                 </button>
@@ -189,25 +189,25 @@ function SyncAllModal({ users, onClose, onDone }) {
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', marginBottom: 4 }}>🔄 Sync All Users</div>
         <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginBottom: 14 }}>Choose what to sync to everyone</div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'rgba(99,102,241,0.35)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'var(--accent-border)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
           onClick={() => setSyncNotes(v => !v)}>
           <div>
             <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📝 Notes</div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync all notes</div>
           </div>
-          <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? '#6366F1' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
+          <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
             <div style={{ position: 'absolute', top: 2, left: syncNotes ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
           </div>
         </div>
 
-        <div style={{ padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncScripts ? 'rgba(99,102,241,0.35)' : 'var(--border)'}`, background: syncScripts ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 4 }}>
+        <div style={{ padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncScripts ? 'var(--accent-border)' : 'var(--border)'}`, background: syncScripts ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: syncScripts ? 10 : 0 }}
             onClick={() => setSyncScripts(v => !v)}>
             <div>
               <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📋 Scripts</div>
               <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync by category</div>
             </div>
-            <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? '#6366F1' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
+            <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
               <div style={{ position: 'absolute', top: 2, left: syncScripts ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
             </div>
           </div>
@@ -216,9 +216,9 @@ function SyncAllModal({ users, onClose, onDone }) {
               {SCRIPT_CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => toggleCat(cat)} style={{
                   ...btnBase,
-                  background: scriptCats.has(cat) ? 'rgba(99,102,241,0.15)' : 'transparent',
-                  color: scriptCats.has(cat) ? '#6366F1' : 'var(--text-muted)',
-                  border: `1px solid ${scriptCats.has(cat) ? 'rgba(99,102,241,0.4)' : 'var(--border)'}`,
+                  background: scriptCats.has(cat) ? 'var(--accent-soft)' : 'transparent',
+                  color: scriptCats.has(cat) ? 'var(--accent)' : 'var(--text-muted)',
+                  border: `1px solid ${scriptCats.has(cat) ? 'var(--accent-border)' : 'var(--border)'}`,
                 }}>
                   {scriptCats.has(cat) ? '✓ ' : ''}{cat}
                 </button>
@@ -351,7 +351,7 @@ export default function AdminPage() {
         <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
       ) : users.map(u => (
         <div key={u.id} className="card" style={{ marginBottom: 7, padding: '10px 13px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 10, background: u.role === 'admin' ? 'rgba(99,102,241,0.15)' : 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: u.role === 'admin' ? 'var(--accent-soft)' : 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>
             {u.role === 'admin' ? '👑' : '👤'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -362,7 +362,7 @@ export default function AdminPage() {
             {u.role !== 'admin' && (
               <button onClick={() => setSyncTarget(u)} className="btn btn-ghost" style={{ fontSize: 10, padding: '3px 8px' }}>🔄</button>
             )}
-            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: u.role === 'admin' ? 'rgba(99,102,241,0.15)' : 'var(--surface-2)', color: u.role === 'admin' ? '#6366F1' : 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: u.role === 'admin' ? 'var(--accent-soft)' : 'var(--surface-2)', color: u.role === 'admin' ? 'var(--accent)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase' }}>
               {u.role}
             </span>
           </div>

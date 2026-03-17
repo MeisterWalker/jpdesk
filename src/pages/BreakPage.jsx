@@ -14,8 +14,8 @@ export const INITIAL_BREAK_STATE = {
 }
 
 export const ALARM_SOUNDS = [
-  { id: 'radar',     label: 'Old iPhone',     emoji: '📱', desc: 'iPhone radar alarm',     file: '/iPhone-Radar-Alarm.mp3' },
-  { id: 'emergency', label: 'Emergency', emoji: '🚨', desc: 'iPhone emergency alarm', file: '/iPhone-Emergency-Alarm.mp3' },
+  { id: 'radar',     label: 'Radar',     emoji: '📡', file: '/iPhone-Radar-Alarm.mp3' },
+  { id: 'emergency', label: 'Emergency', emoji: '🚨', file: '/iPhone-Emergency-Alarm.mp3' },
 ]
 
 function pad(n) { return String(n).padStart(2, '0') }
@@ -372,16 +372,15 @@ function SoundPicker({ selected, onChange }) {
             onClick={() => onChange(s.id)}
             style={{
               flex: 1, padding: '8px 6px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
-              border: `1px solid ${selected === s.id ? '#6366F1' : 'var(--border)'}`,
-              background: selected === s.id ? 'rgba(99,102,241,0.1)' : 'var(--bg)',
+              border: `1px solid ${selected === s.id ? 'var(--accent)' : 'var(--border)'}`,
+              background: selected === s.id ? 'var(--accent-soft)' : 'var(--bg)',
               transition: 'all 0.15s ease'
             }}>
             <div style={{ fontSize: 18, marginBottom: 3 }}>{s.emoji}</div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: selected === s.id ? '#6366F1' : 'var(--text-primary)', fontFamily: 'Space Grotesk' }}>{s.label}</div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', marginTop: 2, lineHeight: 1.3 }}>{s.desc}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: selected === s.id ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'Space Grotesk' }}>{s.label}</div>
             <button
               onClick={e => { e.stopPropagation(); testSound(s.id) }}
-              style={{ marginTop: 6, fontSize: 9, padding: '2px 8px', background: 'none', border: `1px solid ${selected === s.id ? '#6366F1' : 'var(--border)'}`, borderRadius: 20, cursor: 'pointer', color: selected === s.id ? '#6366F1' : 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
+              style={{ marginTop: 6, fontSize: 9, padding: '2px 8px', background: 'none', border: `1px solid ${selected === s.id ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 20, cursor: 'pointer', color: selected === s.id ? 'var(--accent)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
               {testing === s.id ? '▶ playing...' : '▶ test'}
             </button>
           </div>
