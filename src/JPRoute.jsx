@@ -16,18 +16,7 @@ function BankResult({ data }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 10, marginBottom: 2 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>✅ Verified Bank</div>
-          <button onClick={copyPhone} style={{
-            fontSize: 9, fontFamily: 'JetBrains Mono', padding: '2px 7px', borderRadius: 6,
-            background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
-            border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
-            color: copied ? '#22C55E' : '#818CF8', cursor: 'pointer', fontWeight: 700,
-            transition: 'all 0.2s',
-          }}>
-            {copied ? '✓ Copied!' : `⎘ ${data.phone}`}
-          </button>
-        </div>
+        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 3 }}>✅ Verified Bank</div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.3 }}>{data.customer_name}</div>
         {data.telegraphic_name && data.telegraphic_name !== data.customer_name && (
           <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: '#818CF8', marginTop: 2 }}>{data.telegraphic_name}</div>
@@ -59,7 +48,18 @@ function BankResult({ data }) {
       {data.phone && (
         <div style={{ padding: '6px 8px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
           <div style={{ fontSize: 8, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Phone</div>
-          <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-primary)', fontWeight: 600 }}>{data.phone}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-primary)', fontWeight: 600 }}>{data.phone}</div>
+            <button onClick={copyPhone} style={{
+              fontSize: 9, fontFamily: 'JetBrains Mono', padding: '2px 7px', borderRadius: 6,
+              background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
+              border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
+              color: copied ? '#22C55E' : '#818CF8', cursor: 'pointer', fontWeight: 700,
+              transition: 'all 0.2s', flexShrink: 0,
+            }}>
+              {copied ? '✓ Copied!' : '⎘ Copy'}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -88,7 +88,7 @@ export default function JPRoute({ focused = true, onFocus = () => {} }) {
     if (!dragging) return
     const onMove = (e) => setPosition({
       x: Math.max(0, Math.min(e.clientX - dragOffset.x, window.innerWidth - 260)),
-      y: Math.max(0, Math.min(e.clientY - dragOffset.y, window.innerHeight - (expanded ? 420 : 44))),
+      y: Math.max(0, Math.min(e.clientY - dragOffset.y, window.innerHeight - 44)),
     })
     const onUp = () => setDragging(false)
     window.addEventListener('mousemove', onMove)
