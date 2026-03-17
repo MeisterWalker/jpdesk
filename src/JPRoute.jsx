@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase } from './lib/supabase'
 
 function validateRouting(num) {
   if (num.length !== 9) return false
@@ -88,10 +87,17 @@ export default function JPRoute({ focused = true, onFocus = () => {} }) {
     setLoading(true)
     setResult(null)
     try {
-      const { data, error } = await supabase.functions.invoke('routing-lookup', {
-        body: { routing_number: num }
+      const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL
+      const ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/routing-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ANON_KEY}`,
+        },
+        body: JSON.stringify({ routing_number: num })
       })
-      if (error) throw error
+      const data = await res.json()
       if (data?.code === 200 && data?.customer_name) {
         setResult({ data })
       } else {
