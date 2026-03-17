@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import JPCalc from './JPCalc'
 import JPCal from './JPCal'
+import JPRoute from './JPRoute'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
@@ -195,7 +196,8 @@ function AppInner() {
   const [showDesk, setShowDesk]     = useState(true)
   const [showCalc, setShowCalc]     = useState(false)
   const [showCal, setShowCal]       = useState(false)
-  const [focused, setFocused]       = useState('desk') // 'desk' | 'calc' | 'cal'
+  const [showRoute, setShowRoute]   = useState(false)
+  const [focused, setFocused]       = useState('desk') // 'desk' | 'calc' | 'cal' | 'route'
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -313,6 +315,21 @@ function AppInner() {
           }}
         >
           📅
+        </button>
+        {/* JPRoute toggle */}
+        <button
+          onClick={() => { setShowRoute(v => !v); setFocused('route') }}
+          title="JPRoute"
+          style={{
+            width: 42, height: 42, borderRadius: 13,
+            background: showRoute ? 'linear-gradient(135deg,#6366F1,#8B5CF6)' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: showRoute ? '0 4px 16px rgba(99,102,241,0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, transition: 'all 0.2s',
+          }}
+        >
+          🏦
         </button>
       </div>
       {showDesk && <div
@@ -464,7 +481,8 @@ function AppInner() {
     </div>}
 
       {showCalc && <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />}
-      {showCal  && <JPCal  focused={focused === 'cal'}  onFocus={() => setFocused('cal')}  />}
+      {showCal   && <JPCal   focused={focused === 'cal'}   onFocus={() => setFocused('cal')}   />}
+      {showRoute && <JPRoute focused={focused === 'route'} onFocus={() => setFocused('route')} />}
 
     {/* Hydration reminder toast */}
     {showHydration && !hydrationDismissed && (
