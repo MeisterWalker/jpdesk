@@ -8,8 +8,8 @@ function validateRouting(num) {
 
 function BankResult({ data }) {
   const [copied, setCopied] = useState(false)
-  const copyRouting = () => {
-    navigator.clipboard.writeText(data.routing_number)
+  const copyPhone = () => {
+    navigator.clipboard.writeText(data.phone)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -18,14 +18,14 @@ function BankResult({ data }) {
       <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 10, marginBottom: 2 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
           <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>✅ Verified Bank</div>
-          <button onClick={copyRouting} style={{
+          <button onClick={copyPhone} style={{
             fontSize: 9, fontFamily: 'JetBrains Mono', padding: '2px 7px', borderRadius: 6,
             background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
             border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
             color: copied ? '#22C55E' : '#818CF8', cursor: 'pointer', fontWeight: 700,
             transition: 'all 0.2s',
           }}>
-            {copied ? '✓ Copied!' : `⎘ ${data.routing_number}`}
+            {copied ? '✓ Copied!' : `⎘ ${data.phone}`}
           </button>
         </div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.3 }}>{data.customer_name}</div>
