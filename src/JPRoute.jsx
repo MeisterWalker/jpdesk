@@ -7,10 +7,27 @@ function validateRouting(num) {
 }
 
 function BankResult({ data }) {
+  const [copied, setCopied] = useState(false)
+  const copyRouting = () => {
+    navigator.clipboard.writeText(data.routing_number)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 10, marginBottom: 2 }}>
-        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 3 }}>✅ Verified Bank</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>✅ Verified Bank</div>
+          <button onClick={copyRouting} style={{
+            fontSize: 9, fontFamily: 'JetBrains Mono', padding: '2px 7px', borderRadius: 6,
+            background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
+            border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
+            color: copied ? '#22C55E' : '#818CF8', cursor: 'pointer', fontWeight: 700,
+            transition: 'all 0.2s',
+          }}>
+            {copied ? '✓ Copied!' : `⎘ ${data.routing_number}`}
+          </button>
+        </div>
         <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.3 }}>{data.customer_name}</div>
         {data.telegraphic_name && data.telegraphic_name !== data.customer_name && (
           <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: '#818CF8', marginTop: 2 }}>{data.telegraphic_name}</div>
