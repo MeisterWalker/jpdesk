@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const res = await fetch(
-      'https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/jpdesk/main/public/FedACHdir.txt'
+      'https://raw.githubusercontent.com/MeisterWalker/jpdesk/main/public/FedACHdir.txt'
     )
     const text = await res.text()
     const lines = text.split('\n').filter(l => l.length > 9)
