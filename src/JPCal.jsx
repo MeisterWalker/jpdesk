@@ -188,7 +188,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [startDate, setStartDate]   = useState('')
 
   const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, today, 4)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? new Date(startDate) : today, 4)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {

@@ -139,14 +139,25 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
 
   // ── Keyboard ───────────────────────────────────────────────────────────
   useEffect(() => {
+    const isTypingElsewhere = () => {
+      const el = document.activeElement
+      if (!el) return false
+      const tag = el.tagName.toLowerCase()
+      return tag === 'input' || tag === 'textarea' || el.isContentEditable
+    }
+
     const map = { '*': '×', '/': '÷', '-': '−', 'Enter': '=', 'Backspace': '⌫', 'Escape': 'C' }
     const handler = (e) => {
+      if (!focused) return
+      if (isTypingElsewhere()) return
       const k = map[e.key] || e.key
       if ([...'0123456789.+=%', '×','÷','−','⌫','C','%'].includes(k)) {
         e.preventDefault(); press(k)
       }
     }
     const pasteHandler = (e) => {
+      if (!focused) return
+      if (isTypingElsewhere()) return
       const text = (e.clipboardData || window.clipboardData).getData('text')
       const num = text.replace(/[^0-9.]/g, '')
       if (num && !isNaN(parseFloat(num))) {
@@ -158,7 +169,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
     window.addEventListener('keydown', handler)
     window.addEventListener('paste', pasteHandler)
     return () => { window.removeEventListener('keydown', handler); window.removeEventListener('paste', pasteHandler) }
-  }, [press])
+  }, [press, focused])
 
   const isOp = (v) => ['+','−','×','÷'].includes(v)
 
