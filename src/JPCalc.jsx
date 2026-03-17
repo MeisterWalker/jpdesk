@@ -71,6 +71,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
   const [op, setOp]                 = useState(null)
   const [fresh, setFresh]           = useState(false)
   const [history, setHistory]       = useState([])
+  const [copied, setCopied]         = useState(false)
   const [muted, setMuted]           = useState(false)
   const [position, setPosition]     = useState({ x: window.innerWidth - 230, y: 90 })
   const [dragging, setDragging]     = useState(false)
@@ -244,19 +245,29 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
 
           {/* Display */}
-          <div style={{ padding: '10px 14px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+          <div
+            onClick={() => {
+              if (display && display !== '0' && display !== 'Error') {
+                navigator.clipboard.writeText(display)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1500)
+              }
+            }}
+            title="Click to copy"
+            style={{ padding: '10px 14px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' }}>
             <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#6366F1', textAlign: 'right', minHeight: 14, marginBottom: 2 }}>
               {op ? `${prev} ${op}` : '\u00a0'}
             </div>
             <div style={{
               fontFamily: 'JetBrains Mono', fontWeight: 700,
               fontSize: display.length > 9 ? 16 : display.length > 6 ? 20 : 26,
-              color: display === 'Error' ? '#F87171' : 'var(--text-primary)',
+              color: display === 'Error' ? '#F87171' : copied ? '#22C55E' : 'var(--text-primary)',
               textAlign: 'right', letterSpacing: '-0.02em',
               lineHeight: 1.1, minHeight: 32,
               display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+              transition: 'color 0.2s',
             }}>
-              {display}
+              {copied ? '✓ Copied!' : display}
             </div>
           </div>
 
