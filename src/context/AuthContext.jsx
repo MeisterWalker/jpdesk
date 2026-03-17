@@ -62,13 +62,18 @@ export function AuthProvider({ children }) {
     let email = usernameOrEmail
     // If input doesn't look like an email, look up username in profiles
     if (!usernameOrEmail.includes('@')) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('email')
-        .eq('username', usernameOrEmail.toLowerCase().trim())
+        .select('*')
+        .eq('username', usernameOrEmail.trim())
         .single()
-      if (!profile?.email) return { message: 'Username not found.' }
-      email = profile.email
+      console.log('username lookup:', usernameOrEmail.trim(), 'profile:', profile, 'error:', profileError)
+      if (!profile) return { message: 'Username not found.' }
+      // get email from auth.users via RPC
+      const { data: authUser } = await supabase.rpc('get_email_by_profile_id', { profile_id: profile.id })
+      console.log('authUser:', authUser)
+      if (!authUser) return { message: 'Username not found.' }
+      email = authUser
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return error
