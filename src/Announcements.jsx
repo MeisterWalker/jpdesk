@@ -79,7 +79,7 @@ export default function Announcements() {
             animation: 'slideDown 0.3s ease',
           }}>
             <span style={{ fontSize: 16, flexShrink: 0 }}>{t.emoji}</span>
-            <div style={{ flex: 1, fontFamily: 'JetBrains Mono', fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.4 }}>{a.message}</div>
+            <div style={{ flex: 1, fontFamily: 'JetBrains Mono', fontSize: 12, color: t.color, fontWeight: 600, lineHeight: 1.4 }}>{a.message}</div>
             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
               {isAdmin && (
                 <button onClick={() => deactivate(a.id)} title="Remove for everyone" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, color: '#F87171', cursor: 'pointer', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✕</button>
