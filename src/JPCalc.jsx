@@ -1,22 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
-const BTN_ROWS = [
-  ['C', '±', '%', '÷'],
-  ['7', '8', '9', '×'],
-  ['4', '5', '6', '−'],
-  ['1', '2', '3', '+'],
-  ['0', '.', '⌫', '='],
-]
-
-// Tiny click sounds via Web Audio API
+// ── Click sounds (preserved exactly) ─────────────────────────────────────────
 function makeSound(type) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-
+    osc.connect(gain); gain.connect(ctx.destination)
     if (type === 'number') {
       osc.frequency.setValueAtTime(880, ctx.currentTime)
       osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.05)
@@ -38,7 +28,6 @@ function makeSound(type) {
       gain.gain.setValueAtTime(0.08, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12)
     }
-
     osc.type = 'sine'
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.2)
@@ -46,46 +35,84 @@ function makeSound(type) {
   } catch (e) {}
 }
 
-function getSoundType(val) {
-  if (val === '=') return 'equals'
-  if (['C', '⌫'].includes(val)) return 'clear'
-  if (['+','−','×','÷','±','%'].includes(val)) return 'op'
-  return 'number'
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const ERRORS = ['Error', 'Cannot divide by zero', 'Invalid input', 'Overflow']
+const isErr = (v) => ERRORS.includes(v)
+
+// Format raw string for display: add thousands commas, preserve trailing dot/decimals
+function fmtDisplay(raw) {
+  if (!raw || isErr(raw)) return raw || '0'
+  const neg = raw.startsWith('-')
+  const abs = neg ? raw.slice(1) : raw
+  const trailingDot = abs.endsWith('.')
+  const [intStr, decStr] = abs.split('.')
+  const intNum = parseInt(intStr || '0', 10)
+  const intFmt = isNaN(intNum) ? intStr : intNum.toLocaleString('en-US')
+  let out = neg ? '-' + intFmt : intFmt
+  if (trailingDot) return out + '.'
+  if (decStr !== undefined) return out + '.' + decStr
+  return out
 }
 
-const calculate = (a, b, op) => {
+// Format a number for the expression line (compact, no unnecessary trailing zeros)
+function fmtExpr(val) {
+  if (!val || isErr(val)) return val || ''
+  const n = parseFloat(val)
+  if (isNaN(n)) return val
+  return n.toLocaleString('en-US', { maximumFractionDigits: 10 })
+}
+
+// Compute a binary operation, return string result
+function compute(a, op, b) {
   const x = parseFloat(a), y = parseFloat(b)
+  if (isNaN(x) || isNaN(y)) return 'Error'
+  let r
   switch (op) {
-    case '+': return String(Math.round((x + y) * 1e10) / 1e10)
-    case '−': return String(Math.round((x - y) * 1e10) / 1e10)
-    case '×': return String(Math.round((x * y) * 1e10) / 1e10)
-    case '÷': return y === 0 ? 'Error' : String(Math.round((x / y) * 1e10) / 1e10)
-    default:  return b
+    case '+': r = x + y; break
+    case '−': r = x - y; break
+    case '×': r = x * y; break
+    case '÷': if (y === 0) return 'Cannot divide by zero'; r = x / y; break
+    default: return String(b)
   }
+  if (!isFinite(r)) return 'Overflow'
+  return String(Math.round(r * 1e10) / 1e10)
 }
 
+// ── Layout ────────────────────────────────────────────────────────────────────
+const MEM_ROW  = ['MC', 'MR', 'M+', 'M−', 'MS']
+const CALC_ROWS = [
+  ['%',   'CE',  'C',   '⌫' ],
+  ['¹⁄ₓ', 'x²', '√x',  '÷' ],
+  ['7',   '8',   '9',   '×' ],
+  ['4',   '5',   '6',   '−' ],
+  ['1',   '2',   '3',   '+' ],
+  ['±',   '0',   '.',   '=' ],
+]
+const OPS = ['+', '−', '×', '÷']
+const SYM = { '+': '+', '−': '−', '×': '×', '÷': '÷' }
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function JPCalc({ focused = true, onFocus = () => {} }) {
-  const [expanded, setExpanded]     = useState(true)
-  const [display, setDisplay]       = useState('0')
-  const [prev, setPrev]             = useState(null)
-  const [op, setOp]                 = useState(null)
-  const [fresh, setFresh]           = useState(false)
-  const [history, setHistory]       = useState([])
-  const [copied, setCopied]         = useState(false)
-  const [muted, setMuted]           = useState(false)
-  const [position, setPosition]     = useState({ x: window.innerWidth - 230, y: 90 })
-  const [dragging, setDragging]     = useState(false)
+  // Widget state
+  const [expanded,   setExpanded]   = useState(true)
+  const [position,   setPosition]   = useState({ x: window.innerWidth - 310, y: 90 })
+  const [dragging,   setDragging]   = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const ref = useRef(null)
+  const [muted,      setMuted]      = useState(false)
+  const [copied,     setCopied]     = useState(false)
 
-  // ── Drag — only triggered from non-button areas ────────────────────────
-  const onMouseDown = useCallback((e) => {
-    if (e.target.closest('button')) return
-    setDragging(true)
-    setDragOffset({ x: e.clientX - position.x, y: e.clientY - position.y })
-  }, [position])
+  // Calculator state
+  const [display,  setDisplay]  = useState('0')    // current shown value (raw, no commas)
+  const [expr,     setExpr]     = useState('')      // expression line above
+  const [prevVal,  setPrevVal]  = useState(null)    // first operand
+  const [op,       setOp]       = useState(null)    // pending operator
+  const [waitOp,   setWaitOp]   = useState(false)   // next digit starts fresh
+  const [afterEq,  setAfterEq]  = useState(false)   // just pressed =
+  const [lastOp,   setLastOp]   = useState(null)    // for repeat =
+  const [lastB,    setLastB]    = useState(null)    // second operand for repeat =
+  const [memory,   setMemory]   = useState(null)    // memory slot
 
-  // ── Any click anywhere on widget → bring to front ─────────────────────
+  // ── Drag ──────────────────────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
     onFocus()
     if (!e.target.closest('button')) {
@@ -96,49 +123,175 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
 
   useEffect(() => {
     if (!dragging) return
-    const onMove = (e) => {
-      const nx = e.clientX - dragOffset.x
-      const ny = e.clientY - dragOffset.y
-      setPosition({
-        x: Math.max(0, Math.min(nx, window.innerWidth - 210)),
-        y: Math.max(0, Math.min(ny, window.innerHeight - (expanded ? 380 : 44))),
-      })
-    }
+    const onMove = (e) => setPosition({
+      x: Math.max(0, Math.min(e.clientX - dragOffset.x, window.innerWidth - 300)),
+      y: Math.max(0, Math.min(e.clientY - dragOffset.y, window.innerHeight - (expanded ? 510 : 44))),
+    })
     const onUp = () => setDragging(false)
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
   }, [dragging, dragOffset, expanded])
 
-  // ── Calc logic ─────────────────────────────────────────────────────────
-  const press = useCallback((val) => {
-    if (!muted) makeSound(getSoundType(val))
+  // ── Press handler ──────────────────────────────────────────────────────────
+  const press = useCallback((btn) => {
+    // Sound
+    if (!muted) {
+      if (btn === '=')                              makeSound('equals')
+      else if (['C','CE','⌫'].includes(btn))        makeSound('clear')
+      else if (/^\d$/.test(btn) || btn === '.')     makeSound('number')
+      else                                          makeSound('op')
+    }
 
-    if (val === 'C')  { setDisplay('0'); setPrev(null); setOp(null); setFresh(false); return }
-    if (val === '⌫')  { setDisplay(d => d.length > 1 ? d.slice(0, -1) : '0'); return }
-    if (val === '±')  { setDisplay(d => String(parseFloat(d) * -1)); return }
-    if (val === '%')  { setDisplay(d => String(parseFloat(d) / 100)); return }
-    if (['+','−','×','÷'].includes(val)) {
-      if (op && !fresh) { const r = calculate(prev, display, op); setPrev(r); setDisplay(r) }
-      else { setPrev(display) }
-      setOp(val); setFresh(true); return
-    }
-    if (val === '=') {
-      if (!op || !prev) return
-      const r = calculate(prev, display, op)
-      setHistory(h => [`${prev} ${op} ${display} = ${r}`, ...h].slice(0, 5))
-      setDisplay(r); setPrev(null); setOp(null); setFresh(false); return
-    }
-    if (val === '.') {
-      if (fresh) { setDisplay('0.'); setFresh(false); return }
-      if (!display.includes('.')) setDisplay(d => d + '.')
+    // ── Digit ───────────────────────────────────────────────────────────────
+    if (/^\d$/.test(btn)) {
+      if (isErr(display) || afterEq || waitOp) {
+        setDisplay(btn === '0' ? '0' : btn)
+        setWaitOp(false); setAfterEq(false)
+        if (afterEq) setExpr('')
+        return
+      }
+      if (display === '0') setDisplay(btn)
+      else if (display.replace(/\D/g, '').length < 16) setDisplay(display + btn)
       return
     }
-    if (fresh) { setDisplay(val); setFresh(false) }
-    else setDisplay(d => d === '0' ? val : d.length < 12 ? d + val : d)
-  }, [display, prev, op, fresh, muted])
 
-  // ── Keyboard ───────────────────────────────────────────────────────────
+    // ── Decimal ─────────────────────────────────────────────────────────────
+    if (btn === '.') {
+      if (isErr(display) || afterEq || waitOp) {
+        setDisplay('0.'); setWaitOp(false); setAfterEq(false)
+        if (afterEq) setExpr('')
+        return
+      }
+      if (!display.includes('.')) setDisplay(display + '.')
+      return
+    }
+
+    // ── Backspace ────────────────────────────────────────────────────────────
+    if (btn === '⌫') {
+      if (afterEq || waitOp || isErr(display)) { setDisplay('0'); return }
+      setDisplay(d => d.length > 1 ? d.slice(0, -1) : '0')
+      return
+    }
+
+    // ── CE — clear entry, keep operator/prevVal ──────────────────────────────
+    if (btn === 'CE') {
+      setDisplay('0'); setAfterEq(false)
+      // If we were mid-expression, allow re-entry of second operand
+      if (op && prevVal !== null) setWaitOp(false)
+      return
+    }
+
+    // ── C — all clear ────────────────────────────────────────────────────────
+    if (btn === 'C') {
+      setDisplay('0'); setExpr(''); setPrevVal(null)
+      setOp(null); setWaitOp(false); setAfterEq(false)
+      return
+    }
+
+    // ── Negate ───────────────────────────────────────────────────────────────
+    if (btn === '±') {
+      if (isErr(display) || display === '0') return
+      setDisplay(d => d.startsWith('-') ? d.slice(1) : '-' + d)
+      return
+    }
+
+    // ── Percent ──────────────────────────────────────────────────────────────
+    if (btn === '%') {
+      if (isErr(display)) return
+      const curr = parseFloat(display)
+      let result
+      if (op && prevVal !== null) {
+        // +/−: percentage of prevVal; ×/÷: just /100
+        result = (op === '+' || op === '−')
+          ? parseFloat(prevVal) * curr / 100
+          : curr / 100
+      } else {
+        result = curr / 100
+      }
+      const rs = String(Math.round(result * 1e10) / 1e10)
+      setDisplay(rs); setWaitOp(false)
+      return
+    }
+
+    // ── Unary: 1/x ───────────────────────────────────────────────────────────
+    if (btn === '¹⁄ₓ') {
+      if (isErr(display)) return
+      const n = parseFloat(display)
+      if (n === 0) { setDisplay('Cannot divide by zero'); return }
+      const result = String(Math.round((1 / n) * 1e10) / 1e10)
+      setExpr(`1/(${fmtExpr(display)})`); setDisplay(result); setWaitOp(false)
+      return
+    }
+
+    // ── Unary: x² ────────────────────────────────────────────────────────────
+    if (btn === 'x²') {
+      if (isErr(display)) return
+      const n = parseFloat(display)
+      const result = String(Math.round((n * n) * 1e10) / 1e10)
+      setExpr(`sqr(${fmtExpr(display)})`); setDisplay(result); setWaitOp(false)
+      return
+    }
+
+    // ── Unary: √x ────────────────────────────────────────────────────────────
+    if (btn === '√x') {
+      if (isErr(display)) return
+      const n = parseFloat(display)
+      if (n < 0) { setDisplay('Invalid input'); return }
+      const result = String(Math.round(Math.sqrt(n) * 1e10) / 1e10)
+      setExpr(`√(${fmtExpr(display)})`); setDisplay(result); setWaitOp(false)
+      return
+    }
+
+    // ── Binary operators (+, −, ×, ÷) ────────────────────────────────────────
+    if (OPS.includes(btn)) {
+      if (isErr(display)) return
+      if (op && !waitOp && !afterEq) {
+        // Chain: evaluate pending op first, then set new op
+        const result = compute(prevVal, op, display)
+        if (isErr(result)) { setDisplay(result); setExpr(''); setPrevVal(null); setOp(null); return }
+        setPrevVal(result)
+        setExpr(fmtExpr(result) + ' ' + SYM[btn])
+        setDisplay(result)
+      } else {
+        setPrevVal(display)
+        setExpr(fmtExpr(display) + ' ' + SYM[btn])
+      }
+      setOp(btn); setWaitOp(true); setAfterEq(false)
+      return
+    }
+
+    // ── Equals ────────────────────────────────────────────────────────────────
+    if (btn === '=') {
+      if (afterEq && lastOp && lastB !== null) {
+        // Repeat last operation
+        const result = compute(display, lastOp, lastB)
+        setExpr(fmtExpr(display) + ' ' + SYM[lastOp] + ' ' + fmtExpr(lastB) + ' =')
+        setDisplay(result); return
+      }
+      if (!op || prevVal === null) return
+      const b = display
+      const result = compute(prevVal, op, b)
+      setExpr(fmtExpr(prevVal) + ' ' + SYM[op] + ' ' + fmtExpr(b) + ' =')
+      setDisplay(result)
+      setLastOp(op); setLastB(b)
+      setPrevVal(null); setOp(null); setWaitOp(false); setAfterEq(true)
+      return
+    }
+
+    // ── Memory ────────────────────────────────────────────────────────────────
+    if (btn === 'MC') { setMemory(null); return }
+    if (btn === 'MR') {
+      if (memory !== null) { setDisplay(String(memory)); setWaitOp(false); setAfterEq(false) }
+      return
+    }
+    if (btn === 'M+') { setMemory(m => m === null ? parseFloat(display) : m + parseFloat(display)); return }
+    if (btn === 'M−') { setMemory(m => m === null ? -parseFloat(display) : m - parseFloat(display)); return }
+    if (btn === 'MS') { setMemory(parseFloat(display)); return }
+
+  }, [display, prevVal, op, waitOp, afterEq, lastOp, lastB, memory, muted])
+
+  // ── Keyboard support ──────────────────────────────────────────────────────
   useEffect(() => {
     const isTypingElsewhere = () => {
       const el = document.activeElement
@@ -146,51 +299,75 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
       const tag = el.tagName.toLowerCase()
       return tag === 'input' || tag === 'textarea' || el.isContentEditable
     }
-
-    const map = { '*': '×', '/': '÷', '-': '−', 'Enter': '=', 'Backspace': '⌫', 'Escape': 'C' }
+    const KEY_MAP = { '*': '×', '/': '÷', '-': '−', 'Enter': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'CE' }
     const handler = (e) => {
-      if (!focused) return
-      if (isTypingElsewhere()) return
-      const k = map[e.key] || e.key
-      if ([...'0123456789.+=%', '×','÷','−','⌫','C','%'].includes(k)) {
-        e.preventDefault(); press(k)
-      }
-    }
-    const pasteHandler = (e) => {
-      if (!focused) return
-      if (isTypingElsewhere()) return
-      const text = (e.clipboardData || window.clipboardData).getData('text')
-      const num = text.replace(/[^0-9.]/g, '')
-      if (num && !isNaN(parseFloat(num))) {
-        e.preventDefault()
-        setDisplay(num.length > 12 ? num.slice(0, 12) : num)
-        setFresh(false)
-      }
+      if (!focused || isTypingElsewhere()) return
+      const k = KEY_MAP[e.key] || e.key
+      if ([...'0123456789.=+%', '×','÷','−','⌫','C','CE'].includes(k)) { e.preventDefault(); press(k) }
     }
     window.addEventListener('keydown', handler)
-    window.addEventListener('paste', pasteHandler)
-    return () => { window.removeEventListener('keydown', handler); window.removeEventListener('paste', pasteHandler) }
+    return () => window.removeEventListener('keydown', handler)
   }, [press, focused])
 
-  const isOp = (v) => ['+','−','×','÷'].includes(v)
+  // ── Render helpers ────────────────────────────────────────────────────────
+  const dispStr  = fmtDisplay(display)
+  const dispLen  = dispStr.replace(/[,\-]/g, '').length
+  const fontSize = dispLen > 14 ? 13 : dispLen > 11 ? 17 : dispLen > 8 ? 22 : 28
+
+  const getBtnStyle = (btn) => {
+    const isEq      = btn === '='
+    const isOp      = OPS.includes(btn)
+    const isActive  = isOp && op === btn && waitOp
+    const isClear   = ['C', 'CE'].includes(btn)
+    const isBS      = btn === '⌫'
+    const isMem     = MEM_ROW.includes(btn)
+    const isGray    = ['%', '¹⁄ₓ', 'x²', '√x', '±'].includes(btn)
+    const memDim    = memory === null && ['MC', 'MR'].includes(btn)
+    const memLit    = memory !== null && MEM_ROW.includes(btn)
+    return {
+      padding:      isMem ? '7px 0' : '13px 4px',
+      borderRadius: 6,
+      border:       isActive || memLit ? '1px solid var(--accent-border)' : '1px solid transparent',
+      cursor:       memDim ? 'not-allowed' : 'pointer',
+      fontFamily:   'JetBrains Mono',
+      fontWeight:   isEq || isOp ? 700 : 500,
+      fontSize:     isMem ? 10 : 14,
+      transition:   'background 0.1s, color 0.1s, transform 0.07s',
+      background:   isEq    ? 'linear-gradient(135deg,var(--accent),var(--accent-2))'
+                  : isActive ? 'rgba(99,102,241,0.25)'
+                  : isOp    ? 'rgba(99,102,241,0.1)'
+                  : isClear ? 'rgba(239,68,68,0.1)'
+                  : isBS    ? 'rgba(245,158,11,0.1)'
+                  : isMem   ? 'transparent'
+                  : isGray  ? 'rgba(255,255,255,0.06)'
+                  : 'var(--surface-2)',
+      color:        isEq    ? '#fff'
+                  : isActive ? 'var(--accent-muted)'
+                  : isOp    ? 'var(--accent-muted)'
+                  : isClear ? '#F87171'
+                  : isBS    ? '#FBBF24'
+                  : memLit  ? 'var(--accent-muted)'
+                  : isMem   ? 'var(--text-muted)'
+                  : 'var(--text-primary)',
+      boxShadow:    isEq ? '0 2px 12px rgba(99,102,241,0.3)' : 'none',
+      opacity:      memDim ? 0.3 : 1,
+    }
+  }
 
   return (
     <div
-      ref={ref}
       data-theme="dark"
       onMouseDown={handleWidgetMouseDown}
       style={{
-        position: 'fixed',
-        left: position.x,
-        top: position.y,
-        width: 210,
+        position: 'fixed', left: position.x, top: position.y,
+        width: 300,
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
         background: 'var(--surface)',
         border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
-        transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+        transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease',
         cursor: dragging ? 'grabbing' : 'default',
         userSelect: 'none',
       }}
@@ -198,8 +375,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
       {/* ── Header ── */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
-        padding: '11px 14px',
-        background: 'var(--surface)',
+        padding: '11px 14px', background: 'var(--surface)',
         borderBottom: expanded ? '1px solid var(--border)' : 'none',
         cursor: dragging ? 'grabbing' : 'grab',
       }}>
@@ -208,34 +384,12 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
         </span>
         <div style={{ flex: 1 }} />
-
-        {/* Mute toggle */}
-        <button
-          onClick={() => setMuted(v => !v)}
-          title={muted ? 'Unmute sounds' : 'Mute sounds'}
-          style={{
-            background: muted ? 'rgba(239,68,68,0.1)' : 'var(--accent-soft)',
-            border: `1px solid ${muted ? 'rgba(239,68,68,0.3)' : 'var(--accent-border)'}`,
-            borderRadius: 6, color: muted ? '#F87171' : 'var(--accent-muted)',
-            cursor: 'pointer', width: 24, height: 24,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, transition: 'all 0.2s', flexShrink: 0,
-          }}
-        >
+        <button onClick={() => setMuted(v => !v)} title={muted ? 'Unmute' : 'Mute sounds'}
+          style={{ background: muted ? 'rgba(239,68,68,0.1)' : 'var(--accent-soft)', border: `1px solid ${muted ? 'rgba(239,68,68,0.3)' : 'var(--accent-border)'}`, borderRadius: 6, color: muted ? '#F87171' : 'var(--accent-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0 }}>
           {muted ? '🔇' : '🔊'}
         </button>
-
-        {/* Expand/collapse */}
-        <button
-          onClick={() => setExpanded(v => !v)}
-          style={{
-            background: 'var(--surface-2)', border: '1px solid var(--border)',
-            borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer',
-            width: 24, height: 24, display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: 11, flexShrink: 0,
-          }}
-          title={expanded ? 'Minimize' : 'Expand'}
-        >
+        <button onClick={() => setExpanded(v => !v)} title={expanded ? 'Minimize' : 'Expand'}
+          style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0 }}>
           {expanded ? '▼' : '▲'}
         </button>
       </div>
@@ -245,95 +399,53 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
 
           {/* Display */}
-          <div
-            onClick={() => {
-              if (display && display !== '0' && display !== 'Error') {
-                navigator.clipboard.writeText(display)
-                setCopied(true)
-                setTimeout(() => setCopied(false), 1500)
-              }
-            }}
-            title="Click to copy"
-            style={{ padding: '10px 14px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' }}>
-            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent)', textAlign: 'right', minHeight: 14, marginBottom: 2 }}>
-              {op ? `${prev} ${op}` : '\u00a0'}
+          <div onClick={() => {
+            if (display && display !== '0' && !isErr(display)) {
+              navigator.clipboard.writeText(display)
+              setCopied(true); setTimeout(() => setCopied(false), 1500)
+            }
+          }} title="Click to copy" style={{ padding: '10px 16px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+            {/* Expression line */}
+            <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'right', minHeight: 18, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {expr || '\u00a0'}
             </div>
+            {/* Main number */}
             <div style={{
-              fontFamily: 'JetBrains Mono', fontWeight: 700,
-              fontSize: display.length > 9 ? 16 : display.length > 6 ? 20 : 26,
-              color: display === 'Error' ? '#F87171' : copied ? '#22C55E' : 'var(--text-primary)',
+              fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize,
+              color: isErr(display) ? '#F87171' : copied ? '#22C55E' : 'var(--text-primary)',
               textAlign: 'right', letterSpacing: '-0.02em',
-              lineHeight: 1.1, minHeight: 32,
+              lineHeight: 1.1, minHeight: 36,
               display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-              transition: 'color 0.2s',
+              transition: 'color 0.2s', overflow: 'hidden',
             }}>
-              {copied ? '✓ Copied!' : display}
+              {copied ? '✓ Copied!' : dispStr}
             </div>
           </div>
 
-          {/* History */}
-          {history.length > 0 && (
-            <div style={{ padding: '4px 12px', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-              {history.slice(0, 2).map((h, i) => (
-                <div key={i} style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'right', lineHeight: 1.7, opacity: 1 - i * 0.4 }}>
-                  {h}
-                </div>
+          {/* Buttons */}
+          <div style={{ padding: '8px 10px 10px', background: 'var(--surface)' }}>
+            {/* Memory row — 5 buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 5 }}>
+              {MEM_ROW.map(btn => (
+                <button key={btn} onClick={() => press(btn)} style={getBtnStyle(btn)}>{btn}</button>
               ))}
             </div>
-          )}
-
-          {/* Buttons */}
-          <div style={{ padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, background: 'var(--surface)' }}>
-            {BTN_ROWS.flat().map((v, i) => {
-              const isEquals  = v === '='
-              const isOpBtn   = isOp(v)
-              const isActive  = isOpBtn && op === v
-              const isSpecial = ['C', '±', '%'].includes(v)
-              const isBacksp  = v === '⌫'
-
-              return (
-                <button
-                  key={i}
-                  onClick={() => press(v)}
-                  style={{
-                    padding: '10px 4px',
-                    borderRadius: 8,
-                    border: isActive ? '1px solid rgba(99,102,241,0.5)' : '1px solid transparent',
-                    cursor: 'pointer',
-                    fontFamily: 'JetBrains Mono',
-                    fontWeight: isEquals || isOpBtn ? 700 : 500,
-                    fontSize: 13,
-                    transition: 'all 0.1s',
-                    background: isEquals
-                      ? 'linear-gradient(135deg,var(--accent),var(--accent-2))'
-                      : isActive  ? 'var(--accent-soft)'
-                      : isOpBtn   ? 'var(--accent-soft)'
-                      : isSpecial ? 'rgba(239,68,68,0.08)'
-                      : isBacksp  ? 'rgba(245,158,11,0.08)'
-                      : 'var(--surface-2)',
-                    color: isEquals  ? '#fff'
-                      : isOpBtn   ? 'var(--accent-muted)'
-                      : isSpecial ? '#F87171'
-                      : isBacksp  ? '#FBBF24'
-                      : 'var(--text-primary)',
-                    boxShadow: isEquals ? '0 2px 12px rgba(var(--accent-rgb,99,102,241),0.3)' : 'none',
-                  }}
-                >
-                  {v}
-                </button>
-              )
-            })}
+            {/* Main grid — 4 columns × 6 rows */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
+              {CALC_ROWS.flat().map((btn, i) => (
+                <button key={i} onClick={() => press(btn)} style={getBtnStyle(btn)}>{btn}</button>
+              ))}
+            </div>
           </div>
 
           {/* Footer */}
           <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPCALC v1.0</span>
-            <button
-              onClick={() => { setDisplay('0'); setPrev(null); setOp(null); setFresh(false); setHistory([]) }}
-              style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px' }}
-            >
-              clear all
-            </button>
+            <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPCALC v2.0</span>
+            {memory !== null && (
+              <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent-muted)', fontWeight: 700 }}>
+                M: {fmtDisplay(String(memory))}
+              </span>
+            )}
           </div>
         </div>
       )}
