@@ -10,14 +10,6 @@ const FREQUENCIES = [
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
-// Timezone view options
-// CST = customer's calendar day (no offset)
-// PH  = when PH agent sees it (+1 day, since CST end-of-day = PH next morning)
-const TZ_OPTIONS = [
-  { id: 'cst', label: 'CST', flag: '🇺🇸', desc: "Customer's pay date" },
-  { id: 'ph',  label: 'PH',  flag: '🇵🇭', desc: 'PH arrival day (+1)' },
-]
-const TZ_OFFSET = { cst: 0, ph: 1 }
 
 // ── All date math is done in UTC so system timezone never affects day-of-week ──
 // Create a UTC midnight date — immune to system timezone
@@ -218,11 +210,9 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [viewMonth, setViewMonth]   = useState(now.getMonth())
   const [frequency, setFrequency]   = useState('weekly')
   const [startDate, setStartDate]   = useState('')
-  const [tzView, setTzView]         = useState('cst')
 
-  const dayOffset = TZ_OFFSET[tzView]
-  const payDates = getPayDates(frequency, startDate, viewYear, viewMonth, dayOffset)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseDate(startDate) : todayUTC, 4, dayOffset)
+  const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseDate(startDate) : todayUTC, 4)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
@@ -365,45 +355,6 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
                 }}
               />
             </div>
-
-            {/* Timezone view toggle */}
-            <div style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5, fontWeight: 700 }}>
-                View As
-              </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {TZ_OPTIONS.map(tz => (
-                  <button
-                    key={tz.id}
-                    onClick={() => setTzView(tz.id)}
-                    title={tz.desc}
-                    style={{
-                      flex: 1,
-                      padding: '5px 4px',
-                      borderRadius: 8,
-                      border: `1px solid ${tzView === tz.id ? 'var(--accent-border)' : 'var(--border)'}`,
-                      background: tzView === tz.id ? 'var(--accent-soft)' : 'var(--surface)',
-                      color: tzView === tz.id ? 'var(--accent-muted)' : 'var(--text-muted)',
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: 10,
-                      fontWeight: tzView === tz.id ? 700 : 400,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
-                      textAlign: 'center',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                    }}
-                  >
-                    <span style={{ fontSize: 12 }}>{tz.flag}</span>
-                    {tz.label}
-                  </button>
-                ))}
-              </div>
-              {tzView === 'ph' && (
-                <div style={{ marginTop: 4, fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent-muted)', opacity: 0.8 }}>
-                  ⚡ Showing CST payday +1 day (PH arrival)
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ── Month nav ── */}
@@ -422,11 +373,8 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
           {/* ── Upcoming paydays summary ── */}
           {startDate && upcomingDates.length > 0 && (
             <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
-              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>⏭ Next {upcomingDates.length} Paydays</span>
-                <span style={{ fontSize: 9, background: 'var(--accent-soft)', color: 'var(--accent-muted)', borderRadius: 5, padding: '1px 5px', fontWeight: 700 }}>
-                  {TZ_OPTIONS.find(t => t.id === tzView)?.flag} {TZ_OPTIONS.find(t => t.id === tzView)?.label}
-                </span>
+              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>
+                ⏭ Next {upcomingDates.length} Paydays
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {upcomingDates.map((d, i) => {

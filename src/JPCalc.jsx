@@ -305,8 +305,21 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
       const k = KEY_MAP[e.key] || e.key
       if ([...'0123456789.=+%', '×','÷','−','⌫','C','CE'].includes(k)) { e.preventDefault(); press(k) }
     }
+    const pasteHandler = (e) => {
+      if (!focused || isTypingElsewhere()) return
+      const text = (e.clipboardData || window.clipboardData).getData('text')
+      const num = text.replace(/[^0-9.\-]/g, '')  // strip everything except digits, dot, minus
+      if (num && !isNaN(parseFloat(num))) {
+        e.preventDefault()
+        // Replace display entirely, like Windows 11 calc
+        setDisplay(num.length > 16 ? num.slice(0, 16) : num)
+        setWaitOp(false)
+        setAfterEq(false)
+      }
+    }
     window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    window.addEventListener('paste', pasteHandler)
+    return () => { window.removeEventListener('keydown', handler); window.removeEventListener('paste', pasteHandler) }
   }, [press, focused])
 
   // ── Render helpers ────────────────────────────────────────────────────────
