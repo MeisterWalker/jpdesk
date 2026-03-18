@@ -19,25 +19,32 @@ const TZ_OPTIONS = [
 ]
 const TZ_OFFSET = { cst: 0, ph: 1 }
 
-// Parse a "YYYY-MM-DD" string as LOCAL midnight (not UTC) to avoid timezone day-shift bugs
-function parseLocalDate(str) {
-  if (!str) return null
-  const [y, m, d] = str.split('-').map(Number)
-  return new Date(y, m - 1, d)
+// ── All date math is done in UTC so system timezone never affects day-of-week ──
+// Create a UTC midnight date — immune to system timezone
+function utcDate(y, m, d) {
+  return new Date(Date.UTC(y, m, d))
 }
 
-// Add dayOffset to each computed date, then collect only those that fall in the target month
+// Parse "YYYY-MM-DD" as UTC midnight
+function parseDate(str) {
+  if (!str) return null
+  const [y, m, d] = str.split('-').map(Number)
+  return utcDate(y, m - 1, d)
+}
+
+// UTC helper getters
+const D   = (d) => d.getUTCDate()
+const M   = (d) => d.getUTCMonth()
+const Y   = (d) => d.getUTCFullYear()
+const DAY = (d) => d.getUTCDay()
+
+// Add dayOffset to each computed date, collect those still in target month
 function applyOffset(rawDates, dayOffset, year, month) {
   if (dayOffset === 0) return rawDates
   const shifted = new Set()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
   rawDates.forEach(day => {
-    const d = new Date(year, month, day)
-    d.setDate(d.getDate() + dayOffset)
-    // Only keep if still in the same display month
-    if (d.getFullYear() === year && d.getMonth() === month) {
-      shifted.add(d.getDate())
-    }
+    const d = utcDate(year, month, day + dayOffset)
+    if (Y(d) === year && M(d) === month) shifted.add(D(d))
   })
   return shifted
 }
@@ -46,43 +53,41 @@ function getPayDates(frequency, startDate, year, month, dayOffset = 0) {
   const rawDates = new Set()
   if (!startDate) return rawDates
 
-  const start = parseLocalDate(startDate)
-  start.setHours(0, 0, 0, 0)
-
-  const monthStart = new Date(year, month, 1)
-  const monthEnd   = new Date(year, month + 1, 0)
+  const start = parseDate(startDate)
+  const monthStart = utcDate(year, month, 1)
+  const monthEnd   = utcDate(year, month + 1, 0) // last day of month
 
   if (frequency === 'weekly') {
     let d = new Date(start)
-    while (d > monthEnd) d.setDate(d.getDate() - 7)
-    while (d < monthStart) d.setDate(d.getDate() + 7)
+    while (d > monthEnd) d = utcDate(Y(d), M(d), D(d) - 7)
+    while (d < monthStart) d = utcDate(Y(d), M(d), D(d) + 7)
     while (d <= monthEnd) {
-      if (d >= monthStart) rawDates.add(d.getDate())
-      d = new Date(d); d.setDate(d.getDate() + 7)
+      if (d >= monthStart) rawDates.add(D(d))
+      d = utcDate(Y(d), M(d), D(d) + 7)
     }
   }
 
   if (frequency === 'biweekly') {
     let d = new Date(start)
-    while (d > monthEnd) d.setDate(d.getDate() - 14)
-    while (d < monthStart) d.setDate(d.getDate() + 14)
+    while (d > monthEnd) d = utcDate(Y(d), M(d), D(d) - 14)
+    while (d < monthStart) d = utcDate(Y(d), M(d), D(d) + 14)
     while (d <= monthEnd) {
-      if (d >= monthStart) rawDates.add(d.getDate())
-      d = new Date(d); d.setDate(d.getDate() + 14)
+      if (d >= monthStart) rawDates.add(D(d))
+      d = utcDate(Y(d), M(d), D(d) + 14)
     }
   }
 
   if (frequency === 'semimonthly') {
-    const day1 = start.getDate()
-    const day2 = Math.min(day1 + 15, new Date(year, month + 1, 0).getDate())
-    const lastDay = new Date(year, month + 1, 0).getDate()
+    const day1 = D(start)
+    const lastDay = D(utcDate(year, month + 1, 0))
+    const day2 = Math.min(day1 + 15, lastDay)
     rawDates.add(Math.min(day1, lastDay))
     rawDates.add(Math.min(day2, lastDay))
   }
 
   if (frequency === 'monthly') {
-    const day = start.getDate()
-    const lastDay = new Date(year, month + 1, 0).getDate()
+    const day = D(start)
+    const lastDay = D(utcDate(year, month + 1, 0))
     rawDates.add(Math.min(day, lastDay))
   }
 
@@ -95,41 +100,35 @@ const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffset = 0) {
   if (!startDate) return []
   const results = []
-  const start = parseLocalDate(startDate)
-  start.setHours(0, 0, 0, 0)
-  const from = new Date(fromDate)
-  from.setHours(0, 0, 0, 0)
+  const start = parseDate(startDate)
+  const from = fromDate
 
   if (frequency === 'weekly') {
     let d = new Date(start)
-    while (d <= from) d.setDate(d.getDate() + 7)
+    while (d <= from) d = utcDate(Y(d), M(d), D(d) + 7)
     while (results.length < count) {
-      const shifted = new Date(d); shifted.setDate(shifted.getDate() + dayOffset)
-      results.push(shifted)
-      d.setDate(d.getDate() + 7)
+      results.push(utcDate(Y(d), M(d), D(d) + dayOffset))
+      d = utcDate(Y(d), M(d), D(d) + 7)
     }
   }
 
   if (frequency === 'biweekly') {
     let d = new Date(start)
-    while (d <= from) d.setDate(d.getDate() + 14)
+    while (d <= from) d = utcDate(Y(d), M(d), D(d) + 14)
     while (results.length < count) {
-      const shifted = new Date(d); shifted.setDate(shifted.getDate() + dayOffset)
-      results.push(shifted)
-      d.setDate(d.getDate() + 14)
+      results.push(utcDate(Y(d), M(d), D(d) + dayOffset))
+      d = utcDate(Y(d), M(d), D(d) + 14)
     }
   }
 
   if (frequency === 'semimonthly') {
-    const day1 = start.getDate()
+    const day1 = D(start)
     const day2 = day1 + 15
-    let y = from.getFullYear(), m = from.getMonth()
+    let y = Y(from), m = M(from)
     while (results.length < count) {
-      const lastDay = new Date(y, m + 1, 0).getDate()
-      const d1 = new Date(y, m, Math.min(day1, lastDay))
-      const d2 = new Date(y, m, Math.min(day2, lastDay))
-      d1.setDate(d1.getDate() + dayOffset)
-      d2.setDate(d2.getDate() + dayOffset)
+      const lastDay = D(utcDate(y, m + 1, 0))
+      const d1 = utcDate(y, m, Math.min(day1, lastDay) + dayOffset)
+      const d2 = utcDate(y, m, Math.min(day2, lastDay) + dayOffset)
       if (d1 > from) results.push(d1)
       if (results.length < count && d2 > from) results.push(d2)
       m++; if (m > 11) { m = 0; y++ }
@@ -137,12 +136,11 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffse
   }
 
   if (frequency === 'monthly') {
-    const day = start.getDate()
-    let y = from.getFullYear(), m = from.getMonth()
+    const day = D(start)
+    let y = Y(from), m = M(from)
     while (results.length < count) {
-      const lastDay = new Date(y, m + 1, 0).getDate()
-      const d = new Date(y, m, Math.min(day, lastDay))
-      d.setDate(d.getDate() + dayOffset)
+      const lastDay = D(utcDate(y, m + 1, 0))
+      const d = utcDate(y, m, Math.min(day, lastDay) + dayOffset)
       if (d > from) results.push(d)
       m++; if (m > 11) { m = 0; y++ }
     }
@@ -151,16 +149,15 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffse
   return results.slice(0, count)
 }
 
-function CalendarGrid({ year, month, payDates, today }) {
-  const firstDay = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
+function CalendarGrid({ year, month, payDates, todayUTC }) {
+  const firstDay = DAY(utcDate(year, month, 1))
+  const daysInMonth = D(utcDate(year, month + 1, 0))
   const cells = []
 
-  // Empty cells before first day
   for (let i = 0; i < firstDay; i++) cells.push(null)
   for (let d = 1; d <= daysInMonth; d++) cells.push(d)
 
-  const isToday = (d) => d && today.getFullYear() === year && today.getMonth() === month && today.getDate() === d
+  const isToday = (d) => d && Y(todayUTC) === year && M(todayUTC) === month && D(todayUTC) === d
   const isPay   = (d) => d && payDates.has(d)
 
   return (
@@ -211,20 +208,21 @@ function CalendarGrid({ year, month, payDates, today }) {
 }
 
 export default function JPCal({ focused = true, onFocus = () => {} }) {
-  const today = new Date()
+  const now = new Date()
+  const todayUTC = utcDate(now.getFullYear(), now.getMonth(), now.getDate())
   const [expanded, setExpanded]     = useState(true)
   const [position, setPosition]     = useState({ x: window.innerWidth - 460, y: 90 })
   const [dragging, setDragging]     = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [viewYear, setViewYear]     = useState(today.getFullYear())
-  const [viewMonth, setViewMonth]   = useState(today.getMonth())
+  const [viewYear, setViewYear]     = useState(now.getFullYear())
+  const [viewMonth, setViewMonth]   = useState(now.getMonth())
   const [frequency, setFrequency]   = useState('weekly')
   const [startDate, setStartDate]   = useState('')
   const [tzView, setTzView]         = useState('cst')
 
   const dayOffset = TZ_OFFSET[tzView]
   const payDates = getPayDates(frequency, startDate, viewYear, viewMonth, dayOffset)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseLocalDate(startDate) : today, 4, dayOffset)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseDate(startDate) : todayUTC, 4, dayOffset)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
@@ -419,7 +417,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
           </div>
 
           {/* ── Calendar grid ── */}
-          <CalendarGrid year={viewYear} month={viewMonth} payDates={payDates} today={today} />
+          <CalendarGrid year={viewYear} month={viewMonth} payDates={payDates} todayUTC={todayUTC} />
 
           {/* ── Upcoming paydays summary ── */}
           {startDate && upcomingDates.length > 0 && (
@@ -443,11 +441,11 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 10 }}>{isNextPay ? '💰' : '📆'}</span>
                         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-primary)' }}>
-                          {SHORT_DAYS[d.getDay()]}, {SHORT_MONTHS[d.getMonth()]} {d.getDate()}
+                          {SHORT_DAYS[DAY(d)]}, {SHORT_MONTHS[M(d)]} {D(d)}
                         </span>
                       </div>
                       <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-muted)', fontWeight: isNextPay ? 700 : 400 }}>
-                        {d.getFullYear()}
+                        {Y(d)}
                       </span>
                     </div>
                   )

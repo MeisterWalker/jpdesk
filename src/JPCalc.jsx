@@ -99,7 +99,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
   const [dragging,   setDragging]   = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [muted,      setMuted]      = useState(false)
-  const [copied,     setCopied]     = useState(false)
+  const [copied,     setCopied]     = useState(false) // for the explicit copy button
 
   // Calculator state
   const [display,  setDisplay]  = useState('0')    // current shown value (raw, no commas)
@@ -399,26 +399,47 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
 
           {/* Display */}
-          <div onClick={() => {
-            if (display && display !== '0' && !isErr(display)) {
-              navigator.clipboard.writeText(display)
-              setCopied(true); setTimeout(() => setCopied(false), 1500)
-            }
-          }} title="Click to copy" style={{ padding: '10px 16px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+          <div style={{ padding: '8px 14px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', position: 'relative' }}>
+            {/* Copy button — top right, explicit like Win11 */}
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={() => {
+                if (!isErr(display)) {
+                  navigator.clipboard.writeText(display)
+                  setCopied(true); setTimeout(() => setCopied(false), 1500)
+                }
+              }}
+              title="Copy result"
+              style={{
+                position: 'absolute', top: 7, right: 10,
+                background: copied ? 'rgba(34,197,94,0.15)' : 'transparent',
+                border: '1px solid transparent',
+                borderRadius: 5, cursor: 'pointer',
+                padding: '2px 5px', fontSize: 11,
+                color: copied ? '#22C55E' : 'var(--text-muted)',
+                opacity: 0.7, transition: 'all 0.15s',
+              }}
+            >
+              {copied ? '✓' : '⎘'}
+            </button>
+
             {/* Expression line */}
-            <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'right', minHeight: 18, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'right', minHeight: 18, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 22 }}>
               {expr || '\u00a0'}
             </div>
-            {/* Main number */}
-            <div style={{
-              fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize,
-              color: isErr(display) ? '#F87171' : copied ? '#22C55E' : 'var(--text-primary)',
-              textAlign: 'right', letterSpacing: '-0.02em',
-              lineHeight: 1.1, minHeight: 36,
-              display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-              transition: 'color 0.2s', overflow: 'hidden',
-            }}>
-              {copied ? '✓ Copied!' : dispStr}
+            {/* Main number — selectable like Win11 */}
+            <div
+              onMouseDown={e => e.stopPropagation()}
+              style={{
+                fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize,
+                color: isErr(display) ? '#F87171' : 'var(--text-primary)',
+                textAlign: 'right', letterSpacing: '-0.02em',
+                lineHeight: 1.1, minHeight: 36,
+                display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+                overflow: 'hidden', cursor: 'text', userSelect: 'text',
+              }}
+            >
+              {dispStr}
             </div>
           </div>
 
