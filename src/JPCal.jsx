@@ -10,11 +10,18 @@ const FREQUENCIES = [
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
+// Parse a "YYYY-MM-DD" string as LOCAL midnight (not UTC) to avoid timezone day-shift bugs
+function parseLocalDate(str) {
+  if (!str) return null
+  const [y, m, d] = str.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 function getPayDates(frequency, startDate, year, month) {
   const dates = new Set()
   if (!startDate) return dates
 
-  const start = new Date(startDate)
+  const start = parseLocalDate(startDate)
   start.setHours(0, 0, 0, 0)
 
   const monthStart = new Date(year, month, 1)
@@ -66,7 +73,7 @@ const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
   if (!startDate) return []
   const results = []
-  const start = new Date(startDate)
+  const start = parseLocalDate(startDate)
   start.setHours(0, 0, 0, 0)
   const from = new Date(fromDate)
   from.setHours(0, 0, 0, 0)
@@ -188,7 +195,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [startDate, setStartDate]   = useState('')
 
   const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? new Date(startDate) : today, 4)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseLocalDate(startDate) : today, 4)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {

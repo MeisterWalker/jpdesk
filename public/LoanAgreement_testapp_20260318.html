@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Caveat:wght@600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'EB Garamond',Georgia,serif; color:#111827; background:#fff; font-size:12px; line-height:1.6; }
+  @media print { @page { size:A4; margin:15mm 18mm; } .page-break { page-break-before:always; } }
+  .page { padding:36px 44px; }
+  .page2 { padding:36px 44px; }
+  .header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2.5px solid #1e1b4b; padding-bottom:14px; margin-bottom:20px; }
+  .logo { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
+  .logo span { color:#6366F1; }
+  .doc-meta { text-align:right; font-size:10.5px; color:#6B7280; line-height:1.7; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:18px; }
+  .section { margin-bottom:18px; }
+  .section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4338CA; border-bottom:1.5px solid #E5E7EB; padding-bottom:5px; margin-bottom:10px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #F3F4F6; font-size:11.5px; }
+  .row .lbl { color:#6B7280; }
+  .row .val { font-weight:600; color:#111827; text-align:right; }
+  .schedule-table { width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:0; }
+  .schedule-table th { background:#1e1b4b; color:#fff; padding:7px 10px; text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; }
+  .schedule-table td { padding:6px 10px; border:1px solid #E5E7EB; }
+  .tc-item { font-size:11.5px; color:#374151; margin-bottom:10px; line-height:1.65; }
+  .tc-item strong { color:#111827; }
+  .sig-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; margin-top:32px; }
+  .sig-col { display:flex; flex-direction:column; }
+  .sig-label { font-size:9.5px; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:12px; }
+  .sig-image-box { height:72px; display:flex; align-items:flex-end; margin-bottom:0; }
+  .sig-line { border-bottom:1.5px solid #374151; margin-bottom:6px; }
+  .sig-name { font-size:22px; font-style:italic; font-family:'Caveat',cursive; color:#111827; margin-bottom:4px; line-height:1.2; }
+  .sig-sub { font-size:10px; color:#9CA3AF; line-height:1.5; }
+  .disclaimer { font-size:9.5px; color:#9CA3AF; margin-top:28px; padding-top:12px; border-top:1px solid #E5E7EB; line-height:1.6; }
+  .page2-header { display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #E5E7EB; padding-bottom:10px; margin-bottom:20px; font-size:10px; color:#9CA3AF; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="logo">Moneyfest<span>Lending</span></div>
+      <div style="font-size:10.5px;color:#6B7280;margin-top:3px;">Private Lending Program — Loan Agreement</div>
+    </div>
+    <div class="doc-meta">
+      <div><strong>Ref:</strong> LM-3DD78C</div>
+      <div><strong>Date Signed:</strong> March 18, 2026</div>
+      <div><strong>Maturity Date:</strong> <span style="color:#D97706;font-weight:700;">June 20, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Parties to this Agreement</div>
+      <div class="row"><span class="lbl">Borrower</span><span class="val">testapp</span></div>
+      <div class="row"><span class="lbl">Department</span><span class="val">Minto Money</span></div>
+      <div class="row"><span class="lbl">Access Code</span><span class="val">LM-C9CC</span></div>
+      <div class="row"><span class="lbl">Lender</span><span class="val">MoneyfestLending</span></div>
+      <div class="row"><span class="lbl">Release Date</span><span class="val">March 20, 2026</span></div>
+      <div class="row"><span class="lbl">Maturity Date</span><span class="val" style="color:#D97706;font-weight:700;">June 20, 2026</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">RA 3765 — Truth in Lending Act Disclosure</div>
+      <div class="row"><span class="lbl">Approved Loan Amount</span><span class="val">&#8369;7,000.00</span></div>
+      <div class="row"><span class="lbl">Security Hold (10%)</span><span class="val">&#8369;700.00</span></div>
+      <div class="row"><span class="lbl">Funds Released to Borrower</span><span class="val">&#8369;6,300.00</span></div>
+      <div class="row"><span class="lbl">Finance Charge (Interest)</span><span class="val">&#8369;1,470.00</span></div>
+      <div class="row"><span class="lbl">Monthly Interest Rate</span><span class="val">7% per month × 3 months</span></div>
+      <div class="row"><span class="lbl">Effective Annual Rate</span><span class="val">84.00% per annum</span></div>
+      <div class="row"><span class="lbl">Total Amount Payable</span><span class="val" style="color:#1e1b4b;font-size:13px;">&#8369;8,470.00</span></div>
+      <div class="row"><span class="lbl">Per Installment Amount</span><span class="val">&#8369;1,411.667</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Payment Schedule &amp; Maturity Date</div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:8%">#</th>
+          <th style="width:42%">Due Date</th>
+          <th style="width:28%;text-align:right">Amount Due</th>
+          <th style="width:22%;text-align:center">Status</th>
+        </tr>
+      </thead>
+      <tbody><tr style="background:#fafafa">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">1</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">April 5, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr><tr style="background:#fff">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">2</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">April 20, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr><tr style="background:#fafafa">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">3</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">May 5, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr><tr style="background:#fff">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">4</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">May 20, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr><tr style="background:#fafafa">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">5</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">June 5, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr><tr style="background:#fff">
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">6</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;">June 20, 2026</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:600;">&#8369;1,411.667</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:center;color:#9CA3AF">Pending</td>
+      </tr></tbody>
+      <tfoot>
+        <tr style="background:#1e1b4b;">
+          <td colspan="2" style="padding:7px 10px;border:1px solid #374151;color:#fff;font-weight:700;font-size:11.5px;">Loan Maturity — Final Payment Due</td>
+          <td style="padding:7px 10px;border:1px solid #374151;color:#FCD34D;font-weight:700;text-align:right;">&#8369;1,411.667</td>
+          <td style="padding:7px 10px;border:1px solid #374151;color:#FCD34D;text-align:center;font-weight:700;">June 20, 2026</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-break"></div>
+<div class="page2">
+  <div class="page2-header">
+    <div><strong style="color:#1e1b4b;">MoneyfestLending</strong> — Loan Agreement (continued)</div>
+    <div>Ref: LM-3DD78C &middot; testapp</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Terms &amp; Conditions</div>
+    <p class="tc-item">1. <strong>Loan Term &amp; Interest</strong> — A monthly interest rate of 7% is applied for each of the 3 months of the loan term, resulting in a total finance charge of 21% of the principal. This charge is fixed and does not compound. It applies regardless of early settlement or prepayment of any installment.</p>
+    <p class="tc-item">2. <strong>Repayment Schedule &amp; Installment Rounding</strong> — The loan is repaid in 6 equal installments, collected on the 5th and 20th of each month. Where the total repayment does not divide evenly, each installment is rounded up to the nearest whole peso (₱1.00), applied uniformly across all installments, and disclosed in this agreement.</p>
+    <p class="tc-item">3. <strong>Security Hold</strong> — 10% of the approved loan amount is withheld upon fund release as a Security Hold. The rate is determined by credit score: VIP (1000) — 5%, Reliable (920+) — 6%, Trusted (835+) — 8%, Standard (750+) — 10%, Caution (500+) — 15%, High Risk (below 500) — 20%. Late payment penalties are automatically deducted from the Security Hold balance. The remaining balance is returned to the Borrower's Rebate Credits upon full payment of the final installment.</p>
+    <p class="tc-item">4. <strong>Late Payment Penalties</strong> — A penalty of &#8369;20.00 per calendar day is charged for each day an installment remains unpaid past its due date (5th or 20th of the month). The penalty accrues daily with no cap until the installment is settled. Each late payment results in a deduction of 10 points from the Borrower's credit score. Consistent late payments may result in the Borrower's loan limit being frozen.</p>
+    <p class="tc-item">5. <strong>Default</strong> — Failure to pay two (2) or more consecutive installments constitutes a loan default. Upon default, the remaining balance becomes immediately due and payable in full. A credit score deduction of 150 points is applied and the Borrower's account will be flagged as High Risk. MoneyfestLending reserves the right to pursue all available legal remedies under Philippine law, including the filing of a civil complaint for collection of sum of money, referral to barangay conciliation under Republic Act No. 7160 (Katarungang Pambarangay Law) prior to court action, and other remedies available under Republic Act No. 9474 (Lending Company Regulation Act of 2007). The Borrower shall be liable for all costs of collection, including reasonable attorney's fees, should legal action become necessary. The Borrower expressly acknowledges this right by signing this agreement.</p>
+    <p class="tc-item">6. <strong>Credit Score System</strong> — Every Borrower starts with a credit score of 750 (max 1,000). +15 points per confirmed on-time installment; -10 points per late installment; +25 bonus points upon full loan repayment; -150 points upon default. Credit scores determine borrower tier, loan limit level, and Security Hold rate.</p>
+    <p class="tc-item">7. <strong>Loan Limit &amp; Level System</strong> — Level 1 (first loan): ₱5,000. Level 2 (after 1 clean loan): ₱7,000. Level 3 (after 2 clean loans): ₱9,000. Level 4 (after 3 clean loans): ₱10,000 maximum. A "clean loan" means fully repaid with no defaults. Upgrades require a credit score of at least 750.</p>
+    <p class="tc-item">8. <strong>Rebate Credits &amp; Early Payment Incentive</strong> — If the Borrower pays the final installment at least 7 to 14 days before its due date, a fixed rebate of 1% of the original loan amount is credited to their Rebate Credits balance. The rebate rate is fixed at 1% regardless of how many days early payment is made, provided the minimum 7-day threshold is met. Rebate Credits can be withdrawn once the balance reaches ₱500, subject to admin approval.</p>
+    <p class="tc-item">9. <strong>Data Privacy</strong> — The Borrower's personal information is collected and processed solely for the administration of this loan in compliance with Republic Act No. 10173 (Data Privacy Act of 2012). Data will not be shared with third parties without consent except as required by law.</p>
+    <p class="tc-item">10. <strong>Program Rules</strong> — Only one active loan is permitted per Borrower at a time. The Lender reserves the right to approve, reject, or adjust any loan application at its sole discretion. MoneyfestLending reserves the right to amend these terms at any time with notice via the Borrower Portal or email.</p>
+    <p class="tc-item">11. <strong>Governing Law</strong> — This agreement shall be governed by the laws of the Republic of the Philippines. Any dispute shall first be referred to barangay conciliation under Republic Act No. 7160 (Katarungang Pambarangay Law). If unresolved, disputes shall be brought before the appropriate Philippine courts. By signing, the Borrower expressly acknowledges and agrees to MoneyfestLending's right to pursue legal remedies in cases of default or non-payment.</p>
+  </div>
+
+  <div class="section" style="margin-top:32px;">
+    <div class="section-title">Electronic Signatures — RA 8792 (E-Commerce Act)</div>
+    <p style="font-size:11px;color:#6B7280;margin-bottom:24px;line-height:1.6;">By affixing their electronic signature below, both parties confirm they have read, understood, and agreed to all terms and conditions set forth in this Loan Agreement.</p>
+    <div class="sig-grid">
+      <div class="sig-col">
+        <div class="sig-label">Borrower E-Signature</div>
+        <div class="sig-image-box"><img src="data:image/png;base64,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" style="height:68px;max-width:240px;display:block;" /></div>
+        <div class="sig-line"></div>
+        <div class="sig-name">testapp</div>
+        <div class="sig-sub">testapp</div>
+        <div class="sig-sub">Signed electronically on March 18, 2026</div>
+        <div class="sig-sub" style="margin-top:3px;">Pursuant to RA 8792 — E-Commerce Act of the Philippines</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-label">Admin / Authorized Representative</div>
+        <div class="sig-image-box"><div style="height:68px;"></div></div>
+        <div class="sig-line"></div>
+        <div style="height:28px;margin-bottom:4px;"></div>
+        <div class="sig-sub">MoneyfestLending Administration</div>
+        <div class="sig-sub">Authorized Representative</div>
+        <div class="sig-sub" style="margin-top:3px;">Date: ___________________________</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    This Loan Agreement is executed in compliance with Republic Act No. 3765 (Truth in Lending Act), Republic Act No. 10173 (Data Privacy Act of 2012), and Republic Act No. 8792 (Electronic Commerce Act of 2000). The electronic signature affixed herein constitutes a valid and binding signature under RA 8792 and has the same legal effect as a handwritten signature. This document is private and confidential. MoneyfestLending is a private colleague lending program and is not a bank, quasi-bank, or BSP-supervised financial institution. This document is for the exclusive use of the named parties only.
+  </div>
+</div>
+</body>
+</html>
