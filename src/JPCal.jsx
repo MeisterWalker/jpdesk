@@ -10,6 +10,15 @@ const FREQUENCIES = [
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
+// Timezone view options
+// CST = customer's calendar day (no offset)
+// PH  = when PH agent sees it (+1 day, since CST end-of-day = PH next morning)
+const TZ_OPTIONS = [
+  { id: 'cst', label: 'CST', flag: '🇺🇸', desc: "Customer's pay date" },
+  { id: 'ph',  label: 'PH',  flag: '🇵🇭', desc: 'PH arrival day (+1)' },
+]
+const TZ_OFFSET = { cst: 0, ph: 1 }
+
 // Parse a "YYYY-MM-DD" string as LOCAL midnight (not UTC) to avoid timezone day-shift bugs
 function parseLocalDate(str) {
   if (!str) return null
@@ -17,9 +26,25 @@ function parseLocalDate(str) {
   return new Date(y, m - 1, d)
 }
 
-function getPayDates(frequency, startDate, year, month) {
-  const dates = new Set()
-  if (!startDate) return dates
+// Add dayOffset to each computed date, then collect only those that fall in the target month
+function applyOffset(rawDates, dayOffset, year, month) {
+  if (dayOffset === 0) return rawDates
+  const shifted = new Set()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  rawDates.forEach(day => {
+    const d = new Date(year, month, day)
+    d.setDate(d.getDate() + dayOffset)
+    // Only keep if still in the same display month
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      shifted.add(d.getDate())
+    }
+  })
+  return shifted
+}
+
+function getPayDates(frequency, startDate, year, month, dayOffset = 0) {
+  const rawDates = new Set()
+  if (!startDate) return rawDates
 
   const start = parseLocalDate(startDate)
   start.setHours(0, 0, 0, 0)
@@ -28,13 +53,11 @@ function getPayDates(frequency, startDate, year, month) {
   const monthEnd   = new Date(year, month + 1, 0)
 
   if (frequency === 'weekly') {
-    // Find first occurrence of that weekday in or before monthStart
     let d = new Date(start)
-    // Walk back to same weekday before or at monthStart
     while (d > monthEnd) d.setDate(d.getDate() - 7)
     while (d < monthStart) d.setDate(d.getDate() + 7)
     while (d <= monthEnd) {
-      if (d >= monthStart) dates.add(d.getDate())
+      if (d >= monthStart) rawDates.add(d.getDate())
       d = new Date(d); d.setDate(d.getDate() + 7)
     }
   }
@@ -44,33 +67,32 @@ function getPayDates(frequency, startDate, year, month) {
     while (d > monthEnd) d.setDate(d.getDate() - 14)
     while (d < monthStart) d.setDate(d.getDate() + 14)
     while (d <= monthEnd) {
-      if (d >= monthStart) dates.add(d.getDate())
+      if (d >= monthStart) rawDates.add(d.getDate())
       d = new Date(d); d.setDate(d.getDate() + 14)
     }
   }
 
   if (frequency === 'semimonthly') {
-    // Use start date day as 1st pay, +15 days as 2nd pay (capped to last day)
     const day1 = start.getDate()
     const day2 = Math.min(day1 + 15, new Date(year, month + 1, 0).getDate())
     const lastDay = new Date(year, month + 1, 0).getDate()
-    dates.add(Math.min(day1, lastDay))
-    dates.add(Math.min(day2, lastDay))
+    rawDates.add(Math.min(day1, lastDay))
+    rawDates.add(Math.min(day2, lastDay))
   }
 
   if (frequency === 'monthly') {
     const day = start.getDate()
     const lastDay = new Date(year, month + 1, 0).getDate()
-    dates.add(Math.min(day, lastDay))
+    rawDates.add(Math.min(day, lastDay))
   }
 
-  return dates
+  return applyOffset(rawDates, dayOffset, year, month)
 }
 
 const SHORT_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
+function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffset = 0) {
   if (!startDate) return []
   const results = []
   const start = parseLocalDate(startDate)
@@ -82,7 +104,8 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
     let d = new Date(start)
     while (d <= from) d.setDate(d.getDate() + 7)
     while (results.length < count) {
-      results.push(new Date(d))
+      const shifted = new Date(d); shifted.setDate(shifted.getDate() + dayOffset)
+      results.push(shifted)
       d.setDate(d.getDate() + 7)
     }
   }
@@ -91,7 +114,8 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
     let d = new Date(start)
     while (d <= from) d.setDate(d.getDate() + 14)
     while (results.length < count) {
-      results.push(new Date(d))
+      const shifted = new Date(d); shifted.setDate(shifted.getDate() + dayOffset)
+      results.push(shifted)
       d.setDate(d.getDate() + 14)
     }
   }
@@ -104,6 +128,8 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
       const lastDay = new Date(y, m + 1, 0).getDate()
       const d1 = new Date(y, m, Math.min(day1, lastDay))
       const d2 = new Date(y, m, Math.min(day2, lastDay))
+      d1.setDate(d1.getDate() + dayOffset)
+      d2.setDate(d2.getDate() + dayOffset)
       if (d1 > from) results.push(d1)
       if (results.length < count && d2 > from) results.push(d2)
       m++; if (m > 11) { m = 0; y++ }
@@ -116,6 +142,7 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4) {
     while (results.length < count) {
       const lastDay = new Date(y, m + 1, 0).getDate()
       const d = new Date(y, m, Math.min(day, lastDay))
+      d.setDate(d.getDate() + dayOffset)
       if (d > from) results.push(d)
       m++; if (m > 11) { m = 0; y++ }
     }
@@ -193,9 +220,11 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [viewMonth, setViewMonth]   = useState(today.getMonth())
   const [frequency, setFrequency]   = useState('weekly')
   const [startDate, setStartDate]   = useState('')
+  const [tzView, setTzView]         = useState('cst')
 
-  const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseLocalDate(startDate) : today, 4)
+  const dayOffset = TZ_OFFSET[tzView]
+  const payDates = getPayDates(frequency, startDate, viewYear, viewMonth, dayOffset)
+  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseLocalDate(startDate) : today, 4, dayOffset)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
@@ -338,6 +367,45 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
                 }}
               />
             </div>
+
+            {/* Timezone view toggle */}
+            <div style={{ marginTop: 8 }}>
+              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5, fontWeight: 700 }}>
+                View As
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {TZ_OPTIONS.map(tz => (
+                  <button
+                    key={tz.id}
+                    onClick={() => setTzView(tz.id)}
+                    title={tz.desc}
+                    style={{
+                      flex: 1,
+                      padding: '5px 4px',
+                      borderRadius: 8,
+                      border: `1px solid ${tzView === tz.id ? 'var(--accent-border)' : 'var(--border)'}`,
+                      background: tzView === tz.id ? 'var(--accent-soft)' : 'var(--surface)',
+                      color: tzView === tz.id ? 'var(--accent-muted)' : 'var(--text-muted)',
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 10,
+                      fontWeight: tzView === tz.id ? 700 : 400,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      textAlign: 'center',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                    }}
+                  >
+                    <span style={{ fontSize: 12 }}>{tz.flag}</span>
+                    {tz.label}
+                  </button>
+                ))}
+              </div>
+              {tzView === 'ph' && (
+                <div style={{ marginTop: 4, fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--accent-muted)', opacity: 0.8 }}>
+                  ⚡ Showing CST payday +1 day (PH arrival)
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── Month nav ── */}
@@ -356,8 +424,11 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
           {/* ── Upcoming paydays summary ── */}
           {startDate && upcomingDates.length > 0 && (
             <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
-              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>
-                ⏭ Next {upcomingDates.length} Paydays
+              <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>⏭ Next {upcomingDates.length} Paydays</span>
+                <span style={{ fontSize: 9, background: 'var(--accent-soft)', color: 'var(--accent-muted)', borderRadius: 5, padding: '1px 5px', fontWeight: 700 }}>
+                  {TZ_OPTIONS.find(t => t.id === tzView)?.flag} {TZ_OPTIONS.find(t => t.id === tzView)?.label}
+                </span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {upcomingDates.map((d, i) => {
