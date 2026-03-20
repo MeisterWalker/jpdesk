@@ -13,19 +13,29 @@ export const INITIAL_BREAK_STATE = {
   endedAt: null,
 }
 
+export const SHIFT_DURATION = 8 * 60 * 60
+export const INITIAL_SHIFT_STATE = {
+  status: 'idle',    // idle | running | paused | done
+  remaining: SHIFT_DURATION,
+  startedAt: null,
+  endedAt: null,
+}
+
 export const ALARM_SOUNDS = [
   { id: 'radar',     label: 'Radar',     emoji: '📡', file: '/iPhone-Radar-Alarm.mp3' },
   { id: 'emergency', label: 'Emergency', emoji: '🚨', file: '/iPhone-Emergency-Alarm.mp3' },
 ]
 
-function pad(n) { return String(n).padStart(2, '0') }
-function fmtCountdown(secs) {
-  const m = Math.floor(Math.abs(secs) / 60)
+export function pad(n) { return String(n).padStart(2, '0') }
+export function fmtCountdown(secs) {
+  const h = Math.floor(Math.abs(secs) / 3600)
+  const m = Math.floor((Math.abs(secs) % 3600) / 60)
   const s = Math.abs(secs) % 60
-  return `${pad(m)}:${pad(s)}`
+  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`
 }
 function fmtTime(date) {
-  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+  if (!date) return '--:--'
+  return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
 }
 
 
@@ -34,6 +44,7 @@ export function useBreakEngine() {
   const [breakStates, setBreakStates] = useState(() =>
     Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }]))
   )
+  const [shift, setShift] = useState(INITIAL_SHIFT_STATE)
   const [selectedSound, setSelectedSound] = useState('radar')
   const intervalsRef = useRef({})   // { breakId: intervalId }
   const chimeRef     = useRef(null)
@@ -97,9 +108,36 @@ export function useBreakEngine() {
     updateBreak(id, () => ({ ...INITIAL_BREAK_STATE, remaining: BREAKS.find(b => b.id === id).duration }))
   }
 
+  // ── Shift actions ──
+  const startShift = () => {
+    setShift(prev => {
+      if (prev.status === 'running') return prev
+      const isIdle = prev.status === 'idle'
+      return {
+        ...prev,
+        status: 'running',
+        startedAt: isIdle ? new Date() : prev.startedAt,
+        remaining: isIdle ? SHIFT_DURATION : prev.remaining
+      }
+    })
+  }
+
+  const pauseShift = () => {
+    setShift(prev => ({ ...prev, status: 'paused' }))
+  }
+
+  const resetShift = () => {
+    setShift(INITIAL_SHIFT_STATE)
+  }
+
+  const finishShift = () => {
+    setShift(prev => ({ ...prev, status: 'done', endedAt: new Date() }))
+  }
+
   // ── Master tick — runs always regardless of tab ──
   useEffect(() => {
     const tick = setInterval(() => {
+      // Tick breaks
       setBreakStates(prev => {
         let next = { ...prev }
         let alarmId = null
@@ -120,11 +158,21 @@ export function useBreakEngine() {
         if (alarmId) setTimeout(() => startAlarm(alarmId), 0)
         return next
       })
+
+      // Tick shift
+      setShift(prev => {
+        if (prev.status !== 'running') return prev
+        const newRemaining = prev.remaining - 1
+        if (newRemaining <= 0) {
+          return { ...prev, status: 'done', remaining: 0, endedAt: new Date() }
+        }
+        return { ...prev, remaining: newRemaining }
+      })
     }, 1000)
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  return { breakStates, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime }
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -390,10 +438,101 @@ function SoundPicker({ selected, onChange }) {
   )
 }
 
+// ── Shift Card ─────────────────────────────────────────────
+function ShiftCard({ shift, engine }) {
+  const { status, remaining, startedAt, endedAt } = shift
+  const isRunning = status === 'running'
+  const isPaused  = status === 'paused'
+  const isDone    = status === 'done' || (status !== 'idle' && remaining <= 0)
+
+  const pct = (SHIFT_DURATION - Math.max(0, remaining)) / SHIFT_DURATION
+  const startedAtDate = startedAt ? new Date(startedAt) : null
+  const endedAtDate   = endedAt   ? new Date(endedAt)   : null
+
+  return (
+    <div className="card animate-fadeIn" style={{
+      marginBottom: 16, padding: '16px',
+      border: `1px solid ${isRunning ? 'var(--accent)' : 'var(--border)'}`,
+      background: isRunning ? 'var(--accent-soft)' : 'var(--surface)',
+      transition: 'all 0.3s ease',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Background progress */}
+      {isRunning && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, height: 2,
+          width: `${pct * 100}%`, background: 'var(--accent)',
+          transition: 'width 1s linear', opacity: 0.6
+        }} />
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <div style={{ 
+          width: 40, height: 40, borderRadius: 12, 
+          background: 'var(--bg)', border: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+        }}>
+          {isDone ? '🎉' : '🏢'}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 16, color: 'var(--text-primary)' }}>Full 8-Hour Shift</div>
+          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {status === 'idle' ? 'Ready to work' : status === 'running' ? '⏱ Duty in Progress' : status === 'paused' ? '⏸ On Hold' : '✅ Shift Ended'}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: 18, color: isDone ? '#22C55E' : 'var(--text-primary)' }}>
+            {fmtCountdown(remaining)}
+          </div>
+          <div style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>REMAINING</div>
+        </div>
+      </div>
+
+      {startedAtDate && (
+        <div style={{ display: 'flex', gap: 16, marginBottom: 14, padding: '8px 12px', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase' }}>Shift Started</div>
+            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: 'var(--text-primary)', marginTop: 1 }}>{fmtTime(startedAtDate)}</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase' }}>{isDone ? 'Shift Ended' : 'Expected End'}</div>
+            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: isDone ? '#22C55E' : 'var(--accent)', marginTop: 1 }}>
+              {isDone ? fmtTime(endedAtDate) : fmtTime(new Date(startedAtDate.getTime() + SHIFT_DURATION * 1000))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 8 }}>
+        {status === 'idle' && (
+          <button onClick={engine.startShift} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 38, fontSize: 13 }}>▶ Start My Shift</button>
+        )}
+        {(isRunning || isPaused) && (
+          <>
+            {isRunning ? (
+              <button onClick={engine.pauseShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>⏸ Pause</button>
+            ) : (
+              <button onClick={engine.startShift} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 38 }}>▶ Resume</button>
+            )}
+            <button onClick={engine.finishShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>✅ Finish Now</button>
+            <button onClick={engine.resetShift} className="btn btn-ghost" style={{ width: 38, height: 38, padding: 0, justifyContent: 'center' }} title="Reset">↺</button>
+          </>
+        )}
+        {status === 'done' && (
+          <button onClick={engine.resetShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>↺ Reset for Next Shift</button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function BreakPage({ engine }) {
-  const { breakStates, selectedSound, setSelectedSound } = engine
+  const { breakStates, shift, selectedSound, setSelectedSound } = engine
   return (
     <div style={{ padding: '12px 13px' }}>
+      <ShiftCard shift={shift} engine={engine} />
+      
       <SoundPicker selected={selectedSound} onChange={setSelectedSound} />
       <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, marginTop: 4 }}>
         Break Timers

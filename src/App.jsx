@@ -16,7 +16,7 @@ import JPRoute from './JPRoute'
 import JPPhonetic from './JPPhonetic'
 import JPFollowUp from './JPFollowUp'
 import JPTheme from './JPTheme'
-import Announcements from './Announcements'
+import ShiftBanner from './ShiftBanner'
 
 const TABS = [
   { id: 'notes',   label: 'Notes',   icon: '📝' },
@@ -538,7 +538,7 @@ function AppInner() {
       {showPhonetic && <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />}
       {showFollowUp && <JPFollowUp focused={focused === 'followup'} onFocus={() => setFocused('followup')} />}
       {showTheme    && <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />}
-      <Announcements />
+      <ShiftBanner shift={breakEngine.shift} />
 
     {/* Hydration reminder toast */}
     {showHydration && !hydrationDismissed && (
