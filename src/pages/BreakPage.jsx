@@ -19,7 +19,17 @@ export const INITIAL_SHIFT_STATE = {
   remaining: SHIFT_DURATION,
   startedAt: null,
   endedAt: null,
+  theme: 'slate',
+  emoji: '🏢',
 }
+
+export const SHIFT_THEMES = [
+  { id: 'slate',    label: 'Slate',    bg: 'rgba(15, 23, 42, 0.8)', border: 'rgba(255,255,255,0.1)', color: '#fff', accent: '#6366F1' },
+  { id: 'kawaii',   label: 'Kawaii',   bg: 'linear-gradient(135deg, #FF69B4, #DA70D6)', border: '#FFC0CB', color: '#fff', accent: '#FFF0F5' },
+  { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '#312E81', color: '#818CF8', accent: '#C7D2FE' },
+  { id: 'nature',   label: 'Nature',   bg: 'linear-gradient(135deg, #065F46, #059669)', border: '#34D399', color: '#ecfdf5', accent: '#6EE7B7' },
+  { id: 'sunset',   label: 'Sunset',   bg: 'linear-gradient(135deg, #BE123C, #FB923C)', border: '#FECDD3', color: '#fff', accent: '#FDE68A' },
+]
 
 export const ALARM_SOUNDS = [
   { id: 'radar',     label: 'Radar',     emoji: '📡', file: '/iPhone-Radar-Alarm.mp3' },
@@ -134,6 +144,9 @@ export function useBreakEngine() {
     setShift(prev => ({ ...prev, status: 'done', endedAt: new Date() }))
   }
 
+  const updateShiftTheme = (themeId) => setShift(prev => ({ ...prev, theme: themeId }))
+  const updateShiftEmoji = (emoji)   => setShift(prev => ({ ...prev, emoji }))
+
   // ── Master tick — runs always regardless of tab ──
   useEffect(() => {
     const tick = setInterval(() => {
@@ -172,7 +185,7 @@ export function useBreakEngine() {
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift }
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -440,87 +453,138 @@ function SoundPicker({ selected, onChange }) {
 
 // ── Shift Card ─────────────────────────────────────────────
 function ShiftCard({ shift, engine }) {
-  const { status, remaining, startedAt, endedAt } = shift
+  const { status, remaining, startedAt, endedAt, theme: themeId, emoji } = shift
   const isRunning = status === 'running'
   const isPaused  = status === 'paused'
   const isDone    = status === 'done' || (status !== 'idle' && remaining <= 0)
 
+  const theme = SHIFT_THEMES.find(t => t.id === themeId) || SHIFT_THEMES[0]
   const pct = (SHIFT_DURATION - Math.max(0, remaining)) / SHIFT_DURATION
   const startedAtDate = startedAt ? new Date(startedAt) : null
   const endedAtDate   = endedAt   ? new Date(endedAt)   : null
 
+  const emojis = ['🏢', '🎩', '🚀', '🐱', '🌈', '🌸', '🌊', '🔥', '💻', '☕']
+
   return (
     <div className="card animate-fadeIn" style={{
       marginBottom: 16, padding: '16px',
-      border: `1px solid ${isRunning ? 'var(--accent)' : 'var(--border)'}`,
-      background: isRunning ? 'var(--accent-soft)' : 'var(--surface)',
-      transition: 'all 0.3s ease',
+      border: `1px solid ${isRunning ? theme.border : 'var(--border)'}`,
+      background: isRunning ? theme.bg : 'var(--surface)',
+      transition: 'all 0.5s ease',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      color: isRunning ? theme.color : 'var(--text-primary)'
     }}>
       {/* Background progress */}
       {isRunning && (
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, height: 2,
-          width: `${pct * 100}%`, background: 'var(--accent)',
-          transition: 'width 1s linear', opacity: 0.6
+          position: 'absolute', bottom: 0, left: 0, height: 3,
+          width: `${pct * 100}%`, background: theme.accent,
+          transition: 'width 1s linear', opacity: 0.8
         }} />
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, position: 'relative', zIndex: 1 }}>
         <div style={{ 
-          width: 40, height: 40, borderRadius: 12, 
-          background: 'var(--bg)', border: '1px solid var(--border)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+          width: 44, height: 44, borderRadius: 12, 
+          background: isRunning ? 'rgba(255,255,255,0.1)' : 'var(--bg)', 
+          border: `1px solid ${isRunning ? theme.border : 'var(--border)'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22
         }}>
-          {isDone ? '🎉' : '🏢'}
+          {isDone ? '🎉' : emoji}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 16, color: 'var(--text-primary)' }}>Full 8-Hour Shift</div>
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 16, color: 'inherit' }}>Full 8-Hour Shift</div>
+          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.7)' : 'var(--text-label)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {status === 'idle' ? 'Ready to work' : status === 'running' ? '⏱ Duty in Progress' : status === 'paused' ? '⏸ On Hold' : '✅ Shift Ended'}
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: 18, color: isDone ? '#22C55E' : 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: 18, color: isDone ? '#22C55E' : 'inherit' }}>
             {fmtCountdown(remaining)}
           </div>
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>REMAINING</div>
+          <div style={{ fontSize: 9, color: isRunning ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>REMAINING</div>
         </div>
       </div>
 
       {startedAtDate && (
-        <div style={{ display: 'flex', gap: 16, marginBottom: 14, padding: '8px 12px', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)' }}>
+        <div style={{ 
+          display: 'flex', gap: 16, marginBottom: 14, padding: '8px 12px', 
+          background: isRunning ? 'rgba(0,0,0,0.2)' : 'var(--bg)', 
+          borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)',
+          position: 'relative', zIndex: 1
+        }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase' }}>Shift Started</div>
-            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: 'var(--text-primary)', marginTop: 1 }}>{fmtTime(startedAtDate)}</div>
+            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase' }}>Shift Started</div>
+            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: 'inherit', marginTop: 1 }}>{fmtTime(startedAtDate)}</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase' }}>{isDone ? 'Shift Ended' : 'Expected End'}</div>
-            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: isDone ? '#22C55E' : 'var(--accent)', marginTop: 1 }}>
+            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase' }}>{isDone ? 'Shift Ended' : 'Expected End'}</div>
+            <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: isDone ? '#22C55E' : isRunning ? theme.accent : 'var(--accent)', marginTop: 1 }}>
               {isDone ? fmtTime(endedAtDate) : fmtTime(new Date(startedAtDate.getTime() + SHIFT_DURATION * 1000))}
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 8 }}>
+      {/* Customization Section */}
+      <div style={{ 
+        marginBottom: 14, padding: '10px', background: isRunning ? 'rgba(0,0,0,0.1)' : 'var(--bg)', 
+        borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
+        position: 'relative', zIndex: 1
+      }}>
+        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>✨ Customize Style & Emoji</div>
+        
+        {/* Theme Picker */}
+        <div style={{ display: 'flex', gap: 5, marginBottom: 8, overflowX: 'auto', paddingBottom: 4 }} className="hide-scrollbar">
+          {SHIFT_THEMES.map(t => (
+            <button key={t.id} onClick={() => engine.updateShiftTheme(t.id)} style={{
+              flexShrink: 0, padding: '5px 10px', borderRadius: 8, fontSize: 10, fontFamily: 'Space Grotesk', fontWeight: 700, cursor: 'pointer',
+              background: themeId === t.id ? t.bg : (isRunning ? 'rgba(255,255,255,0.05)' : 'var(--surface)'),
+              border: `1px solid ${themeId === t.id ? t.border : 'transparent'}`,
+              color: themeId === t.id ? (t.id === 'slate' ? '#fff' : '#fff') : (isRunning ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)'),
+              transition: 'all 0.2s ease'
+            }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Emoji Picker */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {emojis.map(e => (
+            <button key={e} onClick={() => engine.updateShiftEmoji(e)} style={{
+              width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
+              background: emoji === e ? (isRunning ? 'rgba(255,255,255,0.2)' : 'var(--surface-2)') : 'transparent',
+              border: `1px solid ${emoji === e ? 'rgba(255,255,255,0.3)' : 'transparent'}`,
+              transition: 'all 0.15s ease'
+            }}>
+              {e}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, position: 'relative', zIndex: 1 }}>
         {status === 'idle' && (
-          <button onClick={engine.startShift} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 38, fontSize: 13 }}>▶ Start My Shift</button>
+          <button onClick={engine.startShift} className="btn btn-brand" style={{ 
+            flex: 1, justifyContent: 'center', height: 40, fontSize: 13, 
+            background: isRunning ? theme.accent : 'var(--accent)', border: 'none', color: isRunning ? '#000' : '#fff'
+          }}>▶ Start My Shift</button>
         )}
         {(isRunning || isPaused) && (
           <>
             {isRunning ? (
-              <button onClick={engine.pauseShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>⏸ Pause</button>
+              <button onClick={engine.pauseShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 40, color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }}>⏸ Pause</button>
             ) : (
-              <button onClick={engine.startShift} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 38 }}>▶ Resume</button>
+              <button onClick={engine.startShift} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 40 }}>▶ Resume</button>
             )}
-            <button onClick={engine.finishShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>✅ Finish Now</button>
-            <button onClick={engine.resetShift} className="btn btn-ghost" style={{ width: 38, height: 38, padding: 0, justifyContent: 'center' }} title="Reset">↺</button>
+            <button onClick={engine.finishShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 40, color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }}>✅ Finish Now</button>
+            <button onClick={engine.resetShift} className="btn btn-ghost" style={{ width: 40, height: 40, padding: 0, justifyContent: 'center', color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }} title="Reset">↺</button>
           </>
         )}
         {status === 'done' && (
-          <button onClick={engine.resetShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 38 }}>↺ Reset for Next Shift</button>
+          <button onClick={engine.resetShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 40, color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }}>↺ Reset for Next Shift</button>
         )}
       </div>
     </div>
