@@ -177,6 +177,7 @@ export function useBreakEngine() {
         if (prev.status !== 'running') return prev
         const newRemaining = prev.remaining - 1
         if (newRemaining <= 0) {
+          setTimeout(() => startAlarm(selectedSound), 0)
           return { ...prev, status: 'done', remaining: 0, endedAt: new Date() }
         }
         return { ...prev, remaining: newRemaining }
@@ -584,7 +585,10 @@ function ShiftCard({ shift, engine }) {
           </>
         )}
         {status === 'done' && (
-          <button onClick={engine.resetShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 40, color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }}>↺ Reset for Next Shift</button>
+          <>
+            <button onClick={engine.stopChime} className="btn btn-brand" style={{ flex: 1, justifyContent: 'center', height: 40, background: '#EF4444', border: 'none' }}>🔇 Stop Alarm</button>
+            <button onClick={engine.resetShift} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', height: 40, color: 'inherit', borderColor: 'rgba(255,255,255,0.2)' }}>↺ Reset</button>
+          </>
         )}
       </div>
     </div>
