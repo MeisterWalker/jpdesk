@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import ShiftAnimation from '../ShiftAnimation'
+import AmbientPlayer from '../AmbientPlayer'
 
 export const BREAKS = [
   { id: 'break1', label: '1st Break',  duration: 15 * 60, color: '#60A5FA', soft: 'rgba(96,165,250,0.1)',  border: 'rgba(96,165,250,0.25)',  emoji: '☕' },
@@ -14,14 +15,17 @@ export const INITIAL_BREAK_STATE = {
   endedAt: null,
 }
 
-export const SHIFT_DURATION = 8 * 60 * 60
+export const SHIFT_DURATION_DEFAULT = 8 * 60 * 60
 export const INITIAL_SHIFT_STATE = {
   status: 'idle',    // idle | running | paused | done
-  remaining: SHIFT_DURATION,
+  totalDuration: SHIFT_DURATION_DEFAULT,
+  remaining: SHIFT_DURATION_DEFAULT,
   startedAt: null,
   endedAt: null,
   theme: 'slate',
   emoji: '🏢',
+  isMusicPlaying: false,
+  musicVolume: 0.5,
 }
 
 export const SHIFT_THEMES = [
@@ -50,6 +54,14 @@ function fmtTime(date) {
   if (!date) return '--:--'
   return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
 }
+
+const EQ_STYLE = `
+  @keyframes epulse {
+    0% { height: 4px; }
+    50% { height: 12px; }
+    100% { height: 4px; }
+  }
+`
 
 // ── Premium Helpers ─────────────────────────────────────────
 export function fireConfetti() {
@@ -150,15 +162,18 @@ export function useBreakEngine() {
         const lastUpdated = parsed._ts || now
         const elapsed = Math.floor((now - lastUpdated) / 1000)
 
-        if (parsed.status === 'running') {
-          const newRem = parsed.remaining - elapsed
+        // Ensure totalDuration is present
+        const data = { totalDuration: SHIFT_DURATION_DEFAULT, ...parsed }
+
+        if (data.status === 'running') {
+          const newRem = data.remaining - elapsed
           if (newRem <= 0) {
-            return { ...parsed, status: 'done', remaining: 0, endedAt: parsed.endedAt || new Date(lastUpdated + parsed.remaining * 1000) }
+            return { ...data, status: 'done', remaining: 0, endedAt: data.endedAt || new Date(lastUpdated + data.remaining * 1000) }
           } else {
-            return { ...parsed, remaining: newRem }
+            return { ...data, remaining: newRem }
           }
         }
-        return parsed
+        return data
       } catch (e) { console.error("Failed to load shift state", e) }
     }
     return INITIAL_SHIFT_STATE
@@ -237,7 +252,12 @@ export function useBreakEngine() {
   const resetBreak = (id) => {
     if (intervalsRef.current[id]) { clearInterval(intervalsRef.current[id]); delete intervalsRef.current[id] }
     stopChime()
-    updateBreak(id, () => ({ ...INITIAL_BREAK_STATE, remaining: BREAKS.find(b => b.id === id).duration }))
+    updateBreak(id, () => ({ ...INITIAL_BREAK_STATE, remaining: BREAKS.find(b => b.id === id).duration, _snoozedUntil: null }))
+  }
+
+  const snoozeBreak = (id) => {
+    stopChime()
+    updateBreak(id, s => ({ ...s, _snoozedUntil: Date.now() + 5 * 60 * 1000 }))
   }
 
   // ── Shift actions ──
@@ -249,7 +269,7 @@ export function useBreakEngine() {
         ...prev,
         status: 'running',
         startedAt: isIdle ? new Date() : prev.startedAt,
-        remaining: isIdle ? SHIFT_DURATION : prev.remaining
+        remaining: isIdle ? prev.totalDuration : prev.remaining
       }
     })
   }
@@ -268,6 +288,21 @@ export function useBreakEngine() {
 
   const updateShiftTheme = (themeId) => setShift(prev => ({ ...prev, theme: themeId }))
   const updateShiftEmoji = (emoji)   => setShift(prev => ({ ...prev, emoji }))
+  const toggleMusic = () => setShift(prev => ({ ...prev, isMusicPlaying: !prev.isMusicPlaying }))
+  const setMusicVolume = (vol) => setShift(prev => ({ ...prev, musicVolume: vol }))
+
+  const setShiftDuration = (hrs) => {
+    const secs = hrs * 3600
+    setShift(prev => {
+      // If idle, just update both. If running, adjust remaining proportionally or just set new total?
+      // User likely sets this BEFORE starting or to extend. 
+      // Let's just update totalDuration and remaining (if idle).
+      if (prev.status === 'idle') {
+        return { ...prev, totalDuration: secs, remaining: secs }
+      }
+      return { ...prev, totalDuration: secs }
+    })
+  }
 
   const setShiftStartTime = (timeStr) => {
     if (!timeStr) return
@@ -277,7 +312,7 @@ export function useBreakEngine() {
     
     setShift(prev => {
       const elapsed = Math.floor((Date.now() - newStart.getTime()) / 1000)
-      const newRem = Math.max(0, SHIFT_DURATION - elapsed)
+      const newRem = Math.max(0, prev.totalDuration - elapsed)
       const isDone = newRem <= 0
       
       if (isDone) {
@@ -289,7 +324,7 @@ export function useBreakEngine() {
         startedAt: newStart, 
         remaining: newRem, 
         status: isDone ? 'done' : (prev.status === 'idle' ? 'running' : prev.status),
-        endedAt: isDone ? new Date(newStart.getTime() + SHIFT_DURATION * 1000) : prev.endedAt
+        endedAt: isDone ? new Date(newStart.getTime() + prev.totalDuration * 1000) : prev.endedAt
       }
     })
   }
@@ -307,12 +342,19 @@ export function useBreakEngine() {
             const newRemaining = s.remaining - 1
             if (newRemaining <= 0) {
               next[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: new Date() }
-              alarmId = s._soundId || selectedSound
+              // Alarm logic with snooze
+              if (!s._snoozedUntil || Date.now() > s._snoozedUntil) {
+                alarmId = s._soundId || selectedSound
+              }
             } else {
               next[id] = { ...s, remaining: newRemaining }
             }
           } else if (s.status === 'overbreak') {
             next[id] = { ...s, remaining: s.remaining - 1 }
+            if (s._snoozedUntil && Date.now() > s._snoozedUntil) {
+              next[id]._snoozedUntil = null // Clear snooze and re-alarm
+              alarmId = s._soundId || selectedSound
+            }
           }
         })
         if (alarmId) setTimeout(() => startAlarm(alarmId), 0)
@@ -325,7 +367,7 @@ export function useBreakEngine() {
         const newRemaining = prev.remaining - 1
         
         // Milestone checks
-        const total = SHIFT_DURATION
+        const total = prev.totalDuration
         const progress = (total - newRemaining) / total
         const milestones = [0.25, 0.5, 0.75]
         milestones.forEach(m => {
@@ -338,14 +380,15 @@ export function useBreakEngine() {
           }
         })
 
-        // Smart Break Reminders
-        if (newRemaining === SHIFT_DURATION - 2 * 3600 && !prev.notifiedBreak1) {
+        // Smart Break Reminders (only if 8-hour shift or proportional?)
+        // Let's stick to fixed 2h/4h for now as they are standard.
+        if (newRemaining === prev.totalDuration - 2 * 3600 && !prev.notifiedBreak1) {
           showNotification("Break Reminder ☕", "It's been 2 hours! Time for your 1st 15-min break?")
           prev.notifiedBreak1 = true
           prev.milestoneMsg = "Time for your 1st Break? ☕"
           setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
         }
-        if (newRemaining === SHIFT_DURATION - 4 * 3600 && !prev.notifiedMeal) {
+        if (newRemaining === prev.totalDuration - 4 * 3600 && !prev.notifiedMeal) {
           showNotification("Meal Time 🍱", "Halfway through your shift! Time for a 30-min meal break?")
           prev.notifiedMeal = true
           prev.milestoneMsg = "Halfway! Time for Meal Break? 🍱"
@@ -366,7 +409,18 @@ export function useBreakEngine() {
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, setShiftStartTime }
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.innerHTML = EQ_STYLE
+    document.head.appendChild(style)
+    return () => document.head.removeChild(style)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('jpdesk_alert_sound', selectedSound)
+  }, [selectedSound])
+
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, snoozeBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, setShiftStartTime, setShiftDuration, toggleMusic, setMusicVolume }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -574,6 +628,7 @@ function BreakCard({ brk, state, engine }) {
           <button onClick={reset}  className="btn btn-ghost" style={{ padding: '7px 10px' }} title="Reset">↺</button>
         </>)}
         {status === 'overbreak' && (<>
+          <button onClick={() => engine.snoozeBreak(brk.id)} className="btn btn-ghost" style={{ flex: 1, height: 32, fontSize: 11, borderColor: '#F59E0B', color: '#F59E0B' }}>🛌 Snooze 5m</button>
           <button onClick={finish} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', borderColor: '#EF4444', color: '#EF4444' }}>✅ I'm Back</button>
           <button onClick={reset}  className="btn btn-ghost" style={{ padding: '7px 10px' }} title="Reset">↺</button>
         </>)}
@@ -634,13 +689,13 @@ function SoundPicker({ selected, onChange }) {
 
 // ── Shift Card ─────────────────────────────────────────────
 function ShiftCard({ shift, engine }) {
-  const { status, remaining, startedAt, endedAt, theme: themeId, emoji } = shift
+  const { status, remaining, startedAt, endedAt, theme: themeId, emoji, totalDuration, isMusicPlaying, musicVolume } = shift
   const isRunning = status === 'running'
   const isPaused  = status === 'paused'
   const isDone    = status === 'done' || (status !== 'idle' && remaining <= 0)
 
   const theme = SHIFT_THEMES.find(t => t.id === themeId) || SHIFT_THEMES[0]
-  const pct = (SHIFT_DURATION - Math.max(0, remaining)) / SHIFT_DURATION
+  const pct = (totalDuration - Math.max(0, remaining)) / totalDuration
   const startedAtDate = startedAt ? new Date(startedAt) : null
   const endedAtDate   = endedAt   ? new Date(endedAt)   : null
 
@@ -657,7 +712,30 @@ function ShiftCard({ shift, engine }) {
       color: isRunning ? theme.color : 'var(--text-primary)'
     }}>
       <ShiftAnimation type={isRunning ? theme.animation : 'none'} />
+      <AmbientPlayer type={theme.animation} isPlaying={isRunning && isMusicPlaying} volume={musicVolume} />
       
+      {/* Ambient Player Visible UI */}
+      {isMusicPlaying && isRunning && (
+        <div style={{ 
+          position: 'absolute', top: 12, right: 12, zIndex: 10, 
+          display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px',
+          background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', 
+          borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 12 }}>
+            {[1,2,3].map(i => (
+              <div key={i} style={{ 
+                width: 2, background: theme.accent, borderRadius: 1,
+                animation: `epulse ${0.5 + i*0.2}s infinite ease-in-out` 
+              }} />
+            ))}
+          </div>
+          <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#fff', fontWeight: 700, textTransform: 'uppercase' }}>
+             Playing: {theme.label} {theme.animation === 'none' ? '(Silent)' : ''}
+          </span>
+        </div>
+      )}
+
       {/* Background progress */}
       {isRunning && (
         <div style={{
@@ -716,8 +794,38 @@ function ShiftCard({ shift, engine }) {
         borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
         position: 'relative', zIndex: 1
       }}>
-        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>✨ Customize Style & Emoji</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', fontWeight: 700 }}>✨ Pro Settings & Style</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 9, color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>Music:</span>
+            <button onClick={engine.toggleMusic} style={{ 
+              width: 32, height: 16, borderRadius: 10, background: isMusicPlaying ? theme.accent : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'all 0.2s'
+            }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: isMusicPlaying ? 18 : 2, transition: 'all 0.2s' }} />
+            </button>
+          </div>
+        </div>
         
+        {/* Duration Slider */}
+        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>SHIFT: {totalDuration / 3600}h</span>
+          <input type="range" min="1" max="12" step="0.5" value={totalDuration / 3600} 
+            onChange={e => engine.setShiftDuration(Number(e.target.value))}
+            style={{ flex: 1, height: 4, accentColor: theme.accent, cursor: 'pointer' }} 
+          />
+        </div>
+
+        {/* Music Controls (Explicit) */}
+        {isMusicPlaying && (
+          <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>VOLUME:</span>
+            <input type="range" min="0" max="1" step="0.1" value={musicVolume} 
+              onChange={e => engine.setMusicVolume(Number(e.target.value))}
+              style={{ flex: 1, height: 4, accentColor: theme.accent, cursor: 'pointer' }} 
+            />
+          </div>
+        )}
+
         {/* Theme Picker */}
         <div style={{ display: 'flex', gap: 5, marginBottom: 8, overflowX: 'auto', paddingBottom: 4 }} className="hide-scrollbar">
           {SHIFT_THEMES.map(t => (
