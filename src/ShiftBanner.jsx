@@ -1,4 +1,4 @@
-import { SHIFT_DURATION, SHIFT_THEMES } from './pages/BreakPage'
+import { SHIFT_THEMES } from './pages/BreakPage'
 import ShiftAnimation from './ShiftAnimation'
 
 function pad(n) { return String(n).padStart(2, '0') }
@@ -10,12 +10,12 @@ function fmtCountdown(secs) {
 }
 
 export default function ShiftBanner({ shift }) {
-  const { status, remaining, theme: themeId, emoji, milestoneMsg } = shift
+  const { status, remaining, theme: themeId, emoji, milestoneMsg, totalDuration } = shift
   
   if (status === 'idle') return null
 
   const theme = SHIFT_THEMES.find(t => t.id === themeId) || SHIFT_THEMES[0]
-  const pct = (SHIFT_DURATION - remaining) / SHIFT_DURATION
+  const pct = (totalDuration - remaining) / totalDuration
   const isDone = status === 'done' || remaining <= 0
 
   return (
