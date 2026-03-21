@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import ShiftAnimation from '../ShiftAnimation'
-import AmbientPlayer from '../AmbientPlayer'
 
 export const BREAKS = [
   { id: 'break1', label: '1st Break',  duration: 15 * 60, color: '#60A5FA', soft: 'rgba(96,165,250,0.1)',  border: 'rgba(96,165,250,0.25)',  emoji: '☕' },
@@ -24,8 +23,6 @@ export const INITIAL_SHIFT_STATE = {
   endedAt: null,
   theme: 'slate',
   emoji: '🏢',
-  isMusicPlaying: false,
-  musicVolume: 0.5,
 }
 
 export const SHIFT_THEMES = [
@@ -288,8 +285,6 @@ export function useBreakEngine() {
 
   const updateShiftTheme = (themeId) => setShift(prev => ({ ...prev, theme: themeId }))
   const updateShiftEmoji = (emoji)   => setShift(prev => ({ ...prev, emoji }))
-  const toggleMusic = () => setShift(prev => ({ ...prev, isMusicPlaying: !prev.isMusicPlaying }))
-  const setMusicVolume = (vol) => setShift(prev => ({ ...prev, musicVolume: vol }))
 
   const setShiftDuration = (hrs) => {
     const secs = hrs * 3600
@@ -420,7 +415,7 @@ export function useBreakEngine() {
     localStorage.setItem('jpdesk_alert_sound', selectedSound)
   }, [selectedSound])
 
-  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, snoozeBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, setShiftStartTime, setShiftDuration, toggleMusic, setMusicVolume }
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, snoozeBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, setShiftStartTime, setShiftDuration }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -712,29 +707,7 @@ function ShiftCard({ shift, engine }) {
       color: isRunning ? theme.color : 'var(--text-primary)'
     }}>
       <ShiftAnimation type={isRunning ? theme.animation : 'none'} />
-      <AmbientPlayer type={theme.animation} isPlaying={isRunning && isMusicPlaying} volume={musicVolume} />
-      
-      {/* Ambient Player Visible UI */}
-      {isMusicPlaying && isRunning && (
-        <div style={{ 
-          position: 'absolute', top: 12, right: 12, zIndex: 10, 
-          display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px',
-          background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', 
-          borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)' 
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 12 }}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ 
-                width: 2, background: theme.accent, borderRadius: 1,
-                animation: `epulse ${0.5 + i*0.2}s infinite ease-in-out` 
-              }} />
-            ))}
-          </div>
-          <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: '#fff', fontWeight: 700, textTransform: 'uppercase' }}>
-             Playing: {theme.label} {theme.animation === 'none' ? '(Silent)' : ''}
-          </span>
-        </div>
-      )}
+      <ShiftAnimation type={isRunning ? theme.animation : 'none'} />
 
       {/* Background progress */}
       {isRunning && (
@@ -796,35 +769,16 @@ function ShiftCard({ shift, engine }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', fontWeight: 700 }}>✨ Pro Settings & Style</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 9, color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>Music:</span>
-            <button onClick={engine.toggleMusic} style={{ 
-              width: 32, height: 16, borderRadius: 10, background: isMusicPlaying ? theme.accent : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'all 0.2s'
-            }}>
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: isMusicPlaying ? 18 : 2, transition: 'all 0.2s' }} />
-            </button>
-          </div>
         </div>
         
         {/* Duration Slider */}
         <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>SHIFT: {totalDuration / 3600}h</span>
+          <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>SHIFT: {totalDuration / 3600}h</span>
           <input type="range" min="1" max="12" step="0.5" value={totalDuration / 3600} 
             onChange={e => engine.setShiftDuration(Number(e.target.value))}
             style={{ flex: 1, height: 4, accentColor: theme.accent, cursor: 'pointer' }} 
           />
         </div>
-
-        {/* Music Controls (Explicit) */}
-        {isMusicPlaying && (
-          <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>VOLUME:</span>
-            <input type="range" min="0" max="1" step="0.1" value={musicVolume} 
-              onChange={e => engine.setMusicVolume(Number(e.target.value))}
-              style={{ flex: 1, height: 4, accentColor: theme.accent, cursor: 'pointer' }} 
-            />
-          </div>
-        )}
 
         {/* Theme Picker */}
         <div style={{ display: 'flex', gap: 5, marginBottom: 8, overflowX: 'auto', paddingBottom: 4 }} className="hide-scrollbar">
