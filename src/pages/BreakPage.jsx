@@ -269,13 +269,28 @@ export function useBreakEngine() {
   const updateShiftTheme = (themeId) => setShift(prev => ({ ...prev, theme: themeId }))
   const updateShiftEmoji = (emoji)   => setShift(prev => ({ ...prev, emoji }))
 
-  const adjustShiftTime = (seconds) => {
+  const setShiftStartTime = (timeStr) => {
+    if (!timeStr) return
+    const [hrs, mins] = timeStr.split(':').map(Number)
+    const now = new Date()
+    const newStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hrs, mins, 0)
+    
     setShift(prev => {
-      const newRem = Math.max(0, Math.min(SHIFT_DURATION, prev.remaining + seconds))
-      const now = Date.now()
-      // Calculate a new startedAt that would result in this newRemaining
-      const newStartedAt = new Date(now - (SHIFT_DURATION - newRem) * 1000)
-      return { ...prev, remaining: newRem, startedAt: newStartedAt }
+      const elapsed = Math.floor((Date.now() - newStart.getTime()) / 1000)
+      const newRem = Math.max(0, SHIFT_DURATION - elapsed)
+      const isDone = newRem <= 0
+      
+      if (isDone) {
+        setTimeout(() => { fireConfetti(); showNotification("Shift Complete! 🎉", "Based on your manual start time, your shift is already finished.") }, 100)
+      }
+
+      return { 
+        ...prev, 
+        startedAt: newStart, 
+        remaining: newRem, 
+        status: isDone ? 'done' : (prev.status === 'idle' ? 'running' : prev.status),
+        endedAt: isDone ? new Date(newStart.getTime() + SHIFT_DURATION * 1000) : prev.endedAt
+      }
     })
   }
 
@@ -351,7 +366,7 @@ export function useBreakEngine() {
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, adjustShiftTime }
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, setShiftStartTime }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -733,22 +748,38 @@ function ShiftCard({ shift, engine }) {
         </div>
       </div>
 
-      {/* Manual Adjustment */}
-      {(isRunning || isPaused) && (
-        <div style={{ 
-          marginBottom: 14, padding: '10px', background: isRunning ? 'rgba(0,0,0,0.1)' : 'var(--bg)', 
-          borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
-          position: 'relative', zIndex: 1
-        }}>
-          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>⏳ Manual Time Adjustment</div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => engine.adjustShiftTime(-3600)} className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>-1h</button>
-            <button onClick={() => engine.adjustShiftTime(-900)}  className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>-15m</button>
-            <button onClick={() => engine.adjustShiftTime(900)}   className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>+15m</button>
-            <button onClick={() => engine.adjustShiftTime(3600)}  className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>+1h</button>
-          </div>
+      {/* Manual Start Time Entry */}
+      <div style={{ 
+        marginBottom: 14, padding: '10px', background: isRunning ? 'rgba(0,0,0,0.1)' : 'var(--bg)', 
+        borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
+        position: 'relative', zIndex: 1
+      }}>
+        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>⏳ Set Shift Start Time</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <input 
+            type="time" 
+            id="shift-start-input"
+            defaultValue={startedAt ? new Date(startedAt).toTimeString().slice(0, 5) : "09:00"}
+            style={{ 
+              flex: 1, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: 6, color: '#fff', fontSize: 12, padding: '4px 8px', outline: 'none' 
+            }}
+          />
+          <button 
+            onClick={() => {
+              const val = document.getElementById('shift-start-input').value
+              engine.setShiftStartTime(val)
+            }}
+            className="btn btn-brand" 
+            style={{ padding: '0 12px', fontSize: 11, height: 28, background: theme.accent, color: '#000', border: 'none' }}
+          >
+            Update
+          </button>
         </div>
-      )}
+        <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4, fontFamily: 'JetBrains Mono' }}>
+          Recalibrates the 8-hour timer from this moment.
+        </div>
+      </div>
 
       <div style={{ display: 'flex', gap: 8, position: 'relative', zIndex: 1 }}>
         {status === 'idle' && (
