@@ -388,6 +388,31 @@ export function useBreakEngine() {
           }
         })
 
+        // Dynamic Emoji Progression
+        if (progress >= 0.95) {
+          if (prev.emoji !== '🏁') prev.emoji = '🏁'
+        } else if (progress >= 0.75) {
+          if (prev.emoji !== '🚀') prev.emoji = '🚀'
+        } else if (progress >= 0.5) {
+          if (prev.emoji !== '🍱') prev.emoji = '🍱'
+        } else if (progress >= 0.25) {
+          if (prev.emoji !== '💻') prev.emoji = '💻'
+        }
+
+        // Micro-wellness Milestones (every 30 mins)
+        if (newRemaining > 0 && newRemaining % (30 * 60) === 0) {
+          const wellnessTips = [
+            "Time for a 20-20-20 eye break! 👀 Look 20ft away for 20s.",
+            "Quick stretch! 🧘‍♂️ Roll your shoulders and neck.",
+            "Wrist relief! 👋 Give your hands a quick shake.",
+            "Deep breath! 💨 Inhale for 4s, hold for 4s, exhale for 4s."
+          ]
+          const tip = wellnessTips[Math.floor(Math.random() * wellnessTips.length)]
+          showNotification("Micro-Wellness Tip 🌿", tip)
+          prev.milestoneMsg = "Wellness Break? 🌿"
+          setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 8000)
+        }
+
         // Smart Break Reminders (only if 8-hour shift or proportional?)
         // Let's stick to fixed 2h/4h for now as they are standard.
         if (newRemaining === prev.totalDuration - 2 * 3600 && !prev.notifiedBreak1) {
@@ -409,7 +434,7 @@ export function useBreakEngine() {
             fireConfetti()
             showNotification("Shift Complete! 🎉", `Great work today! Your ${fmtDuration(prev.totalDuration)} shift is officially over.`)
           }, 0)
-          return { ...prev, status: 'done', remaining: 0, endedAt: new Date() }
+          return { ...prev, status: 'done', remaining: 0, endedAt: new Date(), emoji: '🎉' }
         }
         return { ...prev, remaining: newRemaining }
       })

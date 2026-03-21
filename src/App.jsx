@@ -540,26 +540,52 @@ function AppInner() {
       {showTheme    && <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />}
       <ShiftBanner shift={breakEngine.shift} />
 
-    {/* Hydration reminder toast */}
+    {/* Hydration reminder modal */}
     {showHydration && !hydrationDismissed && (
       <div style={{
-        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-        background: 'linear-gradient(135deg, rgba(14,165,233,0.95), rgba(99,102,241,0.95))',
-        borderRadius: 14, padding: '12px 18px', zIndex: 99999,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-        display: 'flex', alignItems: 'center', gap: 12,
-        animation: 'slideUp 0.3s ease',
-        minWidth: 240,
+        position: 'fixed', inset: 0, zIndex: 999999,
+        background: 'rgba(13, 15, 26, 0.75)',
+        backdropFilter: 'blur(12px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        animation: 'fadeIn 0.4s ease',
       }}>
-        <span style={{ fontSize: 22 }}>💧</span>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: '#fff' }}>Time to hydrate!</div>
-          <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'rgba(255,255,255,0.75)', marginTop: 1 }}>Take a sip of water 😊</div>
+        <div style={{
+          background: 'linear-gradient(135deg, var(--surface), var(--bg))',
+          borderRadius: 24, padding: '32px', width: '320px',
+          border: '1px solid var(--accent-border)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+          textAlign: 'center',
+          animation: 'springUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>💧</div>
+          <h2 style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 8, letterSpacing: '-0.02em' }}>Time to Hydrate!</h2>
+          <p style={{ fontSize: 13, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.6 }}>
+            You've been working hard. Take a moment to drink some water and stay fresh! ✨
+          </p>
+          <div style={{ 
+            background: 'var(--accent-soft)', borderRadius: 12, padding: '12px', 
+            marginBottom: 24, border: '1px solid var(--accent-border)' 
+          }}>
+            <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--accent)', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>Wellness Tip</div>
+            <div style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600 }}>Try the 20-20-20 rule: Look at something 20ft away for 20 seconds. 🌿</div>
+          </div>
+          <button 
+            onClick={() => { setShowHydration(false); setHydrationDismissed(true) }}
+            style={{ 
+              width: '100%', padding: '12px', borderRadius: 12, 
+              background: 'linear-gradient(90deg, var(--accent), var(--accent-2))',
+              border: 'none', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 800,
+              fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 15px rgba(99,102,241,0.4)',
+              transition: 'transform 0.2s'
+            }}
+          >
+            I've Hydrated! 👍
+          </button>
         </div>
-        <button onClick={() => { setShowHydration(false); setHydrationDismissed(true) }}
-          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontSize: 11, padding: '4px 10px', fontFamily: 'JetBrains Mono' }}>
-          👍 Done
-        </button>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes springUp { from { transform: translateY(40px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        `}</style>
       </div>
     )}
     </>
