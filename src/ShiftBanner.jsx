@@ -10,7 +10,7 @@ function fmtCountdown(secs) {
 }
 
 export default function ShiftBanner({ shift }) {
-  const { status, remaining, theme: themeId, emoji } = shift
+  const { status, remaining, theme: themeId, emoji, milestoneMsg } = shift
   
   if (status === 'idle') return null
 
@@ -40,15 +40,16 @@ export default function ShiftBanner({ shift }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
             fontFamily: 'JetBrains Mono', 
-            fontSize: 11, 
+            fontSize: milestoneMsg ? 10 : 11, 
             fontWeight: 800, 
             color: isDone ? '#22C55E' : theme.color, 
-            lineHeight: 1,
-            letterSpacing: '0.05em'
+            lineHeight: 1.1,
+            letterSpacing: '0.05em',
+            animation: milestoneMsg ? 'milestonePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none'
           }}>
-            {isDone ? 'SHIFT COMPLETE' : fmtCountdown(remaining)}
+            {isDone ? 'SHIFT COMPLETE' : (milestoneMsg || fmtCountdown(remaining))}
           </div>
-          {!isDone && (
+          {!isDone && !milestoneMsg && (
             <div style={{ 
               width: 80, height: 3, background: 'rgba(255,255,255,0.1)', 
               borderRadius: 3, marginTop: 4, overflow: 'hidden' 
@@ -67,6 +68,10 @@ export default function ShiftBanner({ shift }) {
         @keyframes slideDown {
           from { opacity: 0; transform: translate(-50%, -20px); }
           to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        @keyframes milestonePop {
+          0% { transform: scale(0.8); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>

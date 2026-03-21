@@ -51,16 +51,135 @@ function fmtTime(date) {
   return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
 }
 
+// ── Premium Helpers ─────────────────────────────────────────
+export function fireConfetti() {
+  const container = document.createElement('div')
+  container.style.position = 'fixed'
+  container.style.top = '0'
+  container.style.left = '0'
+  container.style.width = '100vw'
+  container.style.height = '100vh'
+  container.style.pointerEvents = 'none'
+  container.style.zIndex = '99999'
+  document.body.appendChild(container)
+
+  const colors = ['#FF69B4', '#6366F1', '#34D399', '#F59E0B', '#EF4444', '#A855F7']
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div')
+    p.style.position = 'absolute'
+    p.style.width = '8px'
+    p.style.height = '8px'
+    p.style.background = colors[Math.floor(Math.random() * colors.length)]
+    p.style.left = '50%'
+    p.style.top = '50%'
+    p.style.borderRadius = '2px'
+    container.appendChild(p)
+
+    const angle = Math.random() * Math.PI * 2
+    const velocity = 5 + Math.random() * 10
+    const vx = Math.cos(angle) * velocity
+    const vy = Math.sin(angle) * velocity
+    let x = 0, y = 0, opacity = 1
+
+    const anim = () => {
+      x += vx; y += vy + 0.2
+      opacity -= 0.01
+      p.style.transform = `translate(${x}px, ${y}px) rotate(${x*2}deg)`
+      p.style.opacity = opacity
+      if (opacity > 0) requestAnimationFrame(anim)
+      else if (p.parentNode) container.removeChild(p)
+    }
+    requestAnimationFrame(anim)
+  }
+  setTimeout(() => document.body.removeChild(container), 3000)
+}
+
+export function showNotification(title, body) {
+  if (!("Notification" in window)) return
+  if (Notification.permission === "granted") {
+    new Notification(title, { body, icon: '/favicon.ico' })
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") new Notification(title, { body, icon: '/favicon.ico' })
+    })
+  }
+}
+
 
 // ── Timer engine hook — must live in App so it never unmounts ─────────
 export function useBreakEngine() {
-  const [breakStates, setBreakStates] = useState(() =>
-    Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }]))
-  )
-  const [shift, setShift] = useState(INITIAL_SHIFT_STATE)
-  const [selectedSound, setSelectedSound] = useState('radar')
+  const [breakStates, setBreakStates] = useState(() => {
+    const saved = localStorage.getItem('jpdesk_break_states')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        const now = Date.now()
+        const lastUpdated = parsed._ts || now
+        const elapsed = Math.floor((now - lastUpdated) / 1000)
+        
+        // Resume elapsed time for running/overbreak timers
+        const recovered = {}
+        Object.keys(parsed).forEach(id => {
+          if (id === '_ts') return
+          const s = parsed[id]
+          if (s.status === 'running') {
+            const newRem = s.remaining - elapsed
+            if (newRem <= 0) {
+              recovered[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: s.endedAt || new Date(lastUpdated + s.remaining * 1000) }
+            } else {
+              recovered[id] = { ...s, remaining: newRem }
+            }
+          } else if (s.status === 'overbreak') {
+            recovered[id] = { ...s, remaining: s.remaining - elapsed }
+          } else {
+            recovered[id] = s
+          }
+        })
+        return { ...Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }])), ...recovered }
+      } catch (e) { console.error("Failed to load break states", e) }
+    }
+    return Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }]))
+  })
+
+  const [shift, setShift] = useState(() => {
+    const saved = localStorage.getItem('jpdesk_shift_state')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        const now = Date.now()
+        const lastUpdated = parsed._ts || now
+        const elapsed = Math.floor((now - lastUpdated) / 1000)
+
+        if (parsed.status === 'running') {
+          const newRem = parsed.remaining - elapsed
+          if (newRem <= 0) {
+            return { ...parsed, status: 'done', remaining: 0, endedAt: parsed.endedAt || new Date(lastUpdated + parsed.remaining * 1000) }
+          } else {
+            return { ...parsed, remaining: newRem }
+          }
+        }
+        return parsed
+      } catch (e) { console.error("Failed to load shift state", e) }
+    }
+    return INITIAL_SHIFT_STATE
+  })
+
+  const [selectedSound, setSelectedSound] = useState(() => localStorage.getItem('jpdesk_alert_sound') || 'radar')
   const intervalsRef = useRef({})   // { breakId: intervalId }
   const chimeRef     = useRef(null)
+
+  // Save on every change
+  useEffect(() => {
+    localStorage.setItem('jpdesk_break_states', JSON.stringify({ ...breakStates, _ts: Date.now() }))
+  }, [breakStates])
+
+  useEffect(() => {
+    localStorage.setItem('jpdesk_shift_state', JSON.stringify({ ...shift, _ts: Date.now() }))
+  }, [shift])
+
+  useEffect(() => {
+    localStorage.setItem('jpdesk_alert_sound', selectedSound)
+  }, [selectedSound])
 
   const stopChime = () => {
     if (chimeRef.current) {
@@ -179,8 +298,41 @@ export function useBreakEngine() {
       setShift(prev => {
         if (prev.status !== 'running') return prev
         const newRemaining = prev.remaining - 1
+        
+        // Milestone checks
+        const total = SHIFT_DURATION
+        const progress = (total - newRemaining) / total
+        const milestones = [0.25, 0.5, 0.75]
+        milestones.forEach(m => {
+          const mKey = `m${m*100}`
+          if (progress >= m && !prev[mKey]) {
+            showNotification("Shift Milestone!", `You've completed ${m*100}% of your shift. Great job!`)
+            prev[mKey] = true
+            prev.milestoneMsg = `${m*100}% Milestone Reached! 🚀`
+            setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
+          }
+        })
+
+        // Smart Break Reminders
+        if (newRemaining === SHIFT_DURATION - 2 * 3600 && !prev.notifiedBreak1) {
+          showNotification("Break Reminder ☕", "It's been 2 hours! Time for your 1st 15-min break?")
+          prev.notifiedBreak1 = true
+          prev.milestoneMsg = "Time for your 1st Break? ☕"
+          setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
+        }
+        if (newRemaining === SHIFT_DURATION - 4 * 3600 && !prev.notifiedMeal) {
+          showNotification("Meal Time 🍱", "Halfway through your shift! Time for a 30-min meal break?")
+          prev.notifiedMeal = true
+          prev.milestoneMsg = "Halfway! Time for Meal Break? 🍱"
+          setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
+        }
+
         if (newRemaining <= 0) {
-          setTimeout(() => startAlarm(selectedSound), 0)
+          setTimeout(() => {
+            startAlarm(selectedSound)
+            fireConfetti()
+            showNotification("Shift Complete! 🎉", "Great work today! Your 8-hour shift is officially over.")
+          }, 0)
           return { ...prev, status: 'done', remaining: 0, endedAt: new Date() }
         }
         return { ...prev, remaining: newRemaining }
@@ -596,6 +748,15 @@ function ShiftCard({ shift, engine }) {
           </>
         )}
       </div>
+
+      {/* Permission Button */}
+      {typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
+        <button onClick={() => Notification.requestPermission()} className="btn btn-ghost" style={{ 
+          width: '100%', marginTop: 12, fontSize: 10, height: 32, borderColor: 'rgba(255,255,255,0.1)', color: 'inherit', opacity: 0.8
+        }}>
+          🔔 Enable Desktop Notifications
+        </button>
+      )}
     </div>
   )
 }
