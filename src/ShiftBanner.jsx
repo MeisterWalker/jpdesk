@@ -1,4 +1,5 @@
 import { SHIFT_DURATION, SHIFT_THEMES } from './pages/BreakPage'
+import ShiftAnimation from './ShiftAnimation'
 
 function pad(n) { return String(n).padStart(2, '0') }
 function fmtCountdown(secs) {
@@ -29,9 +30,12 @@ export default function ShiftBanner({ shift }) {
       animation: 'slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
       pointerEvents: 'none',
       userSelect: 'none',
-      transition: 'all 0.5s ease'
+      transition: 'all 0.5s ease',
+      overflow: 'hidden'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <ShiftAnimation type={theme.animation} />
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1 }}>
         <span style={{ fontSize: 14 }}>{isDone ? '🎉' : emoji }</span>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
