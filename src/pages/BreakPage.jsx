@@ -782,7 +782,7 @@ function ShiftCard({ shift, engine }) {
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase' }}>{isDone ? 'Shift Ended' : 'Expected End'}</div>
             <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', fontWeight: 700, color: isDone ? '#22C55E' : isRunning ? theme.accent : 'var(--accent)', marginTop: 1 }}>
-              {isDone ? fmtTime(endedAtDate) : fmtTime(new Date(startedAtDate.getTime() + SHIFT_DURATION * 1000))}
+              {isDone ? fmtTime(endedAtDate) : fmtTime(new Date(startedAtDate.getTime() + totalDuration * 1000))}
             </div>
           </div>
         </div>
