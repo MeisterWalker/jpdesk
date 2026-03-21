@@ -14,7 +14,13 @@ export const INITIAL_BREAK_STATE = {
   endedAt: null,
 }
 
-export const SHIFT_DURATION_DEFAULT = 8 * 60 * 60
+export const SHIFT_DURATION_DEFAULT = 8.5 * 60 * 60
+export const SHIFT_PRESETS = [
+  { id: '4h',   label: '4h',   hrs: 4,   desc: 'Half Shift' },
+  { id: '8.5h', label: '8.5h', hrs: 8.5, desc: 'Standard (8h + 30m break)' },
+  { id: '10h',  label: '10h',  hrs: 10,  desc: 'Long Duty' },
+  { id: '12h',  label: '12h',  hrs: 12,  desc: 'Max Shift' },
+]
 export const INITIAL_SHIFT_STATE = {
   status: 'idle',    // idle | running | paused | done
   totalDuration: SHIFT_DURATION_DEFAULT,
@@ -46,6 +52,13 @@ export function fmtCountdown(secs) {
   const m = Math.floor((Math.abs(secs) % 3600) / 60)
   const s = Math.abs(secs) % 60
   return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`
+}
+export function fmtDuration(secs) {
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  if (h > 0 && m > 0) return `${h} Hours ${m} Mins`
+  if (h > 0) return `${h}-Hour`
+  return `${m} Mins`
 }
 function fmtTime(date) {
   if (!date) return '--:--'
@@ -383,7 +396,7 @@ export function useBreakEngine() {
           prev.milestoneMsg = "Time for your 1st Break? ☕"
           setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
         }
-        if (newRemaining === prev.totalDuration - 4 * 3600 && !prev.notifiedMeal) {
+        if (newRemaining === prev.totalDuration - Math.floor(prev.totalDuration / 2) && !prev.notifiedMeal) {
           showNotification("Meal Time 🍱", "Halfway through your shift! Time for a 30-min meal break?")
           prev.notifiedMeal = true
           prev.milestoneMsg = "Halfway! Time for Meal Break? 🍱"
@@ -394,7 +407,7 @@ export function useBreakEngine() {
           setTimeout(() => {
             startAlarm(selectedSound)
             fireConfetti()
-            showNotification("Shift Complete! 🎉", "Great work today! Your 8-hour shift is officially over.")
+            showNotification("Shift Complete! 🎉", `Great work today! Your ${fmtDuration(prev.totalDuration)} shift is officially over.`)
           }, 0)
           return { ...prev, status: 'done', remaining: 0, endedAt: new Date() }
         }
@@ -728,7 +741,7 @@ function ShiftCard({ shift, engine }) {
           {isDone ? '🎉' : emoji}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 16, color: 'inherit' }}>Full 8-Hour Shift</div>
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 16, color: 'inherit' }}>Full {fmtDuration(totalDuration)} Shift</div>
           <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.7)' : 'var(--text-label)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {status === 'idle' ? 'Ready to work' : status === 'running' ? '⏱ Duty in Progress' : status === 'paused' ? '⏸ On Hold' : '✅ Shift Ended'}
           </div>
@@ -767,13 +780,29 @@ function ShiftCard({ shift, engine }) {
         borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
         position: 'relative', zIndex: 1
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', fontWeight: 700 }}>✨ Pro Settings & Style</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', fontWeight: 700 }}>✨ Shift Presets</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {SHIFT_PRESETS.map(p => {
+              const isActive = Math.abs(totalDuration - p.hrs * 3600) < 1
+              return (
+                <button key={p.id} onClick={() => engine.setShiftDuration(p.hrs)} style={{
+                  padding: '2px 8px', borderRadius: 6, fontSize: 9, fontFamily: 'JetBrains Mono', fontWeight: 800, cursor: 'pointer',
+                  background: isActive ? theme.accent : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${isActive ? theme.accent : 'rgba(255,255,255,0.1)'}`,
+                  color: isActive ? '#000' : 'inherit',
+                  transition: 'all 0.2s ease'
+                }} title={p.desc}>
+                  {p.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
         
         {/* Duration Slider */}
         <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>SHIFT: {totalDuration / 3600}h</span>
+          <span style={{ fontSize: 9, minWidth: 60, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-muted)' }}>CUSTOM: {totalDuration / 3600}h</span>
           <input type="range" min="1" max="12" step="0.5" value={totalDuration / 3600} 
             onChange={e => engine.setShiftDuration(Number(e.target.value))}
             style={{ flex: 1, height: 4, accentColor: theme.accent, cursor: 'pointer' }} 
@@ -839,7 +868,7 @@ function ShiftCard({ shift, engine }) {
           </button>
         </div>
         <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4, fontFamily: 'JetBrains Mono' }}>
-          Recalibrates the 8-hour timer from this moment.
+          Recalibrates the {totalDuration / 3600}-hour timer from this moment.
         </div>
       </div>
 
