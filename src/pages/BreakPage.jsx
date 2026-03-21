@@ -269,6 +269,16 @@ export function useBreakEngine() {
   const updateShiftTheme = (themeId) => setShift(prev => ({ ...prev, theme: themeId }))
   const updateShiftEmoji = (emoji)   => setShift(prev => ({ ...prev, emoji }))
 
+  const adjustShiftTime = (seconds) => {
+    setShift(prev => {
+      const newRem = Math.max(0, Math.min(SHIFT_DURATION, prev.remaining + seconds))
+      const now = Date.now()
+      // Calculate a new startedAt that would result in this newRemaining
+      const newStartedAt = new Date(now - (SHIFT_DURATION - newRem) * 1000)
+      return { ...prev, remaining: newRem, startedAt: newStartedAt }
+    })
+  }
+
   // ── Master tick — runs always regardless of tab ──
   useEffect(() => {
     const tick = setInterval(() => {
@@ -341,7 +351,7 @@ export function useBreakEngine() {
     return () => clearInterval(tick)
   }, [selectedSound])
 
-  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji }
+  return { breakStates, shift, selectedSound, setSelectedSound, startBreak, pauseBreak, finishBreak, resetBreak, stopChime, startShift, pauseShift, resetShift, finishShift, updateShiftTheme, updateShiftEmoji, adjustShiftTime }
 }
 
 // ── Ring progress ──────────────────────────────────────────
@@ -722,6 +732,23 @@ function ShiftCard({ shift, engine }) {
           ))}
         </div>
       </div>
+
+      {/* Manual Adjustment */}
+      {(isRunning || isPaused) && (
+        <div style={{ 
+          marginBottom: 14, padding: '10px', background: isRunning ? 'rgba(0,0,0,0.1)' : 'var(--bg)', 
+          borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)',
+          position: 'relative', zIndex: 1
+        }}>
+          <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: isRunning ? 'rgba(255,255,255,0.5)' : 'var(--text-label)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>⏳ Manual Time Adjustment</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => engine.adjustShiftTime(-3600)} className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>-1h</button>
+            <button onClick={() => engine.adjustShiftTime(-900)}  className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>-15m</button>
+            <button onClick={() => engine.adjustShiftTime(900)}   className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>+15m</button>
+            <button onClick={() => engine.adjustShiftTime(3600)}  className="btn btn-ghost" style={{ flex: 1, height: 28, fontSize: 10, padding: 0, color: 'inherit', borderColor: 'rgba(255,255,255,0.1)' }}>+1h</button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, position: 'relative', zIndex: 1 }}>
         {status === 'idle' && (
