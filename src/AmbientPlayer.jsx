@@ -4,7 +4,7 @@ const AMBIENT_SOUNDS = {
   rain:    { label: 'Rain',    url: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg' },
   bubbles: { label: 'Waves',   url: 'https://actions.google.com/sounds/v1/water/waves_crashing_on_shore.ogg' },
   leaves:  { label: 'Forest',  url: 'https://actions.google.com/sounds/v1/ambient/morning_forest.ogg' },
-  stars:   { label: 'Lo-Fi',   url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' }, // Placeholder for Lo-Fi
+  stars:   { label: 'Midnight', url: '/hmmm.mp3' }, 
   hearts:  { label: 'Soft',    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }, // Placeholder for Soft
   none:    { label: 'Silent',  url: '' }
 }
