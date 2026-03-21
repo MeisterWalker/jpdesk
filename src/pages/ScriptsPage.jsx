@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
-const CATEGORIES = ['General Questions', 'FAQ', 'Other']
+// Default categories if none exist
+const DEFAULT_CATEGORIES = ['General Questions', 'FAQ', 'Other']
 
 function parseVariables(text) {
   const matches = [...text.matchAll(/\[([^\]]+)\]/g)]
@@ -151,9 +152,9 @@ REWRITE:
   )
 }
 
-function ScriptForm({ initial, onSave, onCancel }) {
+function ScriptForm({ initial, onSave, onCancel, existingCategories = [] }) {
   const [title, setTitle] = useState(initial?.title || '')
-  const [category, setCategory] = useState(initial?.category || CATEGORIES[0])
+  const [category, setCategory] = useState(initial?.category || (existingCategories[0] || DEFAULT_CATEGORIES[0]))
   const [body, setBody] = useState(initial?.body || '')
   const [saving, setSaving] = useState(false)
   const variables = parseVariables(body)
@@ -170,9 +171,19 @@ function ScriptForm({ initial, onSave, onCancel }) {
   return (
     <div className="card animate-slideUp" style={{ padding: 13, marginBottom: 10 }}>
       <input placeholder="Script title *" value={title} onChange={e => setTitle(e.target.value)} style={{ marginBottom: 7, fontFamily: 'Space Grotesk', fontWeight: 600 }} />
-      <select value={category} onChange={e => setCategory(e.target.value)} style={{ marginBottom: 7 }}>
-        {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-      </select>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 7 }}>
+        <label style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase' }}>Category</label>
+        <input 
+          list="script-categories"
+          placeholder="Select or type a new category..." 
+          value={category} 
+          onChange={e => setCategory(e.target.value)} 
+          style={{ width: '100%' }}
+        />
+        <datalist id="script-categories">
+          {[...new Set([...DEFAULT_CATEGORIES, ...existingCategories])].map(c => <option key={c} value={c} />)}
+        </datalist>
+      </div>
       <textarea
         placeholder={`Write script here...\nUse [VARIABLE] for dynamic fields e.g. "Thank you [CUSTOMER NAME]!"`}
         value={body} onChange={e => setBody(e.target.value)}
@@ -210,7 +221,13 @@ export default function ScriptsPage() {
   const handleDelete = async (id) => { await supabase.from('canned_responses').delete().eq('id', id); setScripts(p => p.filter(s => s.id !== id)) }
   const handleFavorite = async (s) => { await supabase.from('canned_responses').update({ is_favorite: !s.is_favorite }).eq('id', s.id); fetch() }
 
-  const categories = ['All', 'Favorites', ...CATEGORIES]
+  const dynamicCategories = [...new Set(scripts.map(s => s.category))].sort()
+  const categories = ['All', 'Favorites', ...dynamicCategories]
+  if (dynamicCategories.length === 0) {
+    // Show defaults if empty
+    categories.push(...DEFAULT_CATEGORIES)
+  }
+
   const filtered = scripts.filter(s => {
     const ms = !search || s.title?.toLowerCase().includes(search.toLowerCase()) || s.body?.toLowerCase().includes(search.toLowerCase())
     const mc = activeCategory === 'All' || (activeCategory === 'Favorites' ? s.is_favorite : s.category === activeCategory)
@@ -244,8 +261,8 @@ export default function ScriptsPage() {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px' }}>
-        {adding && !editing && <ScriptForm onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
-        {editing && <ScriptForm initial={editing} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
+        {adding && !editing && <ScriptForm existingCategories={dynamicCategories} onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
+        {editing && <ScriptForm initial={editing} existingCategories={dynamicCategories} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
         ) : filtered.length === 0 ? (
