@@ -383,7 +383,7 @@ function AppInner() {
             fontSize: 18, transition: 'all 0.2s',
           }}
         >
-          📋
+          📓
         </button>
         {/* JPTheme toggle */}
         <button

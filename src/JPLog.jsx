@@ -99,7 +99,7 @@ ${form.resolution || 'N/A'}
         borderBottom: expanded ? '1px solid var(--border)' : 'none',
         cursor: dragging ? 'grabbing' : 'grab',
       }}>
-        <span style={{ fontSize: 14 }}>📋</span>
+        <span style={{ fontSize: 14 }}>📓</span>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Log</span>
         </span>
