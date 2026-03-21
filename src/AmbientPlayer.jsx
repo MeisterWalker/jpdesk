@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 
 const AMBIENT_SOUNDS = {
   rain:    { label: 'Rain',    url: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg' },
-  bubbles: { label: 'Waves',   url: 'https://actions.google.com/sounds/v1/water/waves_crashing_on_shore.ogg' },
-  leaves:  { label: 'Forest',  url: 'https://actions.google.com/sounds/v1/ambient/morning_forest.ogg' },
-  stars:   { label: 'Midnight', url: '/hmmm.mp3' }, 
-  hearts:  { label: 'Soft',    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }, // Placeholder for Soft
+  bubbles: { label: 'Ocean',   url: 'https://actions.google.com/sounds/v1/water/ocean_waves.ogg' },
+  leaves:  { label: 'Nature',  url: 'https://actions.google.com/sounds/v1/animals/forest_birds.ogg' },
+  stars:   { label: 'Midnight', url: 'https://actions.google.com/sounds/v1/ambiences/city_street_traffic.ogg' }, 
+  hearts:  { label: 'Kawaii',  url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+  slate:   { label: 'Slate',   url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3' },
+  sunset:  { label: 'Sunset',  url: 'https://actions.google.com/sounds/v1/water/waves_crashing_on_shore.ogg' },
   none:    { label: 'Silent',  url: '' }
 }
 

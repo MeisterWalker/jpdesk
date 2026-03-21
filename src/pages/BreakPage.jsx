@@ -29,11 +29,11 @@ export const INITIAL_SHIFT_STATE = {
 }
 
 export const SHIFT_THEMES = [
-  { id: 'slate',    label: 'Slate',    bg: 'rgba(15, 23, 42, 0.9)', border: 'rgba(255,255,255,0.1)', color: '#fff', accent: '#6366F1', animation: 'none' },
+  { id: 'slate',    label: 'Slate',    bg: 'rgba(15, 23, 42, 0.9)', border: 'rgba(255,255,255,0.1)', color: '#fff', accent: '#6366F1', animation: 'slate' },
   { id: 'kawaii',   label: 'Kawaii',   bg: 'linear-gradient(135deg, #FF69B4, #DA70D6)', border: '#FFC0CB', color: '#fff', accent: '#FFF0F5', animation: 'hearts' },
   { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '#312E81', color: '#818CF8', accent: '#C7D2FE', animation: 'stars' },
   { id: 'nature',   label: 'Nature',   bg: 'linear-gradient(135deg, #065F46, #059669)', border: '#34D399', color: '#ecfdf5', accent: '#6EE7B7', animation: 'leaves' },
-  { id: 'sunset',   label: 'Sunset',   bg: 'linear-gradient(135deg, #BE123C, #FB923C)', border: '#FECDD3', color: '#fff', accent: '#FDE68A', animation: 'none' },
+  { id: 'sunset',   label: 'Sunset',   bg: 'linear-gradient(135deg, #BE123C, #FB923C)', border: '#FECDD3', color: '#fff', accent: '#FDE68A', animation: 'sunset' },
   { id: 'ocean',    label: 'Ocean',    bg: 'linear-gradient(180deg, #0EA5E9, #0369A1)', border: '#7DD3FC', color: '#fff', accent: '#BAE6FD', animation: 'bubbles' },
   { id: 'rain',     label: 'Rain',     bg: 'linear-gradient(180deg, #334155, #1E293B)', border: '#475569', color: '#CBD5E1', accent: '#94A3B8', animation: 'rain' },
 ]
