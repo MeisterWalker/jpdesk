@@ -25,22 +25,25 @@ export default function AmbientPlayer({ type, isPlaying, volume = 0.5 }) {
     const sound = AMBIENT_SOUNDS[type] || AMBIENT_SOUNDS.none
     if (!sound.url) return
 
-    const play = () => {
-      const audio = new Audio(sound.url)
-      audio.loop = true
-      audio.volume = volume
-      audio.play().catch(() => setError(true))
-      audioRef.current = audio
+    const audio = new Audio()
+    audio.src = sound.url.startsWith('http') ? sound.url : (window.location.origin + sound.url)
+    audio.loop = true
+    audio.volume = volume
+    
+    const startPlayback = () => {
+      audio.play().catch(e => {
+        console.warn("Ambient playback blocked or failed:", e)
+        setError(true)
+      })
     }
 
-    if (audioRef.current) {
-      audioRef.current.pause()
-    }
-    play()
+    startPlayback()
+    audioRef.current = audio
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current.src = ""
         audioRef.current = null
       }
     }
