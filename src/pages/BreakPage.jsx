@@ -13,6 +13,7 @@ export const INITIAL_BREAK_STATE = {
   remaining: null,
   startedAt: null,
   endedAt: null,
+  _ts: Date.now(),
 }
 
 export const SHIFT_DURATION_DEFAULT = 8.5 * 60 * 60
@@ -30,6 +31,7 @@ export const INITIAL_SHIFT_STATE = {
   endedAt: null,
   theme: 'slate',
   emoji: '🏢',
+  _ts: Date.now(),
 }
 
 export const SHIFT_THEMES = [
@@ -148,17 +150,17 @@ export function useBreakEngine() {
           if (s.status === 'running') {
             const newRem = s.remaining - elapsed
             if (newRem <= 0) {
-              recovered[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: s.endedAt || new Date(lastUpdated + s.remaining * 1000) }
+              recovered[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: s.endedAt || new Date(lastUpdated + s.remaining * 1000), _ts: now }
             } else {
-              recovered[id] = { ...s, remaining: newRem }
+              recovered[id] = { ...s, remaining: newRem, _ts: now }
             }
           } else if (s.status === 'overbreak') {
-            recovered[id] = { ...s, remaining: s.remaining - elapsed }
+            recovered[id] = { ...s, remaining: s.remaining - elapsed, _ts: now }
           } else {
-            recovered[id] = s
+            recovered[id] = { ...s, _ts: now }
           }
         })
-        return { ...Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }])), ...recovered }
+        return { ...Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration, _ts: now }])), ...recovered }
       } catch (e) { console.error("Failed to load break states", e) }
     }
     return Object.fromEntries(BREAKS.map(b => [b.id, { ...INITIAL_BREAK_STATE, remaining: b.duration }]))
@@ -179,12 +181,12 @@ export function useBreakEngine() {
         if (data.status === 'running') {
           const newRem = data.remaining - elapsed
           if (newRem <= 0) {
-            return { ...data, status: 'done', remaining: 0, endedAt: data.endedAt || new Date(lastUpdated + data.remaining * 1000) }
+            return { ...data, status: 'done', remaining: 0, endedAt: data.endedAt || new Date(lastUpdated + data.remaining * 1000), _ts: now }
           } else {
-            return { ...data, remaining: newRem }
+            return { ...data, remaining: newRem, _ts: now }
           }
         }
-        return data
+        return { ...data, _ts: now }
       } catch (e) { console.error("Failed to load shift state", e) }
     }
     return INITIAL_SHIFT_STATE
@@ -244,14 +246,14 @@ export function useBreakEngine() {
       const isIdle = s.status === 'idle'
       return {
         ...prev,
-        [id]: { ...s, status: 'running', remaining: isIdle ? BREAKS.find(b => b.id === id).duration : s.remaining, startedAt: isIdle ? new Date() : s.startedAt, _soundId: selectedSound }
+        [id]: { ...s, status: 'running', remaining: isIdle ? BREAKS.find(b => b.id === id).duration : s.remaining, startedAt: isIdle ? new Date() : s.startedAt, _soundId: selectedSound, _ts: Date.now() }
       }
     })
   }
 
   const pauseBreak = (id) => {
     if (intervalsRef.current[id]) { clearInterval(intervalsRef.current[id]); delete intervalsRef.current[id] }
-    updateBreak(id, s => ({ ...s, status: 'paused' }))
+    updateBreak(id, s => ({ ...s, status: 'paused', _ts: Date.now() }))
   }
 
   const finishBreak = (id) => {
@@ -280,13 +282,14 @@ export function useBreakEngine() {
         ...prev,
         status: 'running',
         startedAt: isIdle ? new Date() : prev.startedAt,
-        remaining: isIdle ? prev.totalDuration : prev.remaining
+        remaining: isIdle ? prev.totalDuration : prev.remaining,
+        _ts: Date.now()
       }
     })
   }
 
   const pauseShift = () => {
-    setShift(prev => ({ ...prev, status: 'paused' }))
+    setShift(prev => ({ ...prev, status: 'paused', _ts: Date.now() }))
   }
 
   const resetShift = () => {
@@ -307,9 +310,9 @@ export function useBreakEngine() {
       // User likely sets this BEFORE starting or to extend. 
       // Let's just update totalDuration and remaining (if idle).
       if (prev.status === 'idle') {
-        return { ...prev, totalDuration: secs, remaining: secs }
+        return { ...prev, totalDuration: secs, remaining: secs, _ts: Date.now() }
       }
-      return { ...prev, totalDuration: secs }
+      return { ...prev, totalDuration: secs, _ts: Date.now() }
     })
   }
 
@@ -333,7 +336,8 @@ export function useBreakEngine() {
         startedAt: newStart, 
         remaining: newRem, 
         status: isDone ? 'done' : (prev.status === 'idle' ? 'running' : prev.status),
-        endedAt: isDone ? new Date(newStart.getTime() + prev.totalDuration * 1000) : prev.endedAt
+        endedAt: isDone ? new Date(newStart.getTime() + prev.totalDuration * 1000) : prev.endedAt,
+        _ts: Date.now()
       }
     })
   }
@@ -341,29 +345,36 @@ export function useBreakEngine() {
   // ── Master tick — runs always regardless of tab ──
   useEffect(() => {
     const tick = setInterval(() => {
+      const now = Date.now()
+
       // Tick breaks
       setBreakStates(prev => {
         let next = { ...prev }
         let alarmId = null
         Object.keys(next).forEach(id => {
           const s = next[id]
+          const lastTs = s._ts || (now - 1000) // Fallback for old data
+          const elapsed = Math.floor((now - lastTs) / 1000)
+          if (elapsed < 1) return
+
           if (s.status === 'running') {
-            const newRemaining = s.remaining - 1
+            const newRemaining = s.remaining - elapsed
             if (newRemaining <= 0) {
-              next[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: new Date() }
-              // Alarm logic with snooze
-              if (!s._snoozedUntil || Date.now() > s._snoozedUntil) {
+              next[id] = { ...s, status: 'overbreak', remaining: 0, endedAt: new Date(), _ts: now }
+              if (!s._snoozedUntil || now > s._snoozedUntil) {
                 alarmId = s._soundId || selectedSound
               }
             } else {
-              next[id] = { ...s, remaining: newRemaining }
+              next[id] = { ...s, remaining: newRemaining, _ts: now }
             }
           } else if (s.status === 'overbreak') {
-            next[id] = { ...s, remaining: s.remaining - 1 }
-            if (s._snoozedUntil && Date.now() > s._snoozedUntil) {
-              next[id]._snoozedUntil = null // Clear snooze and re-alarm
+            next[id] = { ...s, remaining: s.remaining - elapsed, _ts: now }
+            if (s._snoozedUntil && now > s._snoozedUntil) {
+              next[id]._snoozedUntil = null
               alarmId = s._soundId || selectedSound
             }
+          } else {
+            next[id] = { ...s, _ts: now }
           }
         })
         if (alarmId) setTimeout(() => startAlarm(alarmId), 0)
@@ -372,8 +383,13 @@ export function useBreakEngine() {
 
       // Tick shift
       setShift(prev => {
-        if (prev.status !== 'running') return prev
-        const newRemaining = prev.remaining - 1
+        const lastTs = prev._ts || (now - 1000) // Fallback for old data
+        const elapsed = Math.floor((now - lastTs) / 1000)
+        if (elapsed < 1 && prev.status === 'running') return prev
+
+        if (prev.status !== 'running') return { ...prev, _ts: now }
+        
+        const newRemaining = prev.remaining - elapsed
         
         // Milestone checks
         const total = prev.totalDuration
@@ -389,19 +405,12 @@ export function useBreakEngine() {
           }
         })
 
-        // Dynamic Emoji Progression
-        if (progress >= 0.95) {
-          if (prev.emoji !== '🏁') prev.emoji = '🏁'
-        } else if (progress >= 0.75) {
-          if (prev.emoji !== '🚀') prev.emoji = '🚀'
-        } else if (progress >= 0.5) {
-          if (prev.emoji !== '🍱') prev.emoji = '🍱'
-        } else if (progress >= 0.25) {
-          if (prev.emoji !== '💻') prev.emoji = '💻'
-        }
+        if (progress >= 0.95) { if (prev.emoji !== '🏁') prev.emoji = '🏁' }
+        else if (progress >= 0.75) { if (prev.emoji !== '🚀') prev.emoji = '🚀' }
+        else if (progress >= 0.5) { if (prev.emoji !== '🍱') prev.emoji = '🍱' }
+        else if (progress >= 0.25) { if (prev.emoji !== '💻') prev.emoji = '💻' }
 
-        // Micro-wellness Milestones (every 30 mins)
-        if (newRemaining > 0 && newRemaining % (30 * 60) === 0) {
+        if (newRemaining > 0 && Math.floor(newRemaining / (30 * 60)) !== Math.floor(prev.remaining / (30 * 60))) {
           const wellnessTips = [
             "Time for a 20-20-20 eye break! 👀 Look 20ft away for 20s.",
             "Quick stretch! 🧘‍♂️ Roll your shoulders and neck.",
@@ -414,15 +423,13 @@ export function useBreakEngine() {
           setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 8000)
         }
 
-        // Smart Break Reminders (only if 8-hour shift or proportional?)
-        // Let's stick to fixed 2h/4h for now as they are standard.
-        if (newRemaining === prev.totalDuration - 2 * 3600 && !prev.notifiedBreak1) {
+        if (newRemaining <= prev.totalDuration - 2 * 3600 && !prev.notifiedBreak1) {
           showNotification("Break Reminder ☕", "It's been 2 hours! Time for your 1st 15-min break?")
           prev.notifiedBreak1 = true
           prev.milestoneMsg = "Time for your 1st Break? ☕"
           setTimeout(() => setShift(s => ({ ...s, milestoneMsg: null })), 6000)
         }
-        if (newRemaining === prev.totalDuration - Math.floor(prev.totalDuration / 2) && !prev.notifiedMeal) {
+        if (newRemaining <= prev.totalDuration - Math.floor(prev.totalDuration / 2) && !prev.notifiedMeal) {
           showNotification("Meal Time 🍱", "Halfway through your shift! Time for a 30-min meal break?")
           prev.notifiedMeal = true
           prev.milestoneMsg = "Halfway! Time for Meal Break? 🍱"
@@ -435,9 +442,9 @@ export function useBreakEngine() {
             fireConfetti()
             showNotification("Shift Complete! 🎉", `Great work today! Your ${fmtDuration(prev.totalDuration)} shift is officially over.`)
           }, 0)
-          return { ...prev, status: 'done', remaining: 0, endedAt: new Date(), emoji: '🎉' }
+          return { ...prev, status: 'done', remaining: 0, endedAt: new Date(), emoji: '🎉', _ts: now }
         }
-        return { ...prev, remaining: newRemaining }
+        return { ...prev, remaining: newRemaining, _ts: now }
       })
     }, 1000)
     return () => clearInterval(tick)
