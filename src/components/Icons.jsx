@@ -351,3 +351,36 @@ export const BookmarkIcon = (props) => (
     <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
   </BadgeIcon>
 )
+
+export const MusicIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #6366F1, #A855F7)">
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
+  </BadgeIcon>
+)
+
+export const RainIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #3B82F6, #1E40AF)">
+    <path d="M16 13a4 4 0 0 1-8 0" />
+    <path d="M12 5v8" />
+    <path d="M8 9l4 4 4-4" />
+    <path d="M20 17.5a3 3 0 0 0-6 0c0 1.5 1.5 3 3 3s3-1.5 3-3z" />
+    <path d="M10 17.5a3 3 0 0 0-6 0c0 1.5 1.5 3 3 3s3-1.5 3-3z" />
+  </BadgeIcon>
+)
+
+export const OceanIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #06B6D4, #0891B2)">
+    <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+    <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+    <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+  </BadgeIcon>
+)
+
+export const NatureIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #10B981, #047857)">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C10.9 14.36 12 12 12 12s1.1 2.36 4.92 3c3.23.64 5.08 3 5.08 6" />
+  </BadgeIcon>
+)
