@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
 import ShiftAnimation from '../ShiftAnimation'
+import { BuildingIcon, HatIcon, RocketIcon, CatIcon, RainbowIcon, BlossomIcon, WaveIcon, FireIcon, LaptopIcon, CoffeeIcon } from '../components/Icons'
 
 export const BREAKS = [
   { id: 'break1', label: '1st Break',  duration: 15 * 60, color: '#60A5FA', soft: 'rgba(96,165,250,0.1)',  border: 'rgba(96,165,250,0.25)',  emoji: '☕' },
@@ -32,13 +32,13 @@ export const INITIAL_SHIFT_STATE = {
 }
 
 export const SHIFT_THEMES = [
-  { id: 'slate',    label: 'Slate',    bg: 'rgba(15, 23, 42, 0.9)', border: 'rgba(255,255,255,0.1)', color: '#fff', accent: '#6366F1', animation: 'slate' },
-  { id: 'kawaii',   label: 'Kawaii',   bg: 'linear-gradient(135deg, #FF69B4, #DA70D6)', border: '#FFC0CB', color: '#fff', accent: '#FFF0F5', animation: 'hearts' },
-  { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '#312E81', color: '#818CF8', accent: '#C7D2FE', animation: 'stars' },
-  { id: 'nature',   label: 'Nature',   bg: 'linear-gradient(135deg, #065F46, #059669)', border: '#34D399', color: '#ecfdf5', accent: '#6EE7B7', animation: 'leaves' },
-  { id: 'sunset',   label: 'Sunset',   bg: 'linear-gradient(135deg, #BE123C, #FB923C)', border: '#FECDD3', color: '#fff', accent: '#FDE68A', animation: 'sunset' },
-  { id: 'ocean',    label: 'Ocean',    bg: 'linear-gradient(180deg, #0EA5E9, #0369A1)', border: '#7DD3FC', color: '#fff', accent: '#BAE6FD', animation: 'bubbles' },
-  { id: 'rain',     label: 'Rain',     bg: 'linear-gradient(180deg, #334155, #1E293B)', border: '#475569', color: '#CBD5E1', accent: '#94A3B8', animation: 'rain' },
+  { id: 'slate',    label: 'Slate',    bg: 'rgba(15, 23, 42, 0.9)', border: 'rgba(255,255,255,0.1)', color: '#fff', accent: '#6366F1', animation: 'slate',    icon: BuildingIcon },
+  { id: 'kawaii',   label: 'Kawaii',   bg: 'linear-gradient(135deg, #FF69B4, #DA70D6)', border: '#FFC0CB', color: '#fff', accent: '#FFF0F5', animation: 'hearts',   icon: BlossomIcon },
+  { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '#312E81', color: '#818CF8', accent: '#C7D2FE', animation: 'stars',    icon: HatIcon },
+  { id: 'nature',   label: 'Nature',   bg: 'linear-gradient(135deg, #065F46, #059669)', border: '#34D399', color: '#ecfdf5', accent: '#6EE7B7', animation: 'leaves',   icon: CatIcon },
+  { id: 'sunset',   label: 'Sunset',   bg: 'linear-gradient(135deg, #BE123C, #FB923C)', border: '#FECDD3', color: '#fff', accent: '#FDE68A', animation: 'sunset',   icon: FireIcon },
+  { id: 'ocean',    label: 'Ocean',    bg: 'linear-gradient(180deg, #0EA5E9, #0369A1)', border: '#7DD3FC', color: '#fff', accent: '#BAE6FD', animation: 'bubbles',  icon: WaveIcon },
+  { id: 'rain',     label: 'Rain',     bg: 'linear-gradient(180deg, #334155, #1E293B)', border: '#475569', color: '#CBD5E1', accent: '#94A3B8', animation: 'rain',     icon: LaptopIcon },
 ]
 
 export const ALARM_SOUNDS = [
@@ -732,7 +732,18 @@ function ShiftCard({ shift, engine }) {
   const startedAtDate = startedAt ? new Date(startedAt) : null
   const endedAtDate   = endedAt   ? new Date(endedAt)   : null
 
-  const emojis = ['🏢', '🎩', '🚀', '🐱', '🌈', '🌸', '🌊', '🔥', '💻', '☕']
+  const icons = [
+    { id: 'building', icon: BuildingIcon },
+    { id: 'hat',      icon: HatIcon },
+    { id: 'rocket',   icon: RocketIcon },
+    { id: 'cat',      icon: CatIcon },
+    { id: 'rainbow',  icon: RainbowIcon },
+    { id: 'blossom',  icon: BlossomIcon },
+    { id: 'wave',     icon: WaveIcon },
+    { id: 'fire',     icon: FireIcon },
+    { id: 'laptop',   icon: LaptopIcon },
+    { id: 'coffee',   icon: CoffeeIcon },
+  ]
 
   return (
     <div className="card animate-fadeIn" style={{
@@ -849,18 +860,22 @@ function ShiftCard({ shift, engine }) {
           ))}
         </div>
 
-        {/* Emoji Picker */}
+        {/* Icon Picker */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {emojis.map(e => (
-            <button key={e} onClick={() => engine.updateShiftEmoji(e)} style={{
-              width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
-              background: emoji === e ? (isRunning ? 'rgba(255,255,255,0.2)' : 'var(--surface-2)') : 'transparent',
-              border: `1px solid ${emoji === e ? 'rgba(255,255,255,0.3)' : 'transparent'}`,
-              transition: 'all 0.15s ease'
-            }}>
-              {e}
-            </button>
-          ))}
+          {icons.map(ic => {
+            const Icon = ic.icon
+            const isSelected = emoji === ic.id
+            return (
+              <button key={ic.id} onClick={() => engine.updateShiftEmoji(ic.id)} style={{
+                width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                background: isSelected ? (isRunning ? 'rgba(255,255,255,0.2)' : 'var(--surface-2)') : 'transparent',
+                border: `1px solid ${isSelected ? 'rgba(255,255,255,0.3)' : 'transparent'}`,
+                transition: 'all 0.15s ease'
+              }}>
+                <Icon size={24} iconSize={14} />
+              </button>
+            )
+          })}
         </div>
       </div>
 

@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { DictIcon } from './components/Icons'
+import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
-  { id: 'noun', label: 'Noun', emoji: '🍎', def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
-  { id: 'verb', label: 'Verb', emoji: '🏃', def: 'A word used to describe an action, state, or occurrence.', example: 'She **runs** fast every morning.' },
-  { id: 'adj',  label: 'Adjective', emoji: '🎨', def: 'A word that describes a noun or pronoun.', example: 'The **blue** sky is beautiful.' },
-  { id: 'adv',  label: 'Adverb', emoji: '⚡', def: 'A word that modifies a verb, adjective, or other adverb.', example: 'He sang **loudly**.' },
-  { id: 'past', label: 'Past Tense', emoji: '⏳', def: 'Used to describe things that happened in the past.', example: 'He **walked** to the store yesterday.' },
-  { id: 'ger',  label: 'Gerund', emoji: '🔄', def: 'A verb ending in -ing that functions as a noun.', example: '**Swimming** is good exercise.' },
-  { id: 'prep', label: 'Preposition', emoji: '📍', def: 'Shows the relationship between a noun and another word.', example: 'The book is **on** the table.' },
-  { id: 'conj', label: 'Conjunction', emoji: '🔗', def: 'Words that connect phrases or clauses.', example: 'I like tea **and** coffee.' },
+  { id: 'noun', label: 'Noun', icon: NounIcon, def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
+  { id: 'verb', label: 'Verb', icon: VerbIcon, def: 'A word used to describe an action, state, or occurrence.', example: 'She **runs** fast every morning.' },
+  { id: 'adj',  label: 'Adjective', icon: AdjectiveIcon, def: 'A word that describes a noun or pronoun.', example: 'The **blue** sky is beautiful.' },
+  { id: 'adv',  label: 'Adverb', icon: AdverbIcon, def: 'A word that modifies a verb, adjective, or other adverb.', example: 'He sang **loudly**.' },
+  { id: 'past', label: 'Past Tense', icon: PastTenseIcon, def: 'Used to describe things that happened in the past.', example: 'He **walked** to the store yesterday.' },
+  { id: 'ger',  label: 'Gerund', icon: GerundIcon, def: 'A verb ending in -ing that functions as a noun.', example: '**Swimming** is good exercise.' },
+  { id: 'prep', label: 'Preposition', icon: PrepositionIcon, def: 'Shows the relationship between a noun and another word.', example: 'The book is **on** the table.' },
+  { id: 'conj', label: 'Conjunction', icon: ConjunctionIcon, def: 'Words that connect phrases or clauses.', example: 'I like tea **and** coffee.' },
 ]
 
 export default function JPDict({ focused, onFocus }) {
@@ -76,32 +76,34 @@ export default function JPDict({ focused, onFocus }) {
       style={{
         position: 'fixed', left: pos.x, top: pos.y,
         width: 320, maxHeight: 520, zIndex: focused ? 9999 : 9990,
-        background: 'var(--surface)', border: '1px solid var(--border)',
+        background: '#111827', border: '1px solid var(--border)',
         borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         animation: 'springUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        fontFamily: 'JetBrains Mono',
+        fontFamily: 'Space Grotesk',
       }}
     >
       {/* Header */}
       <div 
         onMouseDown={onMouseDown}
         style={{ 
-          padding: '14px 16px', background: 'var(--surface-2)', 
+          padding: '12px 16px', background: '#111827', 
           cursor: dragging ? 'grabbing' : 'grab',
           display: 'flex', alignItems: 'center', gap: 10,
           borderBottom: '1px solid var(--border)'
         }}
       >
-        <DictIcon size={24} iconSize={14} />
-        <span style={{ fontSize: 13, fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.1em', background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>JPDICT</span>
+        <DictIcon size={22} iconSize={13} />
+        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+          JP<span style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Dict</span>
+        </span>
         <div style={{ flex: 1 }} />
         {loading && <div className="loader-mini" />}
         <button onClick={() => { setWord(''); setResult(null); setError(null); setLearnTerm(null) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14 }}>×</button>
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearch} style={{ padding: 12, borderBottom: '1px solid var(--border)', background: 'var(--bg)' }}>
+      <form onSubmit={handleSearch} style={{ padding: 12, borderBottom: '1px solid var(--border)', background: '#0A0E1A' }}>
         <div style={{ position: 'relative' }}>
           <input 
             autoFocus
@@ -132,7 +134,9 @@ export default function JPDict({ focused, onFocus }) {
           <div className="animate-fadeIn">
             <button onClick={() => setLearnTerm(null)} style={{ marginBottom: 12, background: 'none', border: 'none', color: 'var(--accent)', fontSize: 10, cursor: 'pointer', fontWeight: 800 }}>← BACK TO TIPS</button>
             <div style={{ background: 'var(--surface-2)', borderRadius: 12, padding: 16, border: '1px solid var(--accent-soft)' }}>
-               <div style={{ fontSize: 24, marginBottom: 8 }}>{learnTerm.emoji}</div>
+               <div style={{ fontSize: 24, marginBottom: 8 }}>
+                 <learnTerm.icon size={36} iconSize={20} />
+               </div>
                <h3 style={{ margin: 0, fontSize: 18, color: 'var(--text-primary)' }}>{learnTerm.label}</h3>
                <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, margin: '10px 0' }}>{learnTerm.def}</p>
                <div style={{ padding: 10, background: 'var(--bg)', borderRadius: 8, fontSize: 11, borderLeft: '3px solid var(--accent)' }}>
@@ -160,14 +164,14 @@ export default function JPDict({ focused, onFocus }) {
                   key={tip.id} 
                   onClick={() => setLearnTerm(tip)}
                   style={{ 
-                    background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, 
-                    padding: 10, textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
-                    display: 'flex', flexDirection: 'column', gap: 4
+                    background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, 
+                    padding: 12, textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
+                    display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start'
                   }}
                   className="hover-bright"
                 >
-                  <span style={{ fontSize: 16 }}>{tip.emoji}</span>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-primary)' }}>{tip.label}</span>
+                  <tip.icon size={28} iconSize={15} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>{tip.label}</span>
                 </button>
               ))}
             </div>

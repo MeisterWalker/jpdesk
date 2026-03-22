@@ -75,18 +75,19 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
         position: 'fixed', left: position.x, top: position.y, width: 260,
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
-        background: 'var(--surface)',
+        background: '#111827',
         border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease',
         cursor: dragging ? 'grabbing' : 'default',
         userSelect: 'none',
+        fontFamily: 'Space Grotesk'
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: 'var(--surface)', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
-        <PhoneticIcon size={20} iconSize={12} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: '#111827', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
+        <PhoneticIcon size={22} iconSize={13} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Phonetic</span>
         </span>
@@ -98,7 +99,7 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
       </div>
 
       {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', background: '#0A0E1A' }}>
           {/* Input */}
           <div style={{ padding: '10px 12px', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
             <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>Type to spell out</div>

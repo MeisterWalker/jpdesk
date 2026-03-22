@@ -260,24 +260,25 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
         width: 240,
         zIndex: focused ? 9999 : 9990,
         borderRadius: expanded ? 18 : 12,
-        background: 'var(--surface)',
+        background: '#111827',
         border: `1px solid ${focused ? 'var(--accent-border)' : 'var(--border)'}`,
         boxShadow: focused ? '0 8px 40px rgba(0,0,0,0.55)' : '0 4px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         transition: dragging ? 'none' : 'border-radius 0.25s ease, box-shadow 0.2s ease, border-color 0.2s ease',
         cursor: dragging ? 'grabbing' : 'default',
         userSelect: 'none',
+        fontFamily: 'Space Grotesk'
       }}
     >
       {/* ── Header ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '11px 14px',
-        background: 'var(--surface)',
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '12px 14px',
+        background: '#111827',
         borderBottom: expanded ? '1px solid var(--border)' : 'none',
         cursor: dragging ? 'grabbing' : 'grab',
       }}>
-        <CalIcon size={20} iconSize={12} />
+        <CalIcon size={22} iconSize={13} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Cal</span>
         </span>
@@ -297,7 +298,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
       </div>
 
       {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', background: '#0A0E1A' }}>
 
           {/* ── Config panel ── */}
           <div style={{ padding: '10px 12px 8px', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>

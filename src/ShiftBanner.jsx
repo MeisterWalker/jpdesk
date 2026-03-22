@@ -1,5 +1,19 @@
-import { SHIFT_THEMES } from './pages/BreakPage'
 import ShiftAnimation from './ShiftAnimation'
+import { SHIFT_THEMES } from './pages/BreakPage'
+import { BuildingIcon, HatIcon, RocketIcon, CatIcon, RainbowIcon, BlossomIcon, WaveIcon, FireIcon, LaptopIcon, CoffeeIcon } from './components/Icons'
+
+const ICON_MAP = {
+  building: BuildingIcon,
+  hat:      HatIcon,
+  rocket:   RocketIcon,
+  cat:      CatIcon,
+  rainbow:  RainbowIcon,
+  blossom:  BlossomIcon,
+  wave:     WaveIcon,
+  fire:     FireIcon,
+  laptop:   LaptopIcon,
+  coffee:   CoffeeIcon,
+}
 
 function pad(n) { return String(n).padStart(2, '0') }
 function fmtCountdown(secs) {
@@ -17,6 +31,7 @@ export default function ShiftBanner({ shift }) {
   const theme = SHIFT_THEMES.find(t => t.id === themeId) || SHIFT_THEMES[0]
   const pct = (totalDuration - remaining) / totalDuration
   const isDone = status === 'done' || remaining <= 0
+  const Icon = ICON_MAP[emoji] || BuildingIcon
 
   return (
     <div style={{
@@ -31,12 +46,14 @@ export default function ShiftBanner({ shift }) {
       pointerEvents: 'none',
       userSelect: 'none',
       transition: 'all 0.5s ease',
-      overflow: 'hidden'
+      // overflow: 'hidden' // Removed to allow icon bloom if needed
     }}>
       <ShiftAnimation type={theme.animation} />
       
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1 }}>
-        <span style={{ fontSize: 14 }}>{isDone ? '🎉' : emoji }</span>
+        <span style={{ fontSize: 14, display: 'flex' }}>
+          {isDone ? '🎉' : <Icon size={24} iconSize={14} />}
+        </span>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
             fontFamily: 'JetBrains Mono', 
