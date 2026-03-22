@@ -413,6 +413,7 @@ function AppInner() {
           ref={barRef}
           data-theme={theme}
           onMouseDown={() => setFocused('desk')}
+          className="glass-solid"
           style={{
             position: 'fixed',
             left: position.x,
@@ -420,8 +421,6 @@ function AppInner() {
             width: expanded ? 460 : 340,
             zIndex: focused === 'desk' ? 9999 : 9990,
             borderRadius: expanded ? 18 : 12,
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
             boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
             overflow: 'hidden',
             transition: dragging ? 'none' : 'width 0.25s cubic-bezier(0.34,1.56,0.64,1), border-radius 0.25s ease',
@@ -497,24 +496,32 @@ function AppInner() {
           {expanded && (
             <div className="animate-spring" style={{ display: 'flex', flexDirection: 'column', height: 560 }}>
               {/* Tabs */}
-              <div style={{ display: 'flex', padding: '8px 12px 0', gap: 2, borderBottom: '1px solid var(--border)', background: 'var(--surface)', flexShrink: 0 }}>
+              <div style={{ 
+                display: 'flex', padding: '8px 12px 0', gap: 2, 
+                borderBottom: '1px solid var(--border)', 
+                background: 'rgba(255,255,255,0.02)', 
+                backdropFilter: 'blur(10px)',
+                flexShrink: 0 
+              }}>
                 {TABS.filter(t => t.id !== 'admin' || isAdmin).map(tab => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    className="icon-click"
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px',
                       borderRadius: '8px 8px 0 0', position: 'relative',
-                      background: activeTab === tab.id ? 'var(--bg)' : 'transparent',
+                      background: activeTab === tab.id ? 'var(--surface-2)' : 'transparent',
                       border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
-                      borderBottom: activeTab === tab.id ? '1px solid var(--bg)' : '1px solid transparent',
+                      borderBottom: activeTab === tab.id ? '1px solid var(--surface-2)' : '1px solid transparent',
                       marginBottom: activeTab === tab.id ? -1 : 0,
-                      color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-muted)',
+                      color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
                       fontSize: 12, fontWeight: activeTab === tab.id ? 700 : 400,
                       cursor: 'pointer', transition: 'var(--transition)',
+                      boxShadow: activeTab === tab.id ? '0 -2px 10px rgba(0,0,0,0.1)' : 'none',
                     }}>
-                    <span>{tab.icon}</span>
+                    <span style={{ opacity: activeTab === tab.id ? 1 : 0.7 }}>{tab.icon}</span>
                     <span>{tab.label}</span>
                     {activeTab === tab.id && (
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 2 }} />
+                      <div style={{ position: 'absolute', bottom: 0, left: 6, right: 6, height: 2, background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 2 }} />
                     )}
                   </button>
                 ))}

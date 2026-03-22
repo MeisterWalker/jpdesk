@@ -241,6 +241,17 @@ code, kbd, .mono { font-family: 'JetBrains Mono', monospace; }
   transform: rotate(30deg) translate(20%, 20%);
 }
 
+/* Glass Solid */
+.glass-solid {
+  background: color-mix(in srgb, var(--surface) 95%, transparent) !important;
+  backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+[data-theme="light"] .glass-solid {
+  background: color-mix(in srgb, var(--surface) 92%, transparent) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+
 /* ── Cards ─────────────────────────────────────────────── */
 .card {
   background: var(--surface);
