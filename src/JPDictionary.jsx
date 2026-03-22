@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon, SpanishIcon, BookmarkIcon } from './components/Icons'
+import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon, BookmarkIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
   { id: 'noun', label: 'Noun', icon: NounIcon, def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
@@ -23,7 +23,6 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
   const [learnTerm, setLearnTerm] = useState(null)
   
   // Search Mode State
-  const [dictMode, setDictMode] = useState('en') // 'en' | 'es'
   const [favorites, setFavorites] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('jp_dict_favorites') || '[]')
@@ -128,21 +127,15 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
     setResult(null)
     setLearnTerm(null)
 
-    // Detect if Spanish (basic accent check)
-    const isES = /[áéíóúüñ¿¡]/i.test(query)
-    const effectiveMode = isES ? 'es' : dictMode
-
     try {
-      const lang = effectiveMode === 'es' ? 'es' : 'en'
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/${lang}/${encodeURIComponent(query.toLowerCase())}`)
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query.toLowerCase())}`)
       const data = await response.json()
       
       if (Array.isArray(data)) {
-        setResult({ ...data[0], lang })
-        setDictMode(lang)
+        setResult(data[0])
         setHistory(prev => [data[0].word, ...prev.filter(w => w !== data[0].word)].slice(0, 5))
       } else {
-        setError(lang === 'es' ? "No se encontraron resultados en español." : "Word not found in English dictionary.")
+        setError("Word not found in English dictionary.")
       }
     } catch (err) {
       setError("Failed to fetch dictionary data.")
@@ -263,30 +256,9 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="hide-scrollbar">
         {view === 'search' ? (
           <>
-            {/* Search Header / Mode Toggles */}
+            {/* Search Header */}
             <div style={{ padding: '8px 12px', background: '#0A0E1A', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button 
-                  onClick={() => setDictMode('en')}
-                  style={{ 
-                    fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                    background: dictMode === 'en' ? 'var(--accent)' : 'var(--surface-2)',
-                    color: dictMode === 'en' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
-                  }}
-                >
-                  EN
-                </button>
-                <button 
-                  onClick={() => setDictMode('es')}
-                  style={{ 
-                    fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                    background: dictMode === 'es' ? 'var(--accent)' : 'var(--surface-2)',
-                    color: dictMode === 'es' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
-                  }}
-                >
-                  ES
-                </button>
-              </div>
+              <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--text-label)', textTransform: 'uppercase' }}>English Dictionary</div>
             </div>
 
             {/* Search Bar */}
