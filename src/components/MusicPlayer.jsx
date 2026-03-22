@@ -52,7 +52,8 @@ const SOUNDS = [
     label: 'Quiet Days', 
     sublabel: 'Vocal collection',
     icon: <MusicIcon size={44} iconSize={24} gradient="linear-gradient(135deg, #F472B6, #8B5CF6)" />, 
-    filename: 'Quiet days.mp3'
+    filename: 'Quiet days.mp3',
+    cover: 'Quiet Days.jpg'
   }
 ]
 
@@ -65,6 +66,7 @@ export default function MusicPlayer() {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [audioUrl, setAudioUrl] = useState('')
+  const [coverUrl, setCoverUrl] = useState('')
   
   const audioRef = useRef(null)
   const menuRef = useRef(null)
@@ -73,8 +75,15 @@ export default function MusicPlayer() {
   useEffect(() => {
     const track = SOUNDS.find(s => s.id === currentId)
     if (track) {
-      const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.filename)
-      setAudioUrl(publicUrl)
+      const { data: { publicUrl: audioPublicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.filename)
+      setAudioUrl(audioPublicUrl)
+      
+      if (track.cover) {
+        const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.cover)
+        setCoverUrl(coverPublicUrl)
+      } else {
+        setCoverUrl('')
+      }
     }
   }, [currentId])
 
@@ -230,7 +239,11 @@ export default function MusicPlayer() {
                 boxShadow: isPlaying ? '0 8px 16px rgba(0,0,0,0.4)' : 'none',
                 transition: 'all 0.3s'
               }}>
-                {currentTrack.icon}
+                {coverUrl ? (
+                  <img src={coverUrl} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  currentTrack.icon
+                )}
               </div>
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.label}</div>
