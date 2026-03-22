@@ -1,24 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { MusicIcon, RainIcon, OceanIcon, NatureIcon } from './Icons'
+import { supabase } from '../lib/supabase'
+
+// Configuration for Supabase Storage
+const BUCKET_NAME = 'ambient-sounds'
+const SOUND_FILES = {
+  rain: 'rain.mp3',
+  ocean: 'ES_Water, Surf, Seaside, Big, Waves, Little Hut Bay 02 - Epidemic Sound.mp3',
+  nature: 'nature.mp3'
+}
 
 const SOUNDS = [
   { 
     id: 'rain',   
     label: 'Rain',   
     icon: <RainIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/RainSoundEffect/Rain%20Sound%20Effect.mp3'
+    filename: SOUND_FILES.rain
   },
   { 
     id: 'ocean',  
     label: 'Ocean',  
     icon: <OceanIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/OceanWavesSoundEffect/Ocean%20Waves%20Sound%20Effect.mp3'
+    filename: SOUND_FILES.ocean
   },
   { 
     id: 'nature', 
     label: 'Nature', 
     icon: <NatureIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/ForestBirdsSoundEffect/Forest%20Birds%20Sound%20Effect.mp3'
+    filename: SOUND_FILES.nature
   },
 ]
 
@@ -29,9 +38,19 @@ export default function MusicPlayer() {
   const [volume, setVolume] = useState(0.5)
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
+  const [audioUrl, setAudioUrl] = useState('')
   
   const audioRef = useRef(null)
   const menuRef = useRef(null)
+
+  // Fetch Public URL from Supabase when currentId changes
+  useEffect(() => {
+    const track = SOUNDS.find(s => s.id === currentId)
+    if (track) {
+      const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.filename)
+      setAudioUrl(publicUrl)
+    }
+  }, [currentId])
 
   // Sync volume with audio element
   useEffect(() => {
@@ -47,12 +66,12 @@ export default function MusicPlayer() {
     if (isPlaying && audioRef.current) {
       audioRef.current.load()
       audioRef.current.play().catch(e => {
-        console.error('Playback failed:', e)
+        console.error('Supabase Playback failed:', e)
         setIsPlaying(false)
         setIsError(true)
       })
     }
-  }, [currentId])
+  }, [audioUrl])
 
   const togglePlay = () => {
     if (!audioRef.current) return
@@ -65,7 +84,7 @@ export default function MusicPlayer() {
       audioRef.current.play()
         .then(() => setIsPlaying(true))
         .catch(e => {
-          console.error('Audio start blocked/failed:', e)
+          console.error('Supabase Audio start blocked/failed:', e)
           setIsError(true)
         })
     }
@@ -74,7 +93,6 @@ export default function MusicPlayer() {
   const selectTrack = (id) => {
     setCurrentId(id)
     if (!isPlaying) {
-      // Auto-start if it was paused
       setIsPlaying(true)
     }
   }
@@ -90,17 +108,14 @@ export default function MusicPlayer() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const currentTrack = SOUNDS.find(s => s.id === currentId)
-
   return (
     <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1000002 }}>
-      {/* Hidden Audio element - The "Ultimate Hard Fix" engine */}
+      {/* Hidden Audio element - The "Supabase Hard Fix" engine */}
       <audio 
         ref={audioRef}
-        src={currentTrack.url}
+        src={audioUrl}
         loop
         preload="auto"
-        /* Remove crossOrigin to bypass CORS blocks for simple playback */
         onCanPlay={() => setIsLoading(false)}
         onWaiting={() => setIsLoading(true)}
         onError={() => {
@@ -133,7 +148,6 @@ export default function MusicPlayer() {
             <MusicIcon size={28} iconSize={16} />
           )}
           
-          {/* Pulse Effect when playing */}
           {isPlaying && !isLoading && (
             <div style={{
               position: 'absolute', inset: -4, borderRadius: 16,
@@ -148,7 +162,7 @@ export default function MusicPlayer() {
           <div
             ref={menuRef}
             style={{
-              position: 'absolute', top: 52, right: 0, width: 180,
+              position: 'absolute', top: 52, right: 0, width: 220,
               background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
               border: '1px solid var(--accent-border)', borderRadius: 16,
               padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
@@ -169,10 +183,19 @@ export default function MusicPlayer() {
               </button>
             </div>
 
-            {/* Error Message */}
+            {/* Error Message with Instructions */}
             {isError && (
-              <div style={{ fontSize: 9, color: '#F87171', marginBottom: 8, textAlign: 'center', background: 'rgba(239,68,68,0.1)', padding: '4px', borderRadius: 4 }}>
-                Playback failed. Try a different track.
+              <div style={{ 
+                fontSize: 9, color: '#F87171', marginBottom: 10, textAlign: 'left', 
+                background: 'rgba(239,68,68,0.1)', padding: '8px', borderRadius: 8,
+                border: '1px solid rgba(239,68,68,0.2)'
+              }}>
+                <div style={{ fontWeight: 800, marginBottom: 4 }}>SOUND NOT FOUND</div>
+                Please ensure you have:
+                <ul style={{ paddingLeft: 12, marginTop: 4 }}>
+                  <li>1. Private/Public bucket: <b>{BUCKET_NAME}</b></li>
+                  <li>2. Uploaded: <b>{SOUND_FILES[currentId]}</b></li>
+                </ul>
               </div>
             )}
 
@@ -190,7 +213,10 @@ export default function MusicPlayer() {
                   }}
                 >
                   {s.icon}
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{s.label}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{s.label}</span>
+                    <span style={{ fontSize: 8, opacity: 0.5, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.filename}</span>
+                  </div>
                 </button>
               ))}
             </div>
