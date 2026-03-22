@@ -6,7 +6,8 @@ const BUCKET_NAME = 'ambient-sounds'
 
 const CATEGORIES = [
   { id: 'ambient', label: 'Ambient' },
-  { id: 'instrumental', label: 'Instrumental' }
+  { id: 'instrumental', label: 'Instrumental' },
+  { id: 'vocals', label: 'Vocals' }
 ]
 
 const SOUNDS = [
@@ -43,6 +44,15 @@ const SOUNDS = [
     sublabel: 'Instrumental collection',
     icon: <MusicIcon size={44} iconSize={24} />, 
     filename: 'All That You Are.mp3'
+  },
+  // VOCALS CATEGORY
+  { 
+    id: 'quiet_days', 
+    category: 'vocals',
+    label: 'Quiet Days', 
+    sublabel: 'Vocal collection',
+    icon: <MusicIcon size={44} iconSize={24} gradient="linear-gradient(135deg, #F472B6, #8B5CF6)" />, 
+    filename: 'Quiet days.mp3'
   }
 ]
 
