@@ -6,19 +6,19 @@ const SOUNDS = [
     id: 'rain',   
     label: 'Rain',   
     icon: <RainIcon size={20} iconSize={12} />, 
-    url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73484.mp3?filename=soft-rain-ambient-111154.mp3'
+    url: 'https://archive.org/download/RainSoundEffect/Rain%20Sound%20Effect.mp3'
   },
   { 
     id: 'ocean',  
     label: 'Ocean',  
     icon: <OceanIcon size={20} iconSize={12} />, 
-    url: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_924b276229.mp3?filename=beach-tides-13233.mp3'
+    url: 'https://archive.org/download/OceanWavesSoundEffect/Ocean%20Waves%20Sound%20Effect.mp3'
   },
   { 
     id: 'nature', 
     label: 'Nature', 
     icon: <NatureIcon size={20} iconSize={12} />, 
-    url: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_6108f90264.mp3?filename=forest-lullaby-110624.mp3'
+    url: 'https://archive.org/download/ForestBirdsSoundEffect/Forest%20Birds%20Sound%20Effect.mp3'
   },
 ]
 
