@@ -41,7 +41,7 @@ export default function MusicPlayer() {
         audioRef.current = null
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Swap source whenever the selected track changes
   useEffect(() => {
