@@ -15,6 +15,7 @@ import JPCal from './JPCal'
 import JPRoute from './JPRoute'
 import JPPhonetic from './JPPhonetic'
 import JPTheme from './JPTheme'
+import JPDict from './JPDict'
 import ShiftBanner from './ShiftBanner'
 
 const TABS = [
@@ -202,7 +203,8 @@ function AppInner() {
   const [showRoute, setShowRoute]     = useState(false)
   const [showPhonetic, setShowPhonetic] = useState(false)
   const [showTheme, setShowTheme]       = useState(false)
-  const [focused, setFocused]           = useState('desk') // 'desk' | 'calc' | 'cal' | 'route' | 'phonetic' | 'theme'
+  const [showDict, setShowDict]         = useState(false)
+  const [focused, setFocused]           = useState('desk') // 'desk' | 'calc' | 'cal' | 'route' | 'phonetic' | 'theme' | 'dict'
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -350,6 +352,21 @@ function AppInner() {
           }}
         >
           🔤
+        </button>
+        {/* JPDict toggle */}
+        <button
+          onClick={() => { setShowDict(v => !v); setFocused('dict') }}
+          title="JPDict"
+          style={{
+            width: 42, height: 42, borderRadius: 13,
+            background: showDict ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: showDict ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, transition: 'all 0.2s',
+          }}
+        >
+          📖
         </button>
         {/* JPTheme toggle */}
         <button
@@ -520,6 +537,7 @@ function AppInner() {
       {showRoute    && <JPRoute    focused={focused === 'route'}    onFocus={() => setFocused('route')}    />}
       {showPhonetic && <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />}
       {showTheme    && <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />}
+      {showDict     && <JPDict     focused={focused === 'dict'}     onFocus={() => setFocused('dict')}     />}
       <ShiftBanner shift={breakEngine.shift} />
 
     {/* Hydration reminder modal */}
