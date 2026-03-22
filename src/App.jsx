@@ -499,7 +499,7 @@ function AppInner() {
               <div style={{ 
                 display: 'flex', padding: '8px 12px 0', gap: 2, 
                 borderBottom: '1px solid var(--border)', 
-                background: 'rgba(255,255,255,0.02)', 
+                background: 'var(--surface)', 
                 backdropFilter: 'blur(10px)',
                 flexShrink: 0 
               }}>
