@@ -210,23 +210,48 @@ export default function ScriptsPage() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(true)
+  
+  // Custom categories that might not have scripts yet
+  const [customCategories, setCustomCategories] = useState(() => {
+    const saved = localStorage.getItem('jpdesk_custom_categories')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [isAddingCat, setIsAddingCat] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem('jpdesk_custom_categories', JSON.stringify(customCategories))
+  }, [customCategories])
 
   const fetch = useCallback(async () => {
     const { data } = await supabase.from('canned_responses').select('*').eq('user_id', user?.id).order('is_favorite', { ascending: false }).order('title', { ascending: true })
     setScripts(data || []); setLoading(false)
-  }, [])
+  }, [user?.id])
 
   useEffect(() => { fetch() }, [fetch])
 
   const handleDelete = async (id) => { await supabase.from('canned_responses').delete().eq('id', id); setScripts(p => p.filter(s => s.id !== id)) }
   const handleFavorite = async (s) => { await supabase.from('canned_responses').update({ is_favorite: !s.is_favorite }).eq('id', s.id); fetch() }
 
-  const dynamicCategories = [...new Set(scripts.map(s => s.category))].sort()
-  const categories = ['All', 'Favorites', ...dynamicCategories]
-  if (dynamicCategories.length === 0) {
-    // Show defaults if empty
-    categories.push(...DEFAULT_CATEGORIES)
+  const handleAddCategory = (e) => {
+    e.preventDefault()
+    const name = newCatName.trim()
+    if (name && !customCategories.includes(name)) {
+      setCustomCategories(prev => [...prev, name])
+      setActiveCategory(name)
+    }
+    setNewCatName('')
+    setIsAddingCat(false)
   }
+
+  const dynamicCategories = [...new Set(scripts.map(s => s.category))].filter(Boolean)
+  const allCategories = [...new Set(['All', 'Favorites', ...DEFAULT_CATEGORIES, ...customCategories, ...dynamicCategories])].sort((a, b) => {
+    if (a === 'All') return -1
+    if (b === 'All') return 1
+    if (a === 'Favorites') return -1
+    if (b === 'Favorites') return 1
+    return a.localeCompare(b)
+  })
 
   const filtered = scripts.filter(s => {
     const ms = !search || s.title?.toLowerCase().includes(search.toLowerCase()) || s.body?.toLowerCase().includes(search.toLowerCase())
@@ -238,21 +263,49 @@ export default function ScriptsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Category tabs */}
       <div style={{ display: 'flex', gap: 3, padding: '8px 11px 0', overflowX: 'auto', borderBottom: '1px solid var(--border)', background: 'var(--surface)', flexShrink: 0 }}>
-        {categories.map(cat => (
+        {allCategories.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             style={{
-              padding: '5px 9px', borderRadius: '6px 6px 0 0', whiteSpace: 'nowrap',
-              background: activeCategory === cat ? 'var(--bg)' : 'transparent',
-              border: activeCategory === cat ? '1px solid var(--border)' : '1px solid transparent',
-              borderBottom: activeCategory === cat ? '1px solid var(--bg)' : 'none',
-              marginBottom: activeCategory === cat ? -1 : 0,
-              color: activeCategory === cat ? 'var(--accent)' : 'var(--text-muted)',
+              padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              background: activeCategory === cat ? 'var(--surface-2)' : 'transparent',
+              color: activeCategory === cat ? '#6366F1' : 'var(--text-muted)',
               fontSize: 11, fontWeight: activeCategory === cat ? 700 : 400,
-              cursor: 'pointer', transition: 'var(--transition)', fontFamily: 'JetBrains Mono',
+              fontFamily: 'JetBrains Mono', transition: 'var(--transition)',
+              whiteSpace: 'nowrap',
             }}>
             {cat === 'Favorites' ? '★ Faves' : cat}
           </button>
         ))}
+
+        {/* Inline Category Adder */}
+        {isAddingCat ? (
+          <form onSubmit={handleAddCategory} style={{ display: 'flex', alignItems: 'center' }}>
+            <input 
+              autoFocus
+              value={newCatName}
+              onChange={e => setNewCatName(e.target.value)}
+              onBlur={() => !newCatName && setIsAddingCat(false)}
+              placeholder="category name..."
+              style={{ 
+                fontSize: 10, padding: '4px 8px', borderRadius: 6, border: '1px solid #6366F1',
+                background: 'var(--bg)', color: 'var(--text-primary)', width: 100,
+                fontFamily: 'JetBrains Mono', outline: 'none'
+              }}
+            />
+          </form>
+        ) : (
+          <button 
+            onClick={() => setIsAddingCat(true)}
+            style={{ 
+              background: 'transparent', border: '1px dashed var(--border)', borderRadius: 6,
+              color: 'var(--text-muted)', cursor: 'pointer', padding: '4px 8px', fontSize: 11,
+              fontFamily: 'JetBrains Mono', transition: 'var(--transition)', marginLeft: 4
+            }}
+            title="Add new category tab"
+          >
+            +
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: 7, padding: '9px 12px', background: 'var(--bg)', flexShrink: 0 }}>
@@ -261,8 +314,8 @@ export default function ScriptsPage() {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px' }}>
-        {adding && !editing && <ScriptForm existingCategories={dynamicCategories} onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
-        {editing && <ScriptForm initial={editing} existingCategories={dynamicCategories} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
+        {adding && !editing && <ScriptForm existingCategories={allCategories.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
+        {editing && <ScriptForm initial={editing} existingCategories={allCategories.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
         ) : filtered.length === 0 ? (
