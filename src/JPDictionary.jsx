@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon, JapaneseIcon, BookmarkIcon } from './components/Icons'
+import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon, SpanishIcon, BookmarkIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
   { id: 'noun', label: 'Noun', icon: NounIcon, def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
@@ -14,12 +14,6 @@ const GRAMMAR_TIPS = [
   { id: 'neg',  label: 'Double Negative', icon: DoubleNegativeIcon, def: 'A rule stating that two negative words should not be used in the same sentence as they cancel each other out.', example: 'INCORRECT: I **don\'t** want **nothing**.<br />CORRECT: I **don\'t** want **anything**.' },
 ]
 
-const toRomaji = (kana) => {
-  if (!kana) return ''
-  const m = {'あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko','さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to','な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho','ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro','わ':'wa','を':'wo','ん':'n','ガ':'ga','ギ':'gi','グ':'gu','ゲ':'ge','ゴ':'go','ザ':'za','ジ':'ji','ズ':'zu','ゼ':'ze','ゾ':'zo','ダ':'da','ヂ':'ji','ヅ':'zu','デ':'de','ド':'do','バ':'ba','ビ':'bi','ブ':'bu','ベ':'be','ボ':'bo','パ':'pa','ピ':'pi','プ':'pu','ペ':'pe','ポ':'po'}
-  return kana.split('').map(c => m[c] || c).join('')
-}
-
 export default function JPDictionary({ focused, onFocus, onClose }) {
   const [word, setWord] = useState('')
   const [result, setResult] = useState(null)
@@ -29,8 +23,7 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
   const [learnTerm, setLearnTerm] = useState(null)
   
   // Search Mode State
-  const [dictMode, setDictMode] = useState('en') // 'en' | 'jp'
-  const [readingMode, setReadingMode] = useState('furigana') // 'furigana' | 'romaji'
+  const [dictMode, setDictMode] = useState('en') // 'en' | 'es'
   const [favorites, setFavorites] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('jp_dict_favorites') || '[]')
@@ -135,41 +128,21 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
     setResult(null)
     setLearnTerm(null)
 
-    // Detect if Japanese
-    const isJP = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(query)
-    const effectiveMode = isJP ? 'jp' : dictMode
+    // Detect if Spanish (basic accent check)
+    const isES = /[áéíóúüñ¿¡]/i.test(query)
+    const effectiveMode = isES ? 'es' : dictMode
 
     try {
-      if (effectiveMode === 'jp') {
-        const response = await fetch(`https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(query)}`)
-        const data = await response.json()
-        if (data.data && data.data.length > 0) {
-          const first = data.data[0]
-          setResult({
-            word: first.japanese[0].word || first.japanese[0].reading,
-            reading: first.japanese[0].reading,
-            phonetic: '', 
-            meanings: first.senses.map(s => ({
-              partOfSpeech: s.parts_of_speech.join(', '),
-              definitions: s.english_definitions.map(d => ({ definition: d }))
-            })),
-            jlpt: first.jlpt,
-            isJP: true,
-            raw: first
-          })
-          setDictMode('jp')
-        } else {
-          setError("No Japanese results found.")
-        }
+      const lang = effectiveMode === 'es' ? 'es' : 'en'
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/${lang}/${encodeURIComponent(query.toLowerCase())}`)
+      const data = await response.json()
+      
+      if (Array.isArray(data)) {
+        setResult({ ...data[0], lang })
+        setDictMode(lang)
+        setHistory(prev => [data[0].word, ...prev.filter(w => w !== data[0].word)].slice(0, 5))
       } else {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`)
-        const data = await response.json()
-        if (Array.isArray(data)) {
-          setResult({ ...data[0], isJP: false })
-          setHistory(prev => [data[0].word, ...prev.filter(w => w !== data[0].word)].slice(0, 5))
-        } else {
-          setError("Word not found in English dictionary.")
-        }
+        setError(lang === 'es' ? "No se encontraron resultados en español." : "Word not found in English dictionary.")
       }
     } catch (err) {
       setError("Failed to fetch dictionary data.")
@@ -179,10 +152,10 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
   }
 
   const toggleFavorite = (item) => {
-    const wordKey = item.word || (item.japanese?.[0]?.word || item.japanese?.[0]?.reading)
-    const exists = favorites.find(f => (f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)) === wordKey)
+    const wordKey = item.word?.toLowerCase()
+    const exists = favorites.find(f => f.word?.toLowerCase() === wordKey)
     if (exists) {
-      setFavorites(prev => prev.filter(f => (f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)) !== wordKey))
+      setFavorites(prev => prev.filter(f => f.word?.toLowerCase() !== wordKey))
     } else {
       setFavorites(prev => [...prev, item])
     }
@@ -304,32 +277,16 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                   EN
                 </button>
                 <button 
-                  onClick={() => setDictMode('jp')}
+                  onClick={() => setDictMode('es')}
                   style={{ 
                     fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                    background: dictMode === 'jp' ? 'var(--accent)' : 'var(--surface-2)',
-                    color: dictMode === 'jp' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
+                    background: dictMode === 'es' ? 'var(--accent)' : 'var(--surface-2)',
+                    color: dictMode === 'es' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
                   }}
                 >
-                  JP
+                  ES
                 </button>
               </div>
-              {dictMode === 'jp' && (
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button 
-                    onClick={() => setReadingMode('furigana')}
-                    style={{ fontSize: 8, fontWeight: 800, color: readingMode === 'furigana' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}
-                  >
-                    FURIGANA
-                  </button>
-                  <button 
-                    onClick={() => setReadingMode('romaji')}
-                    style={{ fontSize: 8, fontWeight: 800, color: readingMode === 'romaji' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}
-                  >
-                    ROMAJI
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Search Bar */}
@@ -411,31 +368,13 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
         {result && (
           <div className="animate-fadeIn">
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-                  <h2 style={{ fontSize: 22, margin: 0, color: 'var(--text-primary)', fontWeight: 800 }}>
-                    {result.isJP ? (
-                      readingMode === 'furigana' ? (
-                        <ruby>
-                          {result.word}<rt style={{ fontSize: 10, color: 'var(--accent)' }}>{result.reading}</rt>
-                        </ruby>
-                      ) : (
-                        <span>{result.word} <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>({toRomaji(result.reading)})</span></span>
-                      )
-                    ) : result.word}
-                  </h2>
-                  {result.phonetic && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{result.phonetic}</span>}
-                  {result.isJP && (
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {result.jlpt?.map(j => (
-                        <span key={j} style={{ fontSize: 8, background: 'var(--accent)', color: '#fff', padding: '2px 4px', borderRadius: 4, fontWeight: 900 }}>{j.toUpperCase()}</span>
-                      ))}
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700 }}>{result.reading}</span>
-                    </div>
-                  )}
+                  <h2 style={{ fontSize: 22, margin: 0, color: 'var(--text-primary)', fontWeight: 800 }}>{result.word}</h2>
+                  {result.phonetics?.find(p => p.text)?.text && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{result.phonetics.find(p => p.text).text}</span>}
                   <button 
-                    onClick={() => toggleFavorite(result.isJP ? result.raw : result)}
+                    onClick={() => toggleFavorite(result)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, marginLeft: 'auto' }}
                   >
-                    {favorites.find(f => (f.word || f.japanese?.[0]?.word || f.japanese?.[0]?.reading) === (result.word || result.reading)) ? '⭐' : '☆'}
+                    {favorites.find(f => f.word?.toLowerCase() === result.word?.toLowerCase()) ? '⭐' : '☆'}
                   </button>
                 </div>
 
@@ -534,7 +473,7 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                     <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: 20 }}>No bookmarks yet. Save words to see them here!</div>
                   ) : (
                     favorites.map((f, i) => {
-                      const label = f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)
+                      const label = f.word
                       return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-2)', padding: '10px 14px', borderRadius: 12, border: '1px solid var(--border)' }}>
                           <span style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 700 }}>{label}</span>

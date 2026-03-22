@@ -345,11 +345,11 @@ export const MatchIcon = (props) => (
   </BadgeIcon>
 )
 
-export const JapaneseIcon = (props) => (
-  <BadgeIcon {...props} gradient="linear-gradient(135deg, #EF4444, #B91C1C)">
+export const SpanishIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #FACC15, #EF4444)">
     <circle cx="12" cy="12" r="8" fill="white" opacity="0.2" />
     <path d="M12 2L12 22M2 12L22 12" stroke="white" strokeWidth="1" opacity="0.2" />
-    <text x="12" y="15" fontSize="12" fontWeight="900" textAnchor="middle" fill="white" style={{ fontFamily: 'serif' }}>あ</text>
+    <text x="12" y="16" fontSize="14" fontWeight="900" textAnchor="middle" fill="white" style={{ fontFamily: 'serif' }}>ñ</text>
   </BadgeIcon>
 )
 
