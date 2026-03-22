@@ -294,3 +294,20 @@ export const ConjunctionIcon = (props) => (
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
   </BadgeIcon>
 )
+
+export const FutureTenseIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #A78BFA, #8B5CF6)">
+    <circle cx="12" cy="12" r="10" opacity="0.2" />
+    <polyline points="12 6 12 12 16 12" />
+    <path d="M14 2L18 6L14 10" />
+    <line x1="2" y1="6" x2="18" y2="6" />
+  </BadgeIcon>
+)
+
+export const DoubleNegativeIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #EF4444, #B91C1C)">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 12h8" strokeWidth="4" />
+    <path d="M8 8h8" strokeWidth="2" opacity="0.4" transform="translate(0,-3)" />
+  </BadgeIcon>
+)

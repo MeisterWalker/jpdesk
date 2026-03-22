@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon } from './components/Icons'
+import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
   { id: 'noun', label: 'Noun', icon: NounIcon, def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
@@ -10,6 +10,8 @@ const GRAMMAR_TIPS = [
   { id: 'ger',  label: 'Gerund', icon: GerundIcon, def: 'A verb ending in -ing that functions as a noun.', example: '**Swimming** is good exercise.' },
   { id: 'prep', label: 'Preposition', icon: PrepositionIcon, def: 'Shows the relationship between a noun and another word.', example: 'The book is **on** the table.' },
   { id: 'conj', label: 'Conjunction', icon: ConjunctionIcon, def: 'Words that connect phrases or clauses.', example: 'I like tea **and** coffee.' },
+  { id: 'future', label: 'Future Tense', icon: FutureTenseIcon, def: 'Used to describe things that will happen in the future.', example: 'I **will walk** to the store tomorrow.' },
+  { id: 'neg',  label: 'Double Negative', icon: DoubleNegativeIcon, def: 'A rule stating that two negative words should not be used in the same sentence as they cancel each other out.', example: 'INCORRECT: I **don\'t** want **nothing**.<br />CORRECT: I **don\'t** want **anything**.' },
 ]
 
 export default function JPDictionary({ focused, onFocus, onClose }) {
@@ -75,12 +77,13 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
       onMouseDown={() => onFocus()}
       style={{
         position: 'fixed', left: pos.x, top: pos.y,
-        width: 320, maxHeight: 520, zIndex: focused ? 9999 : 9990,
+        width: 400, maxHeight: 540, zIndex: focused ? 9999 : 9990,
         background: '#111827', border: '1px solid var(--border)',
-        borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        borderRadius: 20, boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         animation: 'springUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
         fontFamily: 'Space Grotesk',
+        transition: dragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
       {/* Header */}
@@ -171,20 +174,20 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
             <div style={{ fontSize: 10, color: 'var(--text-label)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12, letterSpacing: '0.05em' }}>
               💡 Educational Tips & Quiz
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               {GRAMMAR_TIPS.map(tip => (
                 <button 
                   key={tip.id} 
                   onClick={() => setLearnTerm(tip)}
                   style={{ 
-                    background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, 
-                    padding: '16px 12px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
-                    display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start'
+                    background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 14, 
+                    padding: '16px 10px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', borderBottomWidth: 3
                   }}
-                  className="hover-bright"
+                  className="hover-card"
                 >
-                  <tip.icon size={28} iconSize={16} />
-                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>{tip.label}</span>
+                  <tip.icon size={32} iconSize={16} />
+                  <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>{tip.label}</span>
                 </button>
               ))}
             </div>
@@ -254,7 +257,12 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
           animation: spin 0.6s linear infinite;
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-        .hover-bright:hover { background: var(--surface) !important; border-color: var(--accent-soft) !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .hover-card:hover { 
+          background: var(--surface) !important; 
+          border-color: var(--accent) !important; 
+          transform: translateY(-3px); 
+          box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
