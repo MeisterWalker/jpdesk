@@ -678,19 +678,22 @@ function AppInner() {
         <style>{`
           @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
           @keyframes springUp { from { transform: translateY(40px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-          .dock-item {
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
-            position: relative;
-            transform-origin: center;
-          }
-          .dock-item:hover {
-            transform: scale(1.18);
-            z-index: 10;
-          }
         `}</style>
       </div>
     )}
+
+    <style>{`
+      .dock-item {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+        position: relative;
+        transform-origin: center;
+      }
+      .dock-item:hover {
+        transform: scale(1.18);
+        z-index: 10;
+      }
+    `}</style>
     </>
   )
 }
