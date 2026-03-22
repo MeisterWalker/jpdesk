@@ -299,13 +299,14 @@ function AppInner() {
         <button
           onClick={() => { setShowDesk(v => !v); setFocused('desk') }}
           title="JPDesk"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showDesk ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showDesk ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            fontSize: 18, transition: 'all 0.2s', position: 'relative'
           }}
         >
           <DeskIcon size={28} iconSize={16} />
@@ -314,13 +315,14 @@ function AppInner() {
         <button
           onClick={() => { setShowCalc(v => !v); setFocused('calc') }}
           title="JPCalc"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showCalc ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showCalc ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <CalcIcon size={28} iconSize={16} />
@@ -329,13 +331,14 @@ function AppInner() {
         <button
           onClick={() => { setShowCal(v => !v); setFocused('cal') }}
           title="JPCal"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showCal ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showCal ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <CalIcon size={28} iconSize={16} />
@@ -344,13 +347,14 @@ function AppInner() {
         <button
           onClick={() => { setShowRoute(v => !v); setFocused('route') }}
           title="JPRoute"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showRoute ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showRoute ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <RouteIcon size={28} iconSize={16} />
@@ -359,13 +363,14 @@ function AppInner() {
         <button
           onClick={() => { setShowPhonetic(v => !v); setFocused('phonetic') }}
           title="JPPhonetic"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showPhonetic ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showPhonetic ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <PhoneticIcon size={28} iconSize={16} />
@@ -374,13 +379,14 @@ function AppInner() {
         <button
           onClick={() => { setShowDict(v => !v); setFocused('dict') }}
           title="JPDict"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showDict ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showDict ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <DictIcon size={28} iconSize={16} />
@@ -389,13 +395,14 @@ function AppInner() {
         <button
           onClick={() => { setShowTheme(v => !v); setFocused('theme') }}
           title="JPTheme"
+          className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
             background: showTheme ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
             boxShadow: showTheme ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s', position: 'relative'
           }}
         >
           <ThemeIcon size={28} iconSize={16} />
@@ -435,7 +442,7 @@ function AppInner() {
           >
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <DeskIcon size={22} iconSize={13} />
+              <GentlemanLogo />
               <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
               </span>
@@ -464,14 +471,26 @@ function AppInner() {
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
 
-            {/* Expand/collapse */}
-            <button
-              onMouseDown={e => e.stopPropagation()}
-              onClick={() => setExpanded(v => !v)}
-              style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, transition: 'var(--transition)', flexShrink: 0 }}
-              title={expanded ? 'Minimize' : 'Expand'}>
-              {expanded ? '▼' : '▲'}
-            </button>
+            {/* Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Minimize */}
+          <button
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => setShowDesk(false)}
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, transition: 'var(--transition)', flexShrink: 0 }}
+            title="Minimize to dock">
+            ➖
+          </button>
+
+          {/* Expand/collapse */}
+          <button
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => setExpanded(v => !v)}
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, transition: 'var(--transition)', flexShrink: 0 }}
+            title={expanded ? 'Minimize' : 'Expand'}>
+            {expanded ? '▼' : '▲'}
+          </button>
+        </div>
           </div>
 
           {/* Expanded content */}
@@ -502,13 +521,13 @@ function AppInner() {
               </div>
 
               {/* Page */}
-              <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }} key={activeTab} className="animate-slideRight">
-                {activeTab === 'notes'   && <NotesPage />}
-                {activeTab === 'scripts' && <ScriptsPage />}
-                {activeTab === 'info'    && <InfoPage />}
-                {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
-                {activeTab === 'admin'   && <AdminPage />}
-              </div>
+          <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }} key={activeTab} className="animate-tabShow">
+            {activeTab === 'notes'   && <NotesPage />}
+            {activeTab === 'scripts' && <ScriptsPage />}
+            {activeTab === 'info'    && <InfoPage />}
+            {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
+            {activeTab === 'admin'   && <AdminPage />}
+          </div>
 
               {/* Footer */}
               <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>

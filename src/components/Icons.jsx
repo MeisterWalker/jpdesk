@@ -134,10 +134,9 @@ export const DictIcon = (props) => (
 )
 
 export const DeskIcon = (props) => (
-  <BadgeIcon {...props} gradient="linear-gradient(135deg, #1E293B, #0F172A)">
-    <path d="M5 16h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2z" />
-    <path d="M15 21a1 1 0 0 0 0-2h-6a1 1 0 0 0 0 2" />
-    <path d="M8 19v2" />
-    <path d="M16 19v2" />
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #1E293B, #334155)">
+    <path d="M4 18h16" />
+    <path d="M7 18V7h10v11" />
+    <path d="M6 18c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2" />
   </BadgeIcon>
 )
