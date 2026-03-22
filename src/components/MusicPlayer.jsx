@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { MusicIcon, RainIcon, OceanIcon, NatureIcon } from './Icons'
 
 const SOUNDS = [
-  { id: 'rain',   label: 'Rain',   icon: <RainIcon size={20} iconSize={12} />, url: 'https://www.soundjay.com/nature/rain-01.mp3' },
-  { id: 'ocean',  label: 'Ocean',  icon: <OceanIcon size={20} iconSize={12} />, url: 'https://www.soundjay.com/nature/ocean-wave-1.mp3' },
-  { id: 'nature', label: 'Nature', icon: <NatureIcon size={20} iconSize={12} />, url: 'https://www.soundjay.com/nature/birds-chirping-01.mp3' },
+  { id: 'rain',   label: 'Rain',   icon: <RainIcon size={20} iconSize={12} />, url: 'https://raw.githubusercontent.com/rafaelreis-hotmart/audio-lib/main/rain.mp3' },
+  { id: 'ocean',  label: 'Ocean',  icon: <OceanIcon size={20} iconSize={12} />, url: 'https://raw.githubusercontent.com/rafaelreis-hotmart/audio-lib/main/ocean.mp3' },
+  { id: 'nature', label: 'Nature', icon: <NatureIcon size={20} iconSize={12} />, url: 'https://raw.githubusercontent.com/rafaelreis-hotmart/audio-lib/main/forest.mp3' },
 ]
 
 export default function MusicPlayer() {

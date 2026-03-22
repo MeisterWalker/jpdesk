@@ -304,120 +304,144 @@ function AppInner() {
       {/* ── Dock Bar ── */}
       <div style={{
         position: 'fixed', bottom: 16, right: 16, zIndex: 99999,
-        display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center',
+        display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center',
+        background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '12px 6px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.02)'
       }}>
         {/* JPDesk toggle */}
-        <button
-          onClick={() => { setShowDesk(v => !v); setFocused('desk') }}
-          title="JPDesk"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showDesk ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showDesk ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <DeskIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowDesk(v => !v); setFocused('desk') }}
+            title="JPDesk"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showDesk ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showDesk ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18, transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <DeskIcon size={28} iconSize={16} />
+          </button>
+          {showDesk && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPCalc toggle */}
-        <button
-          onClick={() => { setShowCalc(v => !v); setFocused('calc') }}
-          title="JPCalc"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showCalc ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showCalc ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <CalcIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowCalc(v => !v); setFocused('calc') }}
+            title="JPCalc"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showCalc ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showCalc ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <CalcIcon size={28} iconSize={16} />
+          </button>
+          {showCalc && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPCal toggle */}
-        <button
-          onClick={() => { setShowCal(v => !v); setFocused('cal') }}
-          title="JPCal"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showCal ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showCal ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <CalIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowCal(v => !v); setFocused('cal') }}
+            title="JPCal"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showCal ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showCal ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <CalIcon size={28} iconSize={16} />
+          </button>
+          {showCal && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPRoute toggle */}
-        <button
-          onClick={() => { setShowRoute(v => !v); setFocused('route') }}
-          title="JPRoute"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showRoute ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showRoute ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <RouteIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowRoute(v => !v); setFocused('route') }}
+            title="JPRoute"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showRoute ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showRoute ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <RouteIcon size={28} iconSize={16} />
+          </button>
+          {showRoute && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPPhonetic toggle */}
-        <button
-          onClick={() => { setShowPhonetic(v => !v); setFocused('phonetic') }}
-          title="JPPhonetic"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showPhonetic ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showPhonetic ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <PhoneticIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowPhonetic(v => !v); setFocused('phonetic') }}
+            title="JPPhonetic"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showPhonetic ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showPhonetic ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <PhoneticIcon size={28} iconSize={16} />
+          </button>
+          {showPhonetic && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPDictionary toggle */}
-        <button
-          onClick={() => { setShowDictionary(v => !v); setFocused('dictionary') }}
-          title="JPDictionary"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showDictionary ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showDictionary ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s',
-          }}
-        >
-          <DictIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowDictionary(v => !v); setFocused('dictionary') }}
+            title="JPDictionary"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showDictionary ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showDictionary ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+          >
+            <DictIcon size={28} iconSize={16} />
+          </button>
+          {showDictionary && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
         {/* JPTheme toggle */}
-        <button
-          onClick={() => { setShowTheme(v => !v); setFocused('theme') }}
-          title="JPTheme"
-          className="icon-click glass-reflection"
-          style={{
-            width: 42, height: 42, borderRadius: 13,
-            background: showTheme ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: showTheme ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
-          }}
-        >
-          <ThemeIcon size={28} iconSize={16} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowTheme(v => !v); setFocused('theme') }}
+            title="JPTheme"
+            className="icon-click glass-reflection"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: showTheme ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+              border: '1px solid var(--border)',
+              boxShadow: showTheme ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', position: 'relative'
+            }}
+          >
+            <ThemeIcon size={28} iconSize={16} />
+          </button>
+          {showTheme && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
+        </div>
       </div>
       <WindowTransition show={showDesk} zIndex={getZIndex('desk')} onMouseDown={() => setFocused('desk')}>
         <div
