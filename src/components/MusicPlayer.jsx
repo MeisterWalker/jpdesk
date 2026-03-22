@@ -7,7 +7,7 @@ const BUCKET_NAME = 'ambient-sounds'
 const SOUND_FILES = {
   rain: 'rain.mp3',
   ocean: 'ocean.mp3',
-  nature: 'ES_Water, Surf, Seaside, Big, Waves, Little Hut Bay 02 - Epidemic Sound.mp3'
+  nature: 'nature.mp3'
 }
 
 const SOUNDS = [
