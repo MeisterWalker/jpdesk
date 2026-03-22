@@ -408,7 +408,7 @@ function AppInner() {
           <ThemeIcon size={28} iconSize={16} />
         </button>
       </div>
-      <Genie show={showDesk}>
+      <WindowTransition show={showDesk}>
         <div
           ref={barRef}
           data-theme={theme}
