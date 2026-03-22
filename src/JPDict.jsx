@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { DictIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
   { id: 'noun', label: 'Noun', emoji: '🍎', def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
@@ -92,9 +93,7 @@ export default function JPDict({ focused, onFocus }) {
           borderBottom: '1px solid var(--border)'
         }}
       >
-        <div style={{ width: 24, height: 24, borderRadius: 6, background: 'linear-gradient(135deg, var(--accent), var(--accent-2))', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px var(--accent-soft)' }}>
-          <span style={{ fontSize: 13 }}>📖</span>
-        </div>
+        <DictIcon size={24} iconSize={14} />
         <span style={{ fontSize: 13, fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.1em', background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>JPDICT</span>
         <div style={{ flex: 1 }} />
         {loading && <div className="loader-mini" />}

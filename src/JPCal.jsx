@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { CalIcon } from './components/Icons'
 
 const FREQUENCIES = [
   { id: 'weekly',      label: 'Weekly',       desc: 'Every week' },
@@ -276,7 +277,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
         borderBottom: expanded ? '1px solid var(--border)' : 'none',
         cursor: dragging ? 'grabbing' : 'grab',
       }}>
-        <span style={{ fontSize: 14 }}>📅</span>
+        <CalIcon size={20} iconSize={12} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Cal</span>
         </span>

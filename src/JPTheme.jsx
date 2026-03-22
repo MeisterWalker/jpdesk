@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTheme, ACCENTS } from './context/ThemeContext'
+import { ThemeIcon } from './components/Icons'
 
 export default function JPTheme({ focused = true, onFocus = () => {} }) {
   const { theme, toggleTheme, accent, changeAccent } = useTheme()
@@ -49,7 +50,7 @@ export default function JPTheme({ focused = true, onFocus = () => {} }) {
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: 'var(--surface)', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
-        <span style={{ fontSize: 14 }}>🎨</span>
+        <ThemeIcon size={20} iconSize={12} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: `linear-gradient(90deg,${currentAccent.primary},${currentAccent.secondary})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Theme</span>
         </span>

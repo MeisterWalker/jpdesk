@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { ScriptsIcon } from '../components/Icons'
 
 // Default categories if none exist
 const DEFAULT_CATEGORIES = ['General Questions', 'FAQ', 'Other']
@@ -354,8 +355,11 @@ export default function ScriptsPage() {
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>💬</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{search ? 'No scripts match.' : 'No scripts yet!'}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 15 }}>
+              <ScriptsIcon size={48} iconSize={24} />
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 700, marginBottom: 4 }}>{search ? 'No scripts match.' : 'No scripts yet!'}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{search ? 'Try a different search term.' : 'Click "+ Script" to add your first canned response.'}</div>
           </div>
         ) : filtered.map(s => <ScriptCard key={s.id} script={s} onDelete={handleDelete} onEdit={setEditing} onFavorite={handleFavorite} />)}
       </div>

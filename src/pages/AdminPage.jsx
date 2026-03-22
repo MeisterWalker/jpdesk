@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { AdminIcon, UserIcon, SyncIcon, NotesIcon, ScriptsIcon } from '../components/Icons'
 
 const SCRIPT_CATEGORIES = ['General Questions', 'FAQ', 'Other']
 
@@ -64,14 +65,20 @@ function SyncModal({ targetUser, onClose, onDone }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div style={{ background: 'var(--surface)', borderRadius: 14, padding: 18, width: '100%', maxWidth: 320 }}>
-        <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', marginBottom: 4 }}>🔄 Sync to {targetUser.username}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <SyncIcon size={24} iconSize={14} />
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>Sync to {targetUser.username}</div>
+        </div>
         <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginBottom: 14 }}>Choose what to sync</div>
 
         {/* Notes toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'var(--accent-border)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
           onClick={() => setSyncNotes(v => !v)}>
           <div>
-            <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📝 Notes</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
+              <NotesIcon size={18} iconSize={11} />
+              Notes
+            </div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync all notes</div>
           </div>
           <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
@@ -84,7 +91,10 @@ function SyncModal({ targetUser, onClose, onDone }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: syncScripts ? 10 : 0 }}
             onClick={() => setSyncScripts(v => !v)}>
             <div>
-              <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📋 Scripts</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
+                <ScriptsIcon size={18} iconSize={11} />
+                Scripts
+              </div>
               <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync by category</div>
             </div>
             <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
@@ -186,13 +196,19 @@ function SyncAllModal({ users, onClose, onDone }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div style={{ background: 'var(--surface)', borderRadius: 14, padding: 18, width: '100%', maxWidth: 320 }}>
-        <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', marginBottom: 4 }}>🔄 Sync All Users</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <SyncIcon size={24} iconSize={14} />
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>Sync All Users</div>
+        </div>
         <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', marginBottom: 14 }}>Choose what to sync to everyone</div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px', borderRadius: 9, border: `1px solid ${syncNotes ? 'var(--accent-border)' : 'var(--border)'}`, background: syncNotes ? 'rgba(99,102,241,0.06)' : 'var(--bg)', marginBottom: 8, cursor: 'pointer' }}
           onClick={() => setSyncNotes(v => !v)}>
           <div>
-            <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📝 Notes</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
+              <NotesIcon size={18} iconSize={11} />
+              Notes
+            </div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync all notes</div>
           </div>
           <div style={{ width: 32, height: 18, borderRadius: 9, background: syncNotes ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
@@ -204,7 +220,10 @@ function SyncAllModal({ users, onClose, onDone }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: syncScripts ? 10 : 0 }}
             onClick={() => setSyncScripts(v => !v)}>
             <div>
-              <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>📋 Scripts</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
+                <ScriptsIcon size={18} iconSize={11} />
+                Scripts
+              </div>
               <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)' }}>Sync by category</div>
             </div>
             <div style={{ width: 32, height: 18, borderRadius: 9, background: syncScripts ? 'var(--accent)' : 'var(--border)', position: 'relative', transition: 'background 0.2s' }}>
@@ -292,7 +311,10 @@ export default function AdminPage() {
   return (
     <div style={{ padding: '12px 13px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>👥 User Management</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <UserIcon size={24} iconSize={14} />
+          <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>User Management</div>
+        </div>
         <button onClick={() => setShowForm(v => !v)} className="btn btn-brand" style={{ fontSize: 11, padding: '5px 11px' }}>
           {showForm ? 'Cancel' : '+ Add User'}
         </button>
@@ -308,11 +330,15 @@ export default function AdminPage() {
       <div className="card" style={{ padding: '11px 13px', marginBottom: 12, background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>🔄 Sync Notes & Scripts</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
+              <SyncIcon size={18} iconSize={11} />
+              Sync Notes & Scripts
+            </div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 2 }}>Choose what to push and to whom</div>
           </div>
-          <button onClick={() => setShowSyncAll(true)} disabled={loading} className="btn btn-brand" style={{ fontSize: 11, padding: '5px 12px' }}>
-            🔄 Sync All
+          <button onClick={() => setShowSyncAll(true)} disabled={loading} className="btn btn-brand" style={{ fontSize: 11, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <SyncIcon size={16} iconSize={10} />
+            Sync All
           </button>
         </div>
       </div>
@@ -351,16 +377,16 @@ export default function AdminPage() {
         <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
       ) : users.map(u => (
         <div key={u.id} className="card" style={{ marginBottom: 7, padding: '10px 13px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 10, background: u.role === 'admin' ? 'var(--accent-soft)' : 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>
-            {u.role === 'admin' ? '👑' : '👤'}
-          </div>
+            {u.role === 'admin' ? <AdminIcon size={18} iconSize={11} /> : <UserIcon size={18} iconSize={11} />}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>{u.full_name || u.username}</div>
             <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', marginTop: 1 }}>@{u.username} · {u.role}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             {u.role !== 'admin' && (
-              <button onClick={() => setSyncTarget(u)} className="btn btn-ghost" style={{ fontSize: 10, padding: '3px 8px' }}>🔄</button>
+              <button onClick={() => setSyncTarget(u)} className="btn btn-ghost" style={{ fontSize: 10, padding: '4px', borderRadius: 6, display: 'flex', alignItems: 'center' }}>
+                <SyncIcon size={16} iconSize={10} />
+              </button>
             )}
             <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: u.role === 'admin' ? 'var(--accent-soft)' : 'var(--surface-2)', color: u.role === 'admin' ? 'var(--accent)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase' }}>
               {u.role}

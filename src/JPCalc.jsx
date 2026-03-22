@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { CalcIcon } from './components/Icons'
 
 // ── Click sounds (preserved exactly) ─────────────────────────────────────────
 function makeSound(type) {
@@ -392,7 +393,7 @@ export default function JPCalc({ focused = true, onFocus = () => {} }) {
         borderBottom: expanded ? '1px solid var(--border)' : 'none',
         cursor: dragging ? 'grabbing' : 'grab',
       }}>
-        <span style={{ fontSize: 14 }}>🧮</span>
+        <CalcIcon size={20} iconSize={12} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
         </span>

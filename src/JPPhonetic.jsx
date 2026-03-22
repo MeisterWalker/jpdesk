@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PhoneticIcon } from './components/Icons'
 
 const PHONETIC = {
   A:'Alpha', B:'Bravo', C:'Charlie', D:'Delta', E:'Echo', F:'Foxtrot',
@@ -85,7 +86,7 @@ export default function JPPhonetic({ focused = true, onFocus = () => {} }) {
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: 'var(--surface)', borderBottom: expanded ? '1px solid var(--border)' : 'none', cursor: dragging ? 'grabbing' : 'grab' }}>
-        <span style={{ fontSize: 14 }}>🔤</span>
+        <PhoneticIcon size={20} iconSize={12} />
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Phonetic</span>
         </span>

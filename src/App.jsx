@@ -17,13 +17,17 @@ import JPPhonetic from './JPPhonetic'
 import JPTheme from './JPTheme'
 import JPDict from './JPDict'
 import ShiftBanner from './ShiftBanner'
+import { 
+  NotesIcon, ScriptsIcon, InfoIcon, BreaksIcon, AdminIcon, 
+  CalcIcon, CalIcon, RouteIcon, PhoneticIcon, ThemeIcon, DictIcon, UserIcon
+} from './components/Icons'
 
 const TABS = [
-  { id: 'notes',   label: 'Notes',   icon: '📝' },
-  { id: 'scripts', label: 'Scripts', icon: '💬' },
-  { id: 'info',    label: 'Info',    icon: '📋' },
-  { id: 'breaks',  label: 'Breaks',  icon: '⏱' },
-  { id: 'admin',   label: 'Admin',   icon: '👑' },
+  { id: 'notes',   label: 'Notes',   icon: <NotesIcon size={18} iconSize={11} /> },
+  { id: 'scripts', label: 'Scripts', icon: <ScriptsIcon size={18} iconSize={11} /> },
+  { id: 'info',    label: 'Info',    icon: <InfoIcon size={18} iconSize={11} /> },
+  { id: 'breaks',  label: 'Breaks',  icon: <BreaksIcon size={18} iconSize={11} /> },
+  { id: 'admin',   label: 'Admin',   icon: <AdminIcon size={18} iconSize={11} /> },
 ]
 
 const TIMEZONES = [
@@ -299,14 +303,14 @@ function AppInner() {
           title="JPCalc"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showCalc ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showCalc ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showCalc ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showCalc ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          🧮
+          <CalcIcon size={28} iconSize={16} />
         </button>
         {/* JPCal toggle */}
         <button
@@ -314,14 +318,14 @@ function AppInner() {
           title="JPCal"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showCal ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showCal ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showCal ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showCal ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          📅
+          <CalIcon size={28} iconSize={16} />
         </button>
         {/* JPRoute toggle */}
         <button
@@ -329,14 +333,14 @@ function AppInner() {
           title="JPRoute"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showRoute ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showRoute ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showRoute ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showRoute ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          🏦
+          <RouteIcon size={28} iconSize={16} />
         </button>
         {/* JPPhonetic toggle */}
         <button
@@ -344,14 +348,14 @@ function AppInner() {
           title="JPPhonetic"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showPhonetic ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showPhonetic ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showPhonetic ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showPhonetic ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          🔤
+          <PhoneticIcon size={28} iconSize={16} />
         </button>
         {/* JPDict toggle */}
         <button
@@ -359,14 +363,14 @@ function AppInner() {
           title="JPDict"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showDict ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showDict ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showDict ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showDict ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          📖
+          <DictIcon size={28} iconSize={16} />
         </button>
         {/* JPTheme toggle */}
         <button
@@ -374,14 +378,14 @@ function AppInner() {
           title="JPTheme"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showTheme ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
+            background: showTheme ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showTheme ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showTheme ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          🎨
+          <ThemeIcon size={28} iconSize={16} />
         </button>
       </div>
       {showDesk && <div
@@ -500,7 +504,7 @@ function AppInner() {
               {/* Who's online */}
               <div style={{ position: 'relative' }}>
                 <button onClick={() => setShowOnline(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}>
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>👥</span>
+                  <UserIcon size={16} iconSize={10} />
                   <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineUsers.length} online</span>
                 </button>
                 {showOnline && (
