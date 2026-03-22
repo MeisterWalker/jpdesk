@@ -211,17 +211,22 @@ export default function ScriptsPage() {
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(true)
   
-  // Custom categories that might not have scripts yet
-  const [customCategories, setCustomCategories] = useState(() => {
-    const saved = localStorage.getItem('jpdesk_custom_categories')
-    return saved ? JSON.parse(saved) : []
+  // Categories that the user wants to see as tabs
+  const [managedCategories, setManagedCategories] = useState(() => {
+    const saved = localStorage.getItem('jpdesk_managed_categories')
+    if (saved) return JSON.parse(saved)
+    // Migration from the previous version's state
+    const oldCustom = localStorage.getItem('jpdesk_custom_categories')
+    const initial = ['General Questions', 'FAQ', 'Other']
+    if (oldCustom) return [...new Set([...initial, ...JSON.parse(oldCustom)])]
+    return initial
   })
   const [isAddingCat, setIsAddingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
 
   useEffect(() => {
-    localStorage.setItem('jpdesk_custom_categories', JSON.stringify(customCategories))
-  }, [customCategories])
+    localStorage.setItem('jpdesk_managed_categories', JSON.stringify(managedCategories))
+  }, [managedCategories])
 
   const fetch = useCallback(async () => {
     const { data } = await supabase.from('canned_responses').select('*').eq('user_id', user?.id).order('is_favorite', { ascending: false }).order('title', { ascending: true })
@@ -236,22 +241,31 @@ export default function ScriptsPage() {
   const handleAddCategory = (e) => {
     e.preventDefault()
     const name = newCatName.trim()
-    if (name && !customCategories.includes(name)) {
-      setCustomCategories(prev => [...prev, name])
+    if (name && !managedCategories.includes(name)) {
+      setManagedCategories(prev => [...prev, name])
       setActiveCategory(name)
     }
     setNewCatName('')
     setIsAddingCat(false)
   }
 
+  const handleDeleteCategory = (e, cat) => {
+    e.stopPropagation()
+    setManagedCategories(prev => prev.filter(c => c !== cat))
+    if (activeCategory === cat) setActiveCategory('All')
+  }
+
   const dynamicCategories = [...new Set(scripts.map(s => s.category))].filter(Boolean)
-  const allCategories = [...new Set(['All', 'Favorites', ...DEFAULT_CATEGORIES, ...customCategories, ...dynamicCategories])].sort((a, b) => {
+  const allCategories = [...new Set(['All', 'Favorites', ...managedCategories, ...dynamicCategories])].sort((a, b) => {
     if (a === 'All') return -1
     if (b === 'All') return 1
     if (a === 'Favorites') return -1
     if (b === 'Favorites') return 1
     return a.localeCompare(b)
   })
+
+  // Only show tabs that are in managedCategories or are All/Favorites
+  const visibleTabs = allCategories.filter(cat => ['All', 'Favorites', ...managedCategories].includes(cat))
 
   const filtered = scripts.filter(s => {
     const ms = !search || s.title?.toLowerCase().includes(search.toLowerCase()) || s.body?.toLowerCase().includes(search.toLowerCase())
@@ -263,18 +277,31 @@ export default function ScriptsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Category tabs */}
       <div style={{ display: 'flex', gap: 3, padding: '8px 11px 0', overflowX: 'auto', borderBottom: '1px solid var(--border)', background: 'var(--surface)', flexShrink: 0 }}>
-        {allCategories.map(cat => (
-          <button key={cat} onClick={() => setActiveCategory(cat)}
-            style={{
-              padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: activeCategory === cat ? 'var(--surface-2)' : 'transparent',
-              color: activeCategory === cat ? '#6366F1' : 'var(--text-muted)',
-              fontSize: 11, fontWeight: activeCategory === cat ? 700 : 400,
-              fontFamily: 'JetBrains Mono', transition: 'var(--transition)',
-              whiteSpace: 'nowrap',
-            }}>
-            {cat === 'Favorites' ? '★ Faves' : cat}
-          </button>
+        {visibleTabs.map(cat => (
+          <div key={cat} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <button key={cat} onClick={() => setActiveCategory(cat)}
+              style={{
+                padding: '6px 12px', paddingRight: !['All', 'Favorites'].includes(cat) ? 22 : 12, borderRadius: 8, border: 'none', cursor: 'pointer',
+                background: activeCategory === cat ? 'var(--surface-2)' : 'transparent',
+                color: activeCategory === cat ? '#6366F1' : 'var(--text-muted)',
+                fontSize: 11, fontWeight: activeCategory === cat ? 700 : 400,
+                fontFamily: 'JetBrains Mono', transition: 'var(--transition)',
+                whiteSpace: 'nowrap',
+              }}>
+              {cat === 'Favorites' ? '★ Faves' : cat}
+            </button>
+            {!['All', 'Favorites'].includes(cat) && activeCategory === cat && (
+              <button onClick={(e) => handleDeleteCategory(e, cat)}
+                style={{
+                  position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer',
+                  fontSize: 12, padding: 0, lineHeight: 1, opacity: 0.7
+                }}
+                title={`Delete ${cat} tab`}>
+                ×
+              </button>
+            )}
+          </div>
         ))}
 
         {/* Inline Category Adder */}
@@ -314,8 +341,8 @@ export default function ScriptsPage() {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px' }}>
-        {adding && !editing && <ScriptForm existingCategories={allCategories.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
-        {editing && <ScriptForm initial={editing} existingCategories={allCategories.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
+        {adding && !editing && <ScriptForm existingCategories={visibleTabs.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
+        {editing && <ScriptForm initial={editing} existingCategories={visibleTabs.filter(c => !['All', 'Favorites'].includes(c))} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
         ) : filtered.length === 0 ? (
