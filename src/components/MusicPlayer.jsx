@@ -53,7 +53,7 @@ const SOUNDS = [
     sublabel: 'Vocal collection',
     icon: <MusicIcon size={44} iconSize={24} gradient="linear-gradient(135deg, #F472B6, #8B5CF6)" />, 
     filename: 'Quiet days.mp3',
-    cover: 'Quiet Days.jpg'
+    cover: '/Quiet Days.jpg'
   }
 ]
 
@@ -79,8 +79,12 @@ export default function MusicPlayer() {
       setAudioUrl(audioPublicUrl)
       
       if (track.cover) {
-        const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.cover)
-        setCoverUrl(coverPublicUrl)
+        if (track.cover.startsWith('/')) {
+          setCoverUrl(track.cover)
+        } else {
+          const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.cover)
+          setCoverUrl(coverPublicUrl)
+        }
       } else {
         setCoverUrl('')
       }
