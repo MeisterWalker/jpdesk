@@ -2,37 +2,61 @@ import React, { useState, useEffect, useRef } from 'react'
 import { MusicIcon, RainIcon, OceanIcon, NatureIcon } from './Icons'
 import { supabase } from '../lib/supabase'
 
-// Configuration for Supabase Storage
 const BUCKET_NAME = 'ambient-sounds'
-const SOUND_FILES = {
-  rain: 'rain.mp3',
-  ocean: 'ocean.mp3',
-  nature: 'nature.mp3'
-}
+
+const CATEGORIES = [
+  { id: 'ambient', label: 'Ambient' },
+  { id: 'instrumental', label: 'Instrumental' }
+]
 
 const SOUNDS = [
+  // AMBIENT CATEGORY
   { 
     id: 'rain',   
-    label: 'Rain',   
-    icon: <RainIcon size={20} iconSize={12} />, 
-    filename: SOUND_FILES.rain
+    category: 'ambient',
+    label: 'Rainy Day',   
+    sublabel: 'Soothing rainfall',
+    icon: <RainIcon size={44} iconSize={24} />, 
+    filename: 'rain.mp3'
   },
   { 
     id: 'ocean',  
-    label: 'Ocean',  
-    icon: <OceanIcon size={20} iconSize={12} />, 
-    filename: SOUND_FILES.ocean
+    category: 'ambient',
+    label: 'Pacific Waves',  
+    sublabel: 'Deep ocean surf',
+    icon: <OceanIcon size={44} iconSize={24} />, 
+    filename: 'ocean.mp3'
   },
   { 
     id: 'nature', 
-    label: 'Nature', 
-    icon: <NatureIcon size={20} iconSize={12} />, 
-    filename: SOUND_FILES.nature
+    category: 'ambient',
+    label: 'Nature Forest', 
+    sublabel: 'Birds and wind',
+    icon: <NatureIcon size={44} iconSize={24} />, 
+    filename: 'nature.mp3'
   },
+  // INSTRUMENTAL CATEGORY (Placeholders for future expansion)
+  { 
+    id: 'piano', 
+    category: 'instrumental',
+    label: 'Soft Piano', 
+    sublabel: 'Melodic evening',
+    icon: <MusicIcon size={44} iconSize={24} />, 
+    filename: 'piano.mp3'
+  },
+  { 
+    id: 'lofi', 
+    category: 'instrumental',
+    label: 'Lofi Beats', 
+    sublabel: 'Chill study session',
+    icon: <MusicIcon size={44} iconSize={24} gradient="linear-gradient(135deg, #10B981, #3B82F6)" />, 
+    filename: 'lofi.mp3'
+  }
 ]
 
 export default function MusicPlayer() {
   const [isOpen, setIsOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('ambient')
   const [currentId, setCurrentId] = useState('rain')
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(0.5)
@@ -66,14 +90,15 @@ export default function MusicPlayer() {
     if (isPlaying && audioRef.current) {
       audioRef.current.load()
       audioRef.current.play().catch(e => {
-        console.error('Supabase Playback failed:', e)
+        console.error('Playback failed:', e)
         setIsPlaying(false)
         setIsError(true)
       })
     }
   }, [audioUrl])
 
-  const togglePlay = () => {
+  const togglePlay = (e) => {
+    e?.stopPropagation()
     if (!audioRef.current) return
     if (isPlaying) {
       audioRef.current.pause()
@@ -84,15 +109,17 @@ export default function MusicPlayer() {
       audioRef.current.play()
         .then(() => setIsPlaying(true))
         .catch(e => {
-          console.error('Supabase Audio start blocked/failed:', e)
+          console.error('Audio start blocked/failed:', e)
           setIsError(true)
         })
     }
   }
 
   const selectTrack = (id) => {
-    setCurrentId(id)
-    if (!isPlaying) {
+    if (currentId === id) {
+      togglePlay()
+    } else {
+      setCurrentId(id)
       setIsPlaying(true)
     }
   }
@@ -108,9 +135,12 @@ export default function MusicPlayer() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  const currentTrack = SOUNDS.find(s => s.id === currentId)
+  const filteredSounds = SOUNDS.filter(s => s.category === activeTab)
+
   return (
     <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1000002 }}>
-      {/* Hidden Audio element - The "Supabase Hard Fix" engine */}
+      {/* Hidden Audio Engine */}
       <audio 
         ref={audioRef}
         src={audioUrl}
@@ -126,124 +156,170 @@ export default function MusicPlayer() {
       />
 
       <div style={{ position: 'relative' }}>
-        {/* Main Floating Button */}
+        {/* Main Badge Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="glass-reflection"
           style={{
-            width: 44, height: 44, borderRadius: 14,
+            width: 48, height: 48, borderRadius: 16,
             background: isPlaying ? 'linear-gradient(135deg, var(--accent), var(--accent-2))' : 'var(--surface)',
             border: `1px solid ${isPlaying ? 'var(--accent-border)' : 'var(--border)'}`,
-            boxShadow: isPlaying ? '0 8px 24px rgba(99,102,241,0.45)' : '0 4px 16px rgba(0,0,0,0.3)',
+            boxShadow: isPlaying ? '0 8px 32px rgba(99,102,241,0.5)' : '0 4px 16px rgba(0,0,0,0.3)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            transform: isOpen ? 'scale(0.95)' : 'scale(1)',
+            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: isOpen ? 'scale(0.9) translateY(2px)' : 'scale(1)',
           }}
         >
-          {isLoading ? (
-            <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-          ) : isError ? (
-            <span style={{ fontSize: 16 }}>⚠️</span>
+          {isPlaying ? (
+             <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 14 }}>
+                {[0.6, 1, 0.4].map((h, i) => (
+                  <div key={i} style={{ 
+                    width: 3, height: 14, background: '#fff', borderRadius: 2,
+                    animation: `equalizer 0.6s ease-in-out infinite alternate ${i * 0.2}s`
+                  }} />
+                ))}
+             </div>
           ) : (
-            <MusicIcon size={28} iconSize={16} />
-          )}
-          
-          {isPlaying && !isLoading && (
-            <div style={{
-              position: 'absolute', inset: -4, borderRadius: 16,
-              border: '2px solid var(--accent)', opacity: 0.5,
-              animation: 'pulse 2s cubic-bezier(0.075, 0.82, 0.165, 1) infinite'
-            }} />
+            <MusicIcon size={28} iconSize={18} />
           )}
         </button>
 
-        {/* Mini Menu */}
+        {/* Premium Player Menu */}
         {isOpen && (
           <div
             ref={menuRef}
+            className="glass-reflection"
             style={{
-              position: 'absolute', top: 52, right: 0, width: 220,
-              background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
-              border: '1px solid var(--accent-border)', borderRadius: 16,
-              padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-              animation: 'slideInY 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              position: 'absolute', top: 60, right: 0, width: 280,
+              background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(24px)',
+              border: '1px solid var(--accent-border)', borderRadius: 24,
+              padding: '16px', boxShadow: '0 20px 50px rgba(0,0,0,0.7)',
+              animation: 'playerIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              display: 'flex', flexDirection: 'column', gap: 16
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>Ambient Sound</span>
-              <button 
-                onClick={togglePlay}
-                style={{ 
-                  background: 'var(--accent-soft)', border: 'none', borderRadius: 8, 
-                  width: 28, height: 28, cursor: 'pointer', display: 'flex', 
-                  alignItems: 'center', justifyContent: 'center' 
-                }}
-              >
-                {isPlaying ? '⏸' : '▶'}
-              </button>
-            </div>
-
-            {/* Error Message */}
-            {isError && (
-              <div style={{ 
-                fontSize: 9, color: '#F87171', marginBottom: 10, textAlign: 'center', 
-                background: 'rgba(239,68,68,0.1)', padding: '8px', borderRadius: 8,
-                border: '1px solid rgba(239,68,68,0.2)'
-              }}>
-                <div style={{ fontWeight: 800 }}>SOUND NOT FOUND</div>
-                Please check your Supabase Storage.
-              </div>
-            )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {SOUNDS.map(s => (
+            {/* Tab Header */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 4 }}>
+              {CATEGORIES.map(cat => (
                 <button
-                  key={s.id}
-                  onClick={() => selectTrack(s.id)}
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px',
-                    borderRadius: 10, border: `1px solid ${currentId === s.id ? 'var(--accent-border)' : 'transparent'}`,
-                    background: currentId === s.id ? 'var(--accent-soft)' : 'rgba(255,255,255,0.03)',
-                    color: currentId === s.id ? 'var(--accent-muted)' : 'var(--text-primary)',
-                    cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left',
+                    flex: 1, padding: '8px', border: 'none', borderRadius: 8,
+                    background: activeTab === cat.id ? 'var(--accent)' : 'transparent',
+                    color: activeTab === cat.id ? '#fff' : 'var(--text-muted)',
+                    fontSize: 11, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
                   }}
                 >
-                  {s.icon}
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{s.label}</span>
-                    <span style={{ fontSize: 8, opacity: 0.5, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.filename}</span>
-                  </div>
+                  {cat.label}
                 </button>
               ))}
             </div>
 
-            {/* Volume Slider */}
-            <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>
+            {/* Now Playing Area (Apple Music Style) */}
+            <div style={{ 
+              background: 'rgba(255,255,255,0.03)', borderRadius: 18, padding: '12px',
+              display: 'flex', alignItems: 'center', gap: 12, position: 'relative',
+              border: isActiveTrack(currentTrack) ? '1px solid var(--accent-border)' : '1px solid transparent'
+            }}>
+              <div style={{ 
+                width: 56, height: 56, borderRadius: 12, overflow: 'hidden', 
+                background: 'var(--surface-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: isPlaying ? '0 8px 16px rgba(0,0,0,0.4)' : 'none',
+                transition: 'all 0.3s'
+              }}>
+                {currentTrack.icon}
+              </div>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.label}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 500 }}>{currentId === currentTrack.id && isPlaying ? 'Now Playing' : 'Paused'}</div>
+              </div>
+              <button 
+                onClick={togglePlay}
+                style={{ 
+                  width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)',
+                  border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 12
+                }}
+              >
+                {isLoading ? (
+                  <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                ) : isPlaying ? '⏸' : '▶'}
+              </button>
+            </div>
+
+            {/* Scrollable Track List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 200, overflowY: 'auto', paddingRight: 4 }}>
+              {filteredSounds.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => selectTrack(s.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px',
+                    borderRadius: 14, border: '1px solid transparent',
+                    background: currentId === s.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                    cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left',
+                    opacity: currentId === s.id ? 1 : 0.7
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = currentId === s.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent'}
+                >
+                  <div style={{ transform: 'scale(0.6)' }}>{s.icon}</div>
+                  <div style={{ flex: 1 }}>
+                     <div style={{ fontSize: 12, fontWeight: 700, color: currentId === s.id ? 'var(--accent)' : 'var(--text-primary)' }}>{s.label}</div>
+                     <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{s.sublabel}</div>
+                  </div>
+                  {currentId === s.id && isPlaying && (
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Volume Control */}
+            <div style={{ paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, fontFamily: 'JetBrains Mono' }}>
                   <span>Volume</span>
                   <span>{Math.round(volume * 100)}%</span>
                </div>
-               <input 
-                type="range" min="0" max="1" step="0.01" 
-                value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
-               />
+               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                 <span style={{ fontSize: 12, opacity: 0.5 }}>🔈</span>
+                 <input 
+                  type="range" min="0" max="1" step="0.01" 
+                  value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  style={{ flex: 1, accentColor: 'var(--accent)', cursor: 'pointer', height: 4 }}
+                 />
+                 <span style={{ fontSize: 12, opacity: 0.5 }}>🔊</span>
+               </div>
             </div>
+
+            {isError && (
+              <div style={{ fontSize: 9, color: '#F87171', textAlign: 'center', background: 'rgba(239,68,68,0.1)', padding: '6px', borderRadius: 8 }}>
+                 Playback Error: Track not found in Supabase.
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulse { 
-          0% { transform: scale(1); opacity: 0.5; }
-          100% { transform: scale(1.4); opacity: 0; }
+        @keyframes playerIn { 
+          from { transform: translateY(20px) scale(0.95); opacity: 0; } 
+          to { transform: translateY(0) scale(1); opacity: 1; } 
         }
-        @keyframes slideInY { 
-          from { transform: translateY(10px); opacity: 0; } 
-          to { transform: translateY(0); opacity: 1; } 
+        @keyframes equalizer {
+          from { transform: scaleY(0.4); }
+          to { transform: scaleY(1); }
         }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); borderRadius: 10px; }
       `}</style>
     </div>
   )
+}
+
+function isActiveTrack(track) {
+  return track ? true : false
 }
