@@ -18,6 +18,9 @@ import JPTheme from './JPTheme'
 import JPDictionary from './JPDictionary'
 import DynamicIsland from './components/DynamicIsland'
 import MusicPlayer from './components/MusicPlayer'
+import LevelUpModal from './components/LevelUpModal'
+import CommandCenter from './components/CommandCenter'
+import { useXPEngine } from './hooks/useXPEngine'
 import { 
   NotesIcon, ScriptsIcon, InfoIcon, BreaksIcon, AdminIcon, 
   CalcIcon, CalIcon, RouteIcon, PhoneticIcon, ThemeIcon, DictIcon, UserIcon, DeskIcon
@@ -194,6 +197,39 @@ function AppInner() {
   const [showOnline, setShowOnline]   = useState(false)
   const [showHydration, setShowHydration] = useState(false)
   const [hydrationDismissed, setHydrationDismissed] = useState(false)
+  const { xp, level, xpProgress, addXP, showLevelUp, resetLevelUp } = useXPEngine()
+  const [showCommandCenter, setShowCommandCenter] = useState(false)
+
+  // ── Payday Logic (5th and 20th) ──────────────────────────────────────────
+  const getPaydayDaysLeft = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth()
+    const date = now.getDate()
+    let nextPayday = date < 5 ? new Date(year, month, 5) : (date < 20 ? new Date(year, month, 20) : new Date(year, month + 1, 5))
+    return Math.ceil((nextPayday - now) / (1000 * 60 * 60 * 24))
+  }
+
+  // ── Morning Briefing Logic ───────────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return
+    const today = new Date().toDateString()
+    const lastCC = localStorage.getItem('last_cc_date')
+    if (lastCC !== today) {
+      setShowCommandCenter(true)
+    }
+  }, [user])
+
+  const handleStartDay = () => {
+    setShowCommandCenter(false)
+    localStorage.setItem('last_cc_date', new Date().toDateString())
+    addXP(10) // Small boost for starting the day
+  }
+
+  useEffect(() => {
+    window.addXP = addXP
+    return () => { delete window.addXP }
+  }, [addXP])
 
   // ── Presence ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -237,6 +273,16 @@ function AppInner() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const barRef = useRef(null)
   const breakEngine = useBreakEngine()
+
+  // XP Triggers for Shift Actions
+  const prevShiftStatus = useRef(breakEngine.shift.status)
+  useEffect(() => {
+    const curr = breakEngine.shift.status
+    const prev = prevShiftStatus.current
+    if (prev === 'idle' && curr === 'on') addXP(15) // Start shift
+    if (prev === 'on' && curr === 'done') addXP(50)  // Complete shift
+    prevShiftStatus.current = curr
+  }, [breakEngine.shift.status, addXP])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -564,8 +610,8 @@ function AppInner() {
 
               {/* Page */}
           <div style={{ flex: 1, overflowY: 'auto', background: '#0A0E1A' }} key={activeTab} className="animate-tabShow">
-            {activeTab === 'notes'   && <NotesPage />}
-            {activeTab === 'scripts' && <ScriptsPage />}
+            {activeTab === 'notes'   && <NotesPage onAction={addXP} />}
+            {activeTab === 'scripts' && <ScriptsPage onAction={addXP} />}
             {activeTab === 'info'    && <InfoPage />}
             {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
             {activeTab === 'admin'   && <AdminPage />}
@@ -630,8 +676,17 @@ function AppInner() {
       <WindowTransition show={showDictionary} zIndex={getZIndex('dictionary')} onMouseDown={() => setFocused('dictionary')}>
         <JPDictionary focused={focused === 'dictionary'} onFocus={() => setFocused('dictionary')} />
       </WindowTransition>
-      <DynamicIsland shift={breakEngine.shift} />
+      <DynamicIsland shift={breakEngine.shift} xpProgress={xpProgress} level={level} />
       <MusicPlayer />
+
+      {showLevelUp && <LevelUpModal level={level} onAcknowledge={resetLevelUp} />}
+      {showCommandCenter && (
+        <CommandCenter 
+          user={profile} 
+          paydayDaysLeft={getPaydayDaysLeft()} 
+          onStart={handleStartDay} 
+        />
+      )}
 
     {/* Hydration reminder modal */}
     {showHydration && !hydrationDismissed && (

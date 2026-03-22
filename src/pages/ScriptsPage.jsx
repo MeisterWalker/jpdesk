@@ -19,7 +19,12 @@ function fillVariables(text, vars) {
 
 function CopyBtn({ getText }) {
   const [copied, setCopied] = useState(false)
-  const copy = () => { navigator.clipboard.writeText(getText()); setCopied(true); setTimeout(() => setCopied(false), 1500) }
+  const copy = () => { 
+    navigator.clipboard.writeText(getText()); 
+    setCopied(true); 
+    setTimeout(() => setCopied(false), 1500);
+    if (window.addXP) window.addXP(5)
+  }
   return (
     <button onClick={copy} className={`btn btn-copy ${copied ? 'copied' : ''}`} style={{ padding: '5px 12px', fontSize: 11 }}>
       {copied ? '✓ Copied!' : '⎘ Copy'}
@@ -203,7 +208,7 @@ function ScriptForm({ initial, onSave, onCancel, existingCategories = [] }) {
   )
 }
 
-export default function ScriptsPage() {
+export default function ScriptsPage({ onAction }) {
   const { user } = useAuth()
   const [scripts, setScripts] = useState([])
   const [search, setSearch] = useState('')

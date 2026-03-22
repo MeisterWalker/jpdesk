@@ -108,6 +108,8 @@ function NoteForm({ initial, onSave, onCancel }) {
     }
     setSaving(false)
     onSave()
+    if (initial?.id) return // Don't grant XP for edits, only new notes
+    if (window.addXP) window.addXP(5) // Fallback or pass prop
   }
 
   return (
@@ -132,7 +134,7 @@ function NoteForm({ initial, onSave, onCancel }) {
   )
 }
 
-export default function NotesPage() {
+export default function NotesPage({ onAction }) {
   const { user } = useAuth()
   const [notes, setNotes] = useState([])
   const [search, setSearch] = useState('')
@@ -181,7 +183,7 @@ export default function NotesPage() {
         <button onClick={() => { setAdding(true); setEditing(null) }} className="btn btn-brand" style={{ padding: '7px 11px', flexShrink: 0 }}>+ Note</button>
       </div>
 
-      {adding && !editing && <NoteForm onSave={() => { setAdding(false); fetch() }} onCancel={() => setAdding(false)} />}
+      {adding && !editing && <NoteForm onSave={() => { setAdding(false); fetch(); if (onAction) onAction(5) }} onCancel={() => setAdding(false)} />}
       {editing && <NoteForm initial={editing} onSave={() => { setEditing(null); fetch() }} onCancel={() => setEditing(null)} />}
 
       {loading ? (

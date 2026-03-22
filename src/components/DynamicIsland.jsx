@@ -10,7 +10,7 @@ function fmtCountdown(secs) {
   return `${pad(h)}:${pad(m)}:${pad(s)}`
 }
 
-export default function DynamicIsland({ shift }) {
+export default function DynamicIsland({ shift, xpProgress, level }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -81,8 +81,16 @@ export default function DynamicIsland({ shift }) {
         overflow: 'hidden',
         color: '#fff',
         alignItems: 'center',
-        justifyContent: isExpanded ? 'space-between' : 'center'
+        justifyContent: isExpanded ? 'space-between' : 'center',
+        position: 'relative'
       }}>
+        {/* XP Mini Bar (Top) */}
+        <div style={{ 
+          position: 'absolute', top: 0, left: 0, height: 2, 
+          width: `${xpProgress}%`, background: 'var(--accent)',
+          boxShadow: '0 0 8px var(--accent)', transition: 'width 0.6s ease'
+        }} />
+
         {/* Compact State Content */}
         {!isExpanded && (
           <div style={{ 
@@ -107,8 +115,16 @@ export default function DynamicIsland({ shift }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 800, letterSpacing: '0.1em' }}>CURRENT STATUS</div>
-                <div style={{ fontSize: 13, fontWeight: 700 }}>
-                  {isShiftActive ? (status === 'break' ? '☕ ON BREAK' : '🔨 ON SHIFT') : '🏠 OFF DUTY'}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>
+                    {isShiftActive ? (status === 'break' ? '☕ ON BREAK' : '🔨 ON SHIFT') : '🏠 OFF DUTY'}
+                  </div>
+                  <div style={{ 
+                    fontSize: 8, background: 'var(--accent)', color: '#fff', 
+                    padding: '1px 5px', borderRadius: 4, fontWeight: 900 
+                  }}>
+                    LVL {level}
+                  </div>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
