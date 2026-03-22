@@ -111,7 +111,7 @@ const gentlemanStyles = `
   }
 `
 
-function WindowTransition({ show, children }) {
+function WindowTransition({ show, children, zIndex = 10000, onMouseDown }) {
   const [shouldRender, setShouldRender] = useState(show)
   useEffect(() => {
     if (show) setShouldRender(true)
@@ -121,7 +121,15 @@ function WindowTransition({ show, children }) {
     }
   }, [show])
   if (!shouldRender) return null
-  return <div className={show ? 'bloom-enter' : 'bloom-exit'} style={{ position: 'relative', zIndex: 1000000 }}>{children}</div>
+  return (
+    <div 
+      onMouseDown={onMouseDown}
+      className={show ? 'bloom-enter' : 'bloom-exit'} 
+      style={{ position: 'relative', zIndex }}
+    >
+      {children}
+    </div>
+  )
 }
 
 function GentlemanLogo() {
@@ -233,6 +241,8 @@ function AppInner() {
     document.documentElement.setAttribute('data-theme', theme)
     document.body.setAttribute('data-theme', theme)
   }, [theme])
+
+  const getZIndex = (id) => focused === id ? 10100 : 10000
 
   const onMouseDown = useCallback((e) => {
     if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('textarea')) return
@@ -419,7 +429,7 @@ function AppInner() {
             left: position.x,
             top: position.y,
             width: expanded ? 460 : 340,
-            zIndex: focused === 'desk' ? 9999 : 9990,
+            zIndex: getZIndex('desk'),
             borderRadius: expanded ? 18 : 12,
             boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
             backgroundColor: '#111827',
@@ -579,22 +589,22 @@ function AppInner() {
         </div>
       </WindowTransition>
 
-      <WindowTransition show={showCalc}>
+      <WindowTransition show={showCalc} zIndex={getZIndex('calc')} onMouseDown={() => setFocused('calc')}>
         <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />
       </WindowTransition>
-      <WindowTransition show={showCal}>
+      <WindowTransition show={showCal} zIndex={getZIndex('cal')} onMouseDown={() => setFocused('cal')}>
         <JPCal   focused={focused === 'cal'}   onFocus={() => setFocused('cal')}   />
       </WindowTransition>
-      <WindowTransition show={showRoute}>
+      <WindowTransition show={showRoute} zIndex={getZIndex('route')} onMouseDown={() => setFocused('route')}>
         <JPRoute    focused={focused === 'route'}    onFocus={() => setFocused('route')}    />
       </WindowTransition>
-      <WindowTransition show={showPhonetic}>
+      <WindowTransition show={showPhonetic} zIndex={getZIndex('phonetic')} onMouseDown={() => setFocused('phonetic')}>
         <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />
       </WindowTransition>
-      <WindowTransition show={showTheme}>
+      <WindowTransition show={showTheme} zIndex={getZIndex('theme')} onMouseDown={() => setFocused('theme')}>
         <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />
       </WindowTransition>
-      <WindowTransition show={showDictionary}>
+      <WindowTransition show={showDictionary} zIndex={getZIndex('dictionary')} onMouseDown={() => setFocused('dictionary')}>
         <JPDictionary focused={focused === 'dictionary'} onFocus={() => setFocused('dictionary')} />
       </WindowTransition>
       <ShiftBanner shift={breakEngine.shift} />
