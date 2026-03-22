@@ -500,7 +500,7 @@ function AppInner() {
                 display: 'flex', padding: '8px 12px 0', gap: 2, 
                 borderBottom: '1px solid var(--border)', 
                 background: '#111827', 
-                backdropFilter: 'blur(10px)',
+                backdropFilter: 'none',
                 flexShrink: 0 
               }}>
                 {TABS.filter(t => t.id !== 'admin' || isAdmin).map(tab => (
@@ -537,8 +537,8 @@ function AppInner() {
           </div>
 
               {/* Footer */}
-              <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
-                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.0 · BY JOHN PAUL LACARON</span>
+              <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.1 · BY JOHN PAUL LACARON</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 
                   {/* Who's online */}

@@ -241,16 +241,17 @@ code, kbd, .mono { font-family: 'JetBrains Mono', monospace; }
   transform: rotate(30deg) translate(20%, 20%);
 }
 
-/* Glass Solid (Forced 100% Opaque Isolation) */
+/* Glass Solid (V4: Forced 100% Solid Isolation) */
 .glass-solid {
-  background: #111827 !important; /* Hardcoded solid Hex */
+  background: #111827 !important; /* Hardcoded solid */
   opacity: 1 !important;
-  backdrop-filter: blur(24px) saturate(120%);
+  backdrop-filter: none !important; /* Disable filter to force solid render */
   border: 1px solid rgba(255,255,255,0.12) !important;
 }
 [data-theme="light"] .glass-solid {
   background: #FFFFFF !important;
   opacity: 1 !important;
+  backdrop-filter: none !important;
   border: 1px solid rgba(0,0,0,0.08) !important;
 }
 
