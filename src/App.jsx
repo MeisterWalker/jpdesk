@@ -310,7 +310,7 @@ function AppInner() {
         boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.02)'
       }}>
         {/* JPDesk toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowDesk(v => !v); setFocused('desk') }}
             title="JPDesk"
@@ -329,7 +329,7 @@ function AppInner() {
           {showDesk && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPCalc toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowCalc(v => !v); setFocused('calc') }}
             title="JPCalc"
@@ -348,7 +348,7 @@ function AppInner() {
           {showCalc && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPCal toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowCal(v => !v); setFocused('cal') }}
             title="JPCal"
@@ -367,7 +367,7 @@ function AppInner() {
           {showCal && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPRoute toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowRoute(v => !v); setFocused('route') }}
             title="JPRoute"
@@ -386,7 +386,7 @@ function AppInner() {
           {showRoute && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPPhonetic toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowPhonetic(v => !v); setFocused('phonetic') }}
             title="JPPhonetic"
@@ -405,7 +405,7 @@ function AppInner() {
           {showPhonetic && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPDictionary toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowDictionary(v => !v); setFocused('dictionary') }}
             title="JPDictionary"
@@ -424,7 +424,7 @@ function AppInner() {
           {showDictionary && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />}
         </div>
         {/* JPTheme toggle */}
-        <div style={{ position: 'relative' }}>
+        <div className="dock-item" style={{ position: 'relative' }}>
           <button
             onClick={() => { setShowTheme(v => !v); setFocused('theme') }}
             title="JPTheme"
@@ -678,6 +678,16 @@ function AppInner() {
         <style>{`
           @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
           @keyframes springUp { from { transform: translateY(40px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+          .dock-item {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            position: relative;
+            transform-origin: center;
+          }
+          .dock-item:hover {
+            transform: scale(1.18);
+            z-index: 10;
+          }
         `}</style>
       </div>
     )}
