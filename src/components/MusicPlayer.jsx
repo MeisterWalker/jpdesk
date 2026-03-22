@@ -6,19 +6,19 @@ const SOUNDS = [
     id: 'rain',   
     label: 'Rain',   
     icon: <RainIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/RainSoundEffect/Rain%20Sound%20Effect.mp3'
+    url: 'https://ia800901.us.archive.org/27/items/RainSoundEffect/Rain%20Sound%20Effect.mp3?v1'
   },
   { 
     id: 'ocean',  
     label: 'Ocean',  
     icon: <OceanIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/OceanWavesSoundEffect/Ocean%20Waves%20Sound%20Effect.mp3'
+    url: 'https://ia800100.us.archive.org/31/items/OceanWavesSoundEffect/Ocean%20Waves%20Sound%20Effect.mp3?v1'
   },
   { 
     id: 'nature', 
     label: 'Nature', 
     icon: <NatureIcon size={20} iconSize={12} />, 
-    url: 'https://archive.org/download/ForestBirdsSoundEffect/Forest%20Birds%20Sound%20Effect.mp3'
+    url: 'https://ia800109.us.archive.org/24/items/ForestBirdsSoundEffect/Forest%20Birds%20Sound%20Effect.mp3?v1'
   },
 ]
 
