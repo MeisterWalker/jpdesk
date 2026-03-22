@@ -90,27 +90,23 @@ function getPayDates(frequency, startDate, year, month, dayOffset = 0) {
 const SHORT_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffset = 0) {
+function getPastPayDates(frequency, startDate, fromDate, count = 4, dayOffset = 0) {
   if (!startDate) return []
   const results = []
   const start = parseDate(startDate)
   const from = fromDate
 
-  if (frequency === 'weekly') {
+  if (frequency === 'weekly' || frequency === 'biweekly') {
+    const step = frequency === 'weekly' ? 7 : 14
     let d = new Date(start)
-    while (d <= from) d = utcDate(Y(d), M(d), D(d) + 7)
+    // Move forward until we are strictly past 'from'
+    while (d <= from) d = utcDate(Y(d), M(d), D(d) + step)
+    // Move back to the last payday on or before 'from'
+    d = utcDate(Y(d), M(d), D(d) - step)
+    
     while (results.length < count) {
       results.push(utcDate(Y(d), M(d), D(d) + dayOffset))
-      d = utcDate(Y(d), M(d), D(d) + 7)
-    }
-  }
-
-  if (frequency === 'biweekly') {
-    let d = new Date(start)
-    while (d <= from) d = utcDate(Y(d), M(d), D(d) + 14)
-    while (results.length < count) {
-      results.push(utcDate(Y(d), M(d), D(d) + dayOffset))
-      d = utcDate(Y(d), M(d), D(d) + 14)
+      d = utcDate(Y(d), M(d), D(d) - step)
     }
   }
 
@@ -118,13 +114,17 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffse
     const day1 = D(start)
     const day2 = day1 + 15
     let y = Y(from), m = M(from)
+    
+    // Find candidate paydays in current and previous months
     while (results.length < count) {
       const lastDay = D(utcDate(y, m + 1, 0))
-      const d1 = utcDate(y, m, Math.min(day1, lastDay) + dayOffset)
       const d2 = utcDate(y, m, Math.min(day2, lastDay) + dayOffset)
-      if (d1 > from) results.push(d1)
-      if (results.length < count && d2 > from) results.push(d2)
-      m++; if (m > 11) { m = 0; y++ }
+      const d1 = utcDate(y, m, Math.min(day1, lastDay) + dayOffset)
+      
+      if (d2 <= from) results.push(d2)
+      if (results.length < count && d1 <= from) results.push(d1)
+      
+      m--; if (m < 0) { m = 11; y-- }
     }
   }
 
@@ -134,8 +134,8 @@ function getUpcomingPayDates(frequency, startDate, fromDate, count = 4, dayOffse
     while (results.length < count) {
       const lastDay = D(utcDate(y, m + 1, 0))
       const d = utcDate(y, m, Math.min(day, lastDay) + dayOffset)
-      if (d > from) results.push(d)
-      m++; if (m > 11) { m = 0; y++ }
+      if (d <= from) results.push(d)
+      m--; if (m < 0) { m = 11; y-- }
     }
   }
 
@@ -213,7 +213,7 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
   const [startDate, setStartDate]   = useState('')
 
   const payDates = getPayDates(frequency, startDate, viewYear, viewMonth)
-  const upcomingDates = getUpcomingPayDates(frequency, startDate, startDate ? parseDate(startDate) : todayUTC, 4)
+  const recentDates = getPastPayDates(frequency, startDate, startDate ? parseDate(startDate) : todayUTC, 4)
 
   // ── Drag ──────────────────────────────────────────────────
   const handleWidgetMouseDown = useCallback((e) => {
@@ -372,29 +372,29 @@ export default function JPCal({ focused = true, onFocus = () => {} }) {
           {/* ── Calendar grid ── */}
           <CalendarGrid year={viewYear} month={viewMonth} payDates={payDates} todayUTC={todayUTC} />
 
-          {/* ── Upcoming paydays summary ── */}
-          {startDate && upcomingDates.length > 0 && (
+          {/* ── Recent paydays summary ── */}
+          {startDate && recentDates.length > 0 && (
             <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
               <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>
-                ⏭ Next {upcomingDates.length} Paydays
+                ⏮ Previous {recentDates.length} Paydays
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {upcomingDates.map((d, i) => {
-                  const isNextPay = i === 0
+                {recentDates.map((d, i) => {
+                  const isLatest = i === 0
                   return (
                     <div key={i} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '5px 8px', borderRadius: 8,
-                      background: isNextPay ? 'var(--accent-soft)' : 'var(--surface)',
-                      border: `1px solid ${isNextPay ? 'var(--accent-border)' : 'var(--border)'}`,
+                      background: isLatest ? 'var(--accent-soft)' : 'var(--surface)',
+                      border: `1px solid ${isLatest ? 'var(--accent-border)' : 'var(--border)'}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 10 }}>{isNextPay ? '💰' : '📆'}</span>
-                        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-primary)' }}>
+                        <span style={{ fontSize: 10 }}>{isLatest ? '💰' : '📆'}</span>
+                        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 11, color: isLatest ? 'var(--accent-muted)' : 'var(--text-primary)' }}>
                           {SHORT_DAYS[DAY(d)]}, {SHORT_MONTHS[M(d)]} {D(d)}
                         </span>
                       </div>
-                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isNextPay ? 'var(--accent-muted)' : 'var(--text-muted)', fontWeight: isNextPay ? 700 : 400 }}>
+                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: isLatest ? 'var(--accent-muted)' : 'var(--text-muted)', fontWeight: isLatest ? 700 : 400 }}>
                         {Y(d)}
                       </span>
                     </div>
