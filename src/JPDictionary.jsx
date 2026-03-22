@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
@@ -579,6 +579,8 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .flashcard.flipped .card-inner { transform: rotateY(180deg); }
+        .card-inner { transform-style: preserve-3d; }
+        .card-front, .card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
       `}</style>
     </div>
   )
