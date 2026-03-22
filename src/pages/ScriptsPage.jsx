@@ -213,13 +213,18 @@ export default function ScriptsPage() {
   
   // Categories that the user wants to see as tabs
   const [managedCategories, setManagedCategories] = useState(() => {
-    const saved = localStorage.getItem('jpdesk_managed_categories')
-    if (saved) return JSON.parse(saved)
-    // Migration from the previous version's state
-    const oldCustom = localStorage.getItem('jpdesk_custom_categories')
-    const initial = ['General Questions', 'FAQ', 'Other']
-    if (oldCustom) return [...new Set([...initial, ...JSON.parse(oldCustom)])]
-    return initial
+    try {
+      const saved = localStorage.getItem('jpdesk_managed_categories')
+      if (saved) return JSON.parse(saved)
+      
+      // Migration from previous version
+      const oldStr = localStorage.getItem('jpdesk_custom_categories')
+      const old = oldStr ? JSON.parse(oldStr) : []
+      const initial = ['General Questions', 'FAQ', 'Other']
+      return [...new Set([...initial, ...(Array.isArray(old) ? old : [])])]
+    } catch (e) {
+      return ['General Questions', 'FAQ', 'Other']
+    }
   })
   const [isAddingCat, setIsAddingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
@@ -251,8 +256,10 @@ export default function ScriptsPage() {
 
   const handleDeleteCategory = (e, cat) => {
     e.stopPropagation()
-    setManagedCategories(prev => prev.filter(c => c !== cat))
-    if (activeCategory === cat) setActiveCategory('All')
+    if (window.confirm(`Are you sure you want to delete the "${cat}" category listing? Your scripts will still be available in "All".`)) {
+      setManagedCategories(prev => prev.filter(c => c !== cat))
+      if (activeCategory === cat) setActiveCategory('All')
+    }
   }
 
   const dynamicCategories = [...new Set(scripts.map(s => s.category))].filter(Boolean)
