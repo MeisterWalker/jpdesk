@@ -344,3 +344,17 @@ export const MatchIcon = (props) => (
     <polyline points="9 3 3 3 3 9" />
   </BadgeIcon>
 )
+
+export const JapaneseIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #EF4444, #B91C1C)">
+    <circle cx="12" cy="12" r="8" fill="white" opacity="0.2" />
+    <path d="M12 2L12 22M2 12L22 12" stroke="white" strokeWidth="1" opacity="0.2" />
+    <text x="12" y="15" fontSize="12" fontWeight="900" textAnchor="middle" fill="white" style={{ fontFamily: 'serif' }}>あ</text>
+  </BadgeIcon>
+)
+
+export const BookmarkIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #FACC15, #EAB308)">
+    <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+  </BadgeIcon>
+)

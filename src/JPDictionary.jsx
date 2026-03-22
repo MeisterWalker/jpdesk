@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon } from './components/Icons'
+import { DictIcon, NounIcon, VerbIcon, AdjectiveIcon, AdverbIcon, PastTenseIcon, GerundIcon, PrepositionIcon, ConjunctionIcon, FutureTenseIcon, DoubleNegativeIcon, StudyIcon, FlashcardIcon, QuizIcon, MatchIcon, JapaneseIcon, BookmarkIcon } from './components/Icons'
 
 const GRAMMAR_TIPS = [
   { id: 'noun', label: 'Noun', icon: NounIcon, def: 'A word used to identify a person, place, or thing.', example: 'The **cat** sat on the **mat**.' },
@@ -14,6 +14,12 @@ const GRAMMAR_TIPS = [
   { id: 'neg',  label: 'Double Negative', icon: DoubleNegativeIcon, def: 'A rule stating that two negative words should not be used in the same sentence as they cancel each other out.', example: 'INCORRECT: I **don\'t** want **nothing**.<br />CORRECT: I **don\'t** want **anything**.' },
 ]
 
+const toRomaji = (kana) => {
+  if (!kana) return ''
+  const m = {'あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko','さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to','な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho','ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro','わ':'wa','を':'wo','ん':'n','ガ':'ga','ギ':'gi','グ':'gu','ゲ':'ge','ゴ':'go','ザ':'za','ジ':'ji','ズ':'zu','ゼ':'ze','ゾ':'zo','ダ':'da','ヂ':'ji','ヅ':'zu','デ':'de','ド':'do','バ':'ba','ビ':'bi','ブ':'bu','ベ':'be','ボ':'bo','パ':'pa','ピ':'pi','プ':'pu','ペ':'pe','ポ':'po'}
+  return kana.split('').map(c => m[c] || c).join('')
+}
+
 export default function JPDictionary({ focused, onFocus, onClose }) {
   const [word, setWord] = useState('')
   const [result, setResult] = useState(null)
@@ -22,6 +28,19 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
   const [history, setHistory] = useState([])
   const [learnTerm, setLearnTerm] = useState(null)
   
+  // Search Mode State
+  const [dictMode, setDictMode] = useState('en') // 'en' | 'jp'
+  const [readingMode, setReadingMode] = useState('furigana') // 'furigana' | 'romaji'
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('jp_dict_favorites') || '[]')
+    } catch { return [] }
+  })
+
+  useEffect(() => {
+    localStorage.setItem('jp_dict_favorites', JSON.stringify(favorites))
+  }, [favorites])
+
   // Study Mode State
   const [view, setView] = useState('search') // 'search' | 'study'
   const [studyPage, setStudyPage] = useState('dashboard') // 'dashboard' | 'flashcards' | 'quiz' | 'match'
@@ -106,26 +125,66 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
   const [dragging, setDragging] = useState(false)
   const [rel, setRel] = useState({ x: 0, y: 0 })
 
-  const handleSearch = async (e, customWord) => {
+  const handleSearch = async (e, forcedQuery) => {
     if (e) e.preventDefault()
-    const targetWord = customWord || word
-    if (!targetWord.trim()) return
+    const query = (forcedQuery || word).trim()
+    if (!query) return
+
     setLoading(true)
     setError(null)
+    setResult(null)
     setLearnTerm(null)
+
+    // Detect if Japanese
+    const isJP = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(query)
+    const effectiveMode = isJP ? 'jp' : dictMode
+
     try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${targetWord.trim().toLowerCase()}`)
-      if (!res.ok) throw new Error('Word not found')
-      const data = await res.json()
-      setResult(data[0])
-      if (!history.includes(targetWord.trim())) {
-        setHistory(prev => [targetWord.trim(), ...prev].slice(0, 5))
+      if (effectiveMode === 'jp') {
+        const response = await fetch(`https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(query)}`)
+        const data = await response.json()
+        if (data.data && data.data.length > 0) {
+          const first = data.data[0]
+          setResult({
+            word: first.japanese[0].word || first.japanese[0].reading,
+            reading: first.japanese[0].reading,
+            phonetic: '', 
+            meanings: first.senses.map(s => ({
+              partOfSpeech: s.parts_of_speech.join(', '),
+              definitions: s.english_definitions.map(d => ({ definition: d }))
+            })),
+            jlpt: first.jlpt,
+            isJP: true,
+            raw: first
+          })
+          setDictMode('jp')
+        } else {
+          setError("No Japanese results found.")
+        }
+      } else {
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`)
+        const data = await response.json()
+        if (Array.isArray(data)) {
+          setResult({ ...data[0], isJP: false })
+          setHistory(prev => [data[0].word, ...prev.filter(w => w !== data[0].word)].slice(0, 5))
+        } else {
+          setError("Word not found in English dictionary.")
+        }
       }
     } catch (err) {
-      setError(err.message)
-      setResult(null)
+      setError("Failed to fetch dictionary data.")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleFavorite = (item) => {
+    const wordKey = item.word || (item.japanese?.[0]?.word || item.japanese?.[0]?.reading)
+    const exists = favorites.find(f => (f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)) === wordKey)
+    if (exists) {
+      setFavorites(prev => prev.filter(f => (f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)) !== wordKey))
+    } else {
+      setFavorites(prev => [...prev, item])
     }
   }
 
@@ -199,7 +258,7 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
       </div>
 
       {/* View Tabs */}
-      <div style={{ display: 'flex', background: '#0A0E1A', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', background: '#0A0E1A', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <button 
           onClick={() => setView('search')}
           style={{ 
@@ -222,7 +281,8 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
             transition: 'all 0.2s', fontFamily: 'JetBrains Mono'
           }}
         >
-          STUDY MODE
+          {favorites.length > 0 && <span style={{ marginRight: 5 }}>⭐</span>}
+          STUDY & SAVED
         </button>
       </div>
 
@@ -230,6 +290,48 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="hide-scrollbar">
         {view === 'search' ? (
           <>
+            {/* Search Header / Mode Toggles */}
+            <div style={{ padding: '8px 12px', background: '#0A0E1A', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button 
+                  onClick={() => setDictMode('en')}
+                  style={{ 
+                    fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
+                    background: dictMode === 'en' ? 'var(--accent)' : 'var(--surface-2)',
+                    color: dictMode === 'en' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
+                  }}
+                >
+                  EN
+                </button>
+                <button 
+                  onClick={() => setDictMode('jp')}
+                  style={{ 
+                    fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
+                    background: dictMode === 'jp' ? 'var(--accent)' : 'var(--surface-2)',
+                    color: dictMode === 'jp' ? '#fff' : 'var(--text-muted)', border: '1px solid var(--border)'
+                  }}
+                >
+                  JP
+                </button>
+              </div>
+              {dictMode === 'jp' && (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button 
+                    onClick={() => setReadingMode('furigana')}
+                    style={{ fontSize: 8, fontWeight: 800, color: readingMode === 'furigana' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}
+                  >
+                    FURIGANA
+                  </button>
+                  <button 
+                    onClick={() => setReadingMode('romaji')}
+                    style={{ fontSize: 8, fontWeight: 800, color: readingMode === 'romaji' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}
+                  >
+                    ROMAJI
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Search Bar */}
             <form onSubmit={handleSearch} style={{ padding: 12, borderBottom: '1px solid var(--border)', background: '#0A0E1A' }}>
               <div style={{ position: 'relative' }}>
@@ -308,10 +410,34 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
 
         {result && (
           <div className="animate-fadeIn">
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-              <h2 style={{ fontSize: 22, margin: 0, color: 'var(--text-primary)', fontWeight: 800 }}>{result.word}</h2>
-              <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{result.phonetic}</span>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+                  <h2 style={{ fontSize: 22, margin: 0, color: 'var(--text-primary)', fontWeight: 800 }}>
+                    {result.isJP ? (
+                      readingMode === 'furigana' ? (
+                        <ruby>
+                          {result.word}<rt style={{ fontSize: 10, color: 'var(--accent)' }}>{result.reading}</rt>
+                        </ruby>
+                      ) : (
+                        <span>{result.word} <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>({toRomaji(result.reading)})</span></span>
+                      )
+                    ) : result.word}
+                  </h2>
+                  {result.phonetic && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{result.phonetic}</span>}
+                  {result.isJP && (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {result.jlpt?.map(j => (
+                        <span key={j} style={{ fontSize: 8, background: 'var(--accent)', color: '#fff', padding: '2px 4px', borderRadius: 4, fontWeight: 900 }}>{j.toUpperCase()}</span>
+                      ))}
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700 }}>{result.reading}</span>
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => toggleFavorite(result.isJP ? result.raw : result)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, marginLeft: 'auto' }}
+                  >
+                    {favorites.find(f => (f.word || f.japanese?.[0]?.word || f.japanese?.[0]?.reading) === (result.word || result.reading)) ? '⭐' : '☆'}
+                  </button>
+                </div>
 
             {result.meanings.map((m, i) => (
               <div key={i} style={{ marginBottom: 20 }}>
@@ -402,11 +528,24 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                   </div>
                 </div>
 
-                <div style={{ fontSize: 10, color: 'var(--text-label)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12, letterSpacing: '0.05em' }}>Quick Progress</div>
-                <div style={{ display: 'flex', gap: 4, height: 6, background: 'var(--surface)', borderRadius: 3, overflow: 'hidden' }}>
-                  {GRAMMAR_TIPS.map(t => (
-                    <div key={t.id} style={{ flex: 1, background: progress.studied.includes(t.id) ? 'var(--accent)' : 'transparent', transition: 'all 0.3s' }} />
-                  ))}
+                <div style={{ fontSize: 10, color: 'var(--text-label)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12, letterSpacing: '0.05em' }}>Saved Bookmarks ({favorites.length})</div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {favorites.length === 0 ? (
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: 20 }}>No bookmarks yet. Save words to see them here!</div>
+                  ) : (
+                    favorites.map((f, i) => {
+                      const label = f.word || (f.japanese?.[0]?.word || f.japanese?.[0]?.reading)
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-2)', padding: '10px 14px', borderRadius: 12, border: '1px solid var(--border)' }}>
+                          <span style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 700 }}>{label}</span>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button onClick={() => { setView('search'); setWord(label); handleSearch(null, label) }} style={{ background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 9, padding: '4px 8px', cursor: 'pointer', fontWeight: 800 }}>VIEW</button>
+                            <button onClick={() => toggleFavorite(f)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12 }}>🗑️</button>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
                 </div>
               </>
             )}
