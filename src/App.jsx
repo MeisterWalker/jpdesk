@@ -111,7 +111,7 @@ const gentlemanStyles = `
   }
 `
 
-function Genie({ show, children }) {
+function WindowTransition({ show, children }) {
   const [shouldRender, setShouldRender] = useState(show)
   useEffect(() => {
     if (show) setShouldRender(true)
@@ -121,7 +121,7 @@ function Genie({ show, children }) {
     }
   }, [show])
   if (!shouldRender) return null
-  return <div className={show ? 'genie-enter' : 'genie-exit'}>{children}</div>
+  return <div className={show ? 'bloom-enter' : 'bloom-exit'}>{children}</div>
 }
 
 function GentlemanLogo() {
@@ -568,26 +568,26 @@ function AppInner() {
             </div>
           )}
         </div>
-      </Genie>
+      </WindowTransition>
 
-      <Genie show={showCalc}>
+      <WindowTransition show={showCalc}>
         <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />
-      </Genie>
-      <Genie show={showCal}>
+      </WindowTransition>
+      <WindowTransition show={showCal}>
         <JPCal   focused={focused === 'cal'}   onFocus={() => setFocused('cal')}   />
-      </Genie>
-      <Genie show={showRoute}>
+      </WindowTransition>
+      <WindowTransition show={showRoute}>
         <JPRoute    focused={focused === 'route'}    onFocus={() => setFocused('route')}    />
-      </Genie>
-      <Genie show={showPhonetic}>
+      </WindowTransition>
+      <WindowTransition show={showPhonetic}>
         <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />
-      </Genie>
-      <Genie show={showTheme}>
+      </WindowTransition>
+      <WindowTransition show={showTheme}>
         <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />
-      </Genie>
-      <Genie show={showDict}>
+      </WindowTransition>
+      <WindowTransition show={showDict}>
         <JPDict     focused={focused === 'dict'}     onFocus={() => setFocused('dict')}     />
-      </Genie>
+      </WindowTransition>
       <ShiftBanner shift={breakEngine.shift} />
 
     {/* Hydration reminder modal */}
