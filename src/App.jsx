@@ -422,6 +422,8 @@ function AppInner() {
             zIndex: focused === 'desk' ? 9999 : 9990,
             borderRadius: expanded ? 18 : 12,
             boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+            backgroundColor: '#111827',
+            opacity: 1,
             overflow: 'hidden',
             transition: dragging ? 'none' : 'width 0.25s cubic-bezier(0.34,1.56,0.64,1), border-radius 0.25s ease',
             cursor: dragging ? 'grabbing' : 'default',
@@ -434,7 +436,7 @@ function AppInner() {
             style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '11px 14px',
-              background: 'var(--surface)',
+              backgroundColor: '#111827',
               borderBottom: expanded ? '1px solid var(--border)' : 'none',
               cursor: dragging ? 'grabbing' : 'grab',
             }}

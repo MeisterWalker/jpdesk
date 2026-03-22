@@ -241,12 +241,13 @@ code, kbd, .mono { font-family: 'JetBrains Mono', monospace; }
   transform: rotate(30deg) translate(20%, 20%);
 }
 
-/* Glass Solid (V4: Forced 100% Solid Isolation) */
+/* Glass Solid (V5: Absolute Solid Isolation) */
 .glass-solid {
-  background: #111827 !important; /* Hardcoded solid */
+  background: #111827 !important;
   opacity: 1 !important;
-  backdrop-filter: none !important; /* Disable filter to force solid render */
+  backdrop-filter: none !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5) !important;
 }
 [data-theme="light"] .glass-solid {
   background: #FFFFFF !important;
