@@ -499,7 +499,7 @@ function AppInner() {
               <div style={{ 
                 display: 'flex', padding: '8px 12px 0', gap: 2, 
                 borderBottom: '1px solid var(--border)', 
-                background: 'var(--surface)', 
+                background: '#111827', 
                 backdropFilter: 'blur(10px)',
                 flexShrink: 0 
               }}>
@@ -509,9 +509,9 @@ function AppInner() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px',
                       borderRadius: '8px 8px 0 0', position: 'relative',
-                      background: activeTab === tab.id ? 'var(--surface-2)' : 'transparent',
+                      background: activeTab === tab.id ? '#1A2236' : 'transparent',
                       border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
-                      borderBottom: activeTab === tab.id ? '1px solid var(--surface-2)' : '1px solid transparent',
+                      borderBottom: activeTab === tab.id ? '1px solid #1A2236' : '1px solid transparent',
                       marginBottom: activeTab === tab.id ? -1 : 0,
                       color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
                       fontSize: 12, fontWeight: activeTab === tab.id ? 700 : 400,
@@ -528,7 +528,7 @@ function AppInner() {
               </div>
 
               {/* Page */}
-          <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }} key={activeTab} className="animate-tabShow">
+          <div style={{ flex: 1, overflowY: 'auto', background: '#0A0E1A' }} key={activeTab} className="animate-tabShow">
             {activeTab === 'notes'   && <NotesPage />}
             {activeTab === 'scripts' && <ScriptsPage />}
             {activeTab === 'info'    && <InfoPage />}
