@@ -311,3 +311,36 @@ export const DoubleNegativeIcon = (props) => (
     <path d="M8 8h8" strokeWidth="2" opacity="0.4" transform="translate(0,-3)" />
   </BadgeIcon>
 )
+
+export const StudyIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #10B981, #34D399)">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+  </BadgeIcon>
+)
+
+export const FlashcardIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #6366F1, #A78BFA)">
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+    <path d="M7 15h.01M17 15h.01" />
+  </BadgeIcon>
+)
+
+export const QuizIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #F59E0B, #FCD34D)">
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </BadgeIcon>
+)
+
+export const MatchIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #EC4899, #F472B6)">
+    <path d="M16 3h5v5" />
+    <path d="M8 21H3v-5" />
+    <path d="M21 3l-7 7" />
+    <path d="M3 21l7-7" />
+    <polyline points="15 21 21 21 21 15" />
+    <polyline points="9 3 3 3 3 9" />
+  </BadgeIcon>
+)
