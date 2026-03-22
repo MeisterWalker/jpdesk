@@ -49,8 +49,6 @@ export default function MusicPlayer() {
     if (track) {
       const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.filename)
       setAudioUrl(publicUrl)
-      // Debugging: Log the URL so user can check it
-      console.log(`MusicPlayer: Loading track "${currentId}" from ${publicUrl}`)
     }
   }, [currentId])
 
@@ -185,19 +183,15 @@ export default function MusicPlayer() {
               </button>
             </div>
 
-            {/* Error Message with Instructions */}
+            {/* Error Message */}
             {isError && (
               <div style={{ 
-                fontSize: 9, color: '#F87171', marginBottom: 10, textAlign: 'left', 
+                fontSize: 9, color: '#F87171', marginBottom: 10, textAlign: 'center', 
                 background: 'rgba(239,68,68,0.1)', padding: '8px', borderRadius: 8,
                 border: '1px solid rgba(239,68,68,0.2)'
               }}>
-                <div style={{ fontWeight: 800, marginBottom: 4 }}>SOUND NOT FOUND</div>
-                Please ensure you have:
-                <ul style={{ paddingLeft: 12, marginTop: 4 }}>
-                  <li>1. Private/Public bucket: <b>{BUCKET_NAME}</b></li>
-                  <li>2. Uploaded: <b>{SOUND_FILES[currentId]}</b></li>
-                </ul>
+                <div style={{ fontWeight: 800 }}>SOUND NOT FOUND</div>
+                Please check your Supabase Storage.
               </div>
             )}
 
