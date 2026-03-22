@@ -125,7 +125,7 @@ body::after {
 #doodle-layer {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: -1; /* Pushed to absolute background */
   pointer-events: none;
   overflow: hidden;
 }

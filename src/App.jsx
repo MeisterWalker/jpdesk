@@ -121,7 +121,7 @@ function WindowTransition({ show, children }) {
     }
   }, [show])
   if (!shouldRender) return null
-  return <div className={show ? 'bloom-enter' : 'bloom-exit'}>{children}</div>
+  return <div className={show ? 'bloom-enter' : 'bloom-exit'} style={{ position: 'relative', zIndex: 1000000 }}>{children}</div>
 }
 
 function GentlemanLogo() {
@@ -540,7 +540,7 @@ function AppInner() {
 
               {/* Footer */}
               <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
-                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.1 · BY JOHN PAUL LACARON</span>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.2 · BY JOHN PAUL LACARON</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 
                   {/* Who's online */}
