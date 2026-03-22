@@ -540,7 +540,7 @@ function AppInner() {
 
               {/* Footer */}
               <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
-                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.2 · BY JOHN PAUL LACARON</span>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.3 · BY JOHN PAUL LACARON</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 
                   {/* Who's online */}

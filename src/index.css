@@ -90,7 +90,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -2;
   background:
     radial-gradient(ellipse 80% 60% at 15% 20%, rgba(99,102,241,0.18) 0%, transparent 60%),
     radial-gradient(ellipse 60% 50% at 85% 75%, rgba(139,92,246,0.15) 0%, transparent 55%),
@@ -105,7 +105,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -2;
   background:
     radial-gradient(circle 300px at var(--orb1-x, 20%) var(--orb1-y, 30%), rgba(99,102,241,0.10) 0%, transparent 70%),
     radial-gradient(circle 250px at var(--orb2-x, 75%) var(--orb2-y, 65%), rgba(139,92,246,0.09) 0%, transparent 70%);
@@ -125,13 +125,13 @@ body::after {
 #doodle-layer {
   position: fixed;
   inset: 0;
-  z-index: -1; /* Pushed to absolute background */
+  z-index: -1; /* Above mesh (-2) but behind app (1) */
   pointer-events: none;
   overflow: hidden;
 }
 
 /* ── App content above background ───────────────────────── */
-#app-root { position: relative; z-index: 2; }
+#app-root { position: relative; z-index: 1; }
 
 /* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
