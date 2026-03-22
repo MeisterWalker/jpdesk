@@ -386,10 +386,10 @@ function AppInner() {
             border: '1px solid var(--border)',
             boxShadow: showDictionary ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
-          📖
+          <DictIcon size={28} iconSize={16} />
         </button>
         {/* JPTheme toggle */}
         <button

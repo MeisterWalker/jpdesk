@@ -172,18 +172,10 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
               💡 Educational Tips & Quiz
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[
-                { label: 'Noun', emoji: '🍎' },
-                { label: 'Verb', emoji: '🏃' },
-                { label: 'Adjective', emoji: '🎨' },
-                { label: 'Adverb', emoji: '⚡' },
-                { label: 'Past Tense', emoji: '⏳' },
-                { label: 'Gerund', emoji: '🔄' },
-                { label: 'Preposition', emoji: '📍' },
-                { label: 'Conjunction', emoji: '🔗' },
-              ].map(tip => (
+              {GRAMMAR_TIPS.map(tip => (
                 <button 
-                  key={tip.label} 
+                  key={tip.id} 
+                  onClick={() => setLearnTerm(tip)}
                   style={{ 
                     background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, 
                     padding: '16px 12px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
@@ -191,7 +183,7 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                   }}
                   className="hover-bright"
                 >
-                  <span style={{ fontSize: 20 }}>{tip.emoji}</span>
+                  <tip.icon size={28} iconSize={16} />
                   <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>{tip.label}</span>
                 </button>
               ))}
