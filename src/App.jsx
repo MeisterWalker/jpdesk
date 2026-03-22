@@ -16,7 +16,7 @@ import JPRoute from './JPRoute'
 import JPPhonetic from './JPPhonetic'
 import JPTheme from './JPTheme'
 import JPDictionary from './JPDictionary'
-import ShiftBanner from './ShiftBanner'
+import DynamicIsland from './components/DynamicIsland'
 import MusicPlayer from './components/MusicPlayer'
 import { 
   NotesIcon, ScriptsIcon, InfoIcon, BreaksIcon, AdminIcon, 
@@ -630,7 +630,7 @@ function AppInner() {
       <WindowTransition show={showDictionary} zIndex={getZIndex('dictionary')} onMouseDown={() => setFocused('dictionary')}>
         <JPDictionary focused={focused === 'dictionary'} onFocus={() => setFocused('dictionary')} />
       </WindowTransition>
-      <ShiftBanner shift={breakEngine.shift} />
+      <DynamicIsland shift={breakEngine.shift} />
       <MusicPlayer />
 
     {/* Hydration reminder modal */}
