@@ -35,22 +35,14 @@ const SOUNDS = [
     icon: <NatureIcon size={44} iconSize={24} />, 
     filename: 'nature.mp3'
   },
-  // INSTRUMENTAL CATEGORY (Placeholders for future expansion)
+  // INSTRUMENTAL CATEGORY
   { 
-    id: 'piano', 
+    id: 'all_that_you_are', 
     category: 'instrumental',
-    label: 'Soft Piano', 
-    sublabel: 'Melodic evening',
+    label: 'All That You Are', 
+    sublabel: 'Instrumental collection',
     icon: <MusicIcon size={44} iconSize={24} />, 
-    filename: 'piano.mp3'
-  },
-  { 
-    id: 'lofi', 
-    category: 'instrumental',
-    label: 'Lofi Beats', 
-    sublabel: 'Chill study session',
-    icon: <MusicIcon size={44} iconSize={24} gradient="linear-gradient(135deg, #10B981, #3B82F6)" />, 
-    filename: 'lofi.mp3'
+    filename: 'All That You Are.mp3'
   }
 ]
 
