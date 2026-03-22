@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import ShiftAnimation from '../ShiftAnimation'
 import { BuildingIcon, HatIcon, RocketIcon, CatIcon, RainbowIcon, BlossomIcon, WaveIcon, FireIcon, LaptopIcon, CoffeeIcon } from '../components/Icons'
 

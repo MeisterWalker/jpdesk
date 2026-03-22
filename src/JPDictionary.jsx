@@ -12,7 +12,7 @@ const GRAMMAR_TIPS = [
   { id: 'conj', label: 'Conjunction', icon: ConjunctionIcon, def: 'Words that connect phrases or clauses.', example: 'I like tea **and** coffee.' },
 ]
 
-export default function JPDict({ focused, onFocus }) {
+export default function JPDictionary({ focused, onFocus, onClose }) {
   const [word, setWord] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -87,19 +87,32 @@ export default function JPDict({ focused, onFocus }) {
       <div 
         onMouseDown={onMouseDown}
         style={{ 
-          padding: '12px 16px', background: '#111827', 
+          padding: '12px 14px', background: '#111827', 
           cursor: dragging ? 'grabbing' : 'grab',
           display: 'flex', alignItems: 'center', gap: 10,
           borderBottom: '1px solid var(--border)'
         }}
       >
-        <DictIcon size={22} iconSize={13} />
+        <div style={{
+          width: 24, height: 24, background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+          borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+        }}>
+          <span style={{ fontSize: 14 }}>📖</span>
+        </div>
         <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-          JP<span style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Dict</span>
+          JP<span style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Dictionary</span>
         </span>
         <div style={{ flex: 1 }} />
         {loading && <div className="loader-mini" />}
-        <button onClick={() => { setWord(''); setResult(null); setError(null); setLearnTerm(null) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14 }}>×</button>
+        <button 
+          onClick={onClose} 
+          style={{ 
+            background: 'none', border: 'none', color: 'var(--text-muted)', 
+            cursor: 'pointer', fontSize: 14, padding: '4px', opacity: 0.6,
+            transition: 'opacity 0.2s'
+          }}
+          className="hover-bright"
+        >×</button>
       </div>
 
       {/* Search Bar */}
@@ -158,20 +171,28 @@ export default function JPDict({ focused, onFocus }) {
             <div style={{ fontSize: 10, color: 'var(--text-label)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12, letterSpacing: '0.05em' }}>
               💡 Educational Tips & Quiz
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {GRAMMAR_TIPS.map(tip => (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                { label: 'Noun', emoji: '🍎' },
+                { label: 'Verb', emoji: '🏃' },
+                { label: 'Adjective', emoji: '🎨' },
+                { label: 'Adverb', emoji: '⚡' },
+                { label: 'Past Tense', emoji: '⏳' },
+                { label: 'Gerund', emoji: '🔄' },
+                { label: 'Preposition', emoji: '📍' },
+                { label: 'Conjunction', emoji: '🔗' },
+              ].map(tip => (
                 <button 
-                  key={tip.id} 
-                  onClick={() => setLearnTerm(tip)}
+                  key={tip.label} 
                   style={{ 
                     background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, 
-                    padding: 12, textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
-                    display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start'
+                    padding: '16px 12px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
+                    display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start'
                   }}
                   className="hover-bright"
                 >
-                  <tip.icon size={28} iconSize={15} />
-                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>{tip.label}</span>
+                  <span style={{ fontSize: 20 }}>{tip.emoji}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>{tip.label}</span>
                 </button>
               ))}
             </div>

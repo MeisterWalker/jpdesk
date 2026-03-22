@@ -15,7 +15,7 @@ import JPCal from './JPCal'
 import JPRoute from './JPRoute'
 import JPPhonetic from './JPPhonetic'
 import JPTheme from './JPTheme'
-import JPDict from './JPDict'
+import JPDictionary from './JPDictionary'
 import ShiftBanner from './ShiftBanner'
 import { 
   NotesIcon, ScriptsIcon, InfoIcon, BreaksIcon, AdminIcon, 
@@ -220,8 +220,8 @@ function AppInner() {
   const [showRoute, setShowRoute]     = useState(false)
   const [showPhonetic, setShowPhonetic] = useState(false)
   const [showTheme, setShowTheme]       = useState(false)
-  const [showDict, setShowDict]         = useState(false)
-  const [focused, setFocused]           = useState('desk') // 'desk' | 'calc' | 'cal' | 'route' | 'phonetic' | 'theme' | 'dict'
+  const [showDictionary, setShowDictionary] = useState(false)
+  const [focused, setFocused]           = useState('desk') // 'desk' | 'calc' | 'cal' | 'route' | 'phonetic' | 'theme' | 'dictionary'
   const [activeTab, setActiveTab] = useState('notes')
   const [position, setPosition] = useState({ x: 20, y: 20 })
   const [dragging, setDragging] = useState(false)
@@ -375,21 +375,21 @@ function AppInner() {
         >
           <PhoneticIcon size={28} iconSize={16} />
         </button>
-        {/* JPDict toggle */}
+        {/* JPDictionary toggle */}
         <button
-          onClick={() => { setShowDict(v => !v); setFocused('dict') }}
-          title="JPDict"
+          onClick={() => { setShowDictionary(v => !v); setFocused('dictionary') }}
+          title="JPDictionary"
           className="icon-click glass-reflection"
           style={{
             width: 42, height: 42, borderRadius: 13,
-            background: showDict ? 'rgba(255,255,255,0.05)' : 'var(--surface)',
+            background: showDictionary ? 'linear-gradient(135deg,var(--accent),var(--accent-2))' : 'var(--surface)',
             border: '1px solid var(--border)',
-            boxShadow: showDict ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.35)',
+            boxShadow: showDictionary ? '0 4px 16px rgba(var(--accent-rgb,99,102,241),0.45)' : '0 2px 10px rgba(0,0,0,0.35)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', position: 'relative'
+            fontSize: 18, transition: 'all 0.2s',
           }}
         >
-          <DictIcon size={28} iconSize={16} />
+          📖
         </button>
         {/* JPTheme toggle */}
         <button
@@ -594,8 +594,8 @@ function AppInner() {
       <WindowTransition show={showTheme}>
         <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />
       </WindowTransition>
-      <WindowTransition show={showDict}>
-        <JPDict     focused={focused === 'dict'}     onFocus={() => setFocused('dict')}     />
+      <WindowTransition show={showDictionary}>
+        <JPDictionary focused={focused === 'dictionary'} onFocus={() => setFocused('dictionary')} />
       </WindowTransition>
       <ShiftBanner shift={breakEngine.shift} />
 

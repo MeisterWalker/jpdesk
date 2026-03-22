@@ -131,7 +131,7 @@ body::after {
 }
 
 /* ── App content above background ───────────────────────── */
-#app-root { position: relative; z-index: 1; }
+#root { position: relative; z-index: 1; }
 
 /* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
