@@ -19,7 +19,7 @@ import JPDict from './JPDict'
 import ShiftBanner from './ShiftBanner'
 import { 
   NotesIcon, ScriptsIcon, InfoIcon, BreaksIcon, AdminIcon, 
-  CalcIcon, CalIcon, RouteIcon, PhoneticIcon, ThemeIcon, DictIcon, UserIcon
+  CalcIcon, CalIcon, RouteIcon, PhoneticIcon, ThemeIcon, DictIcon, UserIcon, DeskIcon
 } from './components/Icons'
 
 const TABS = [
@@ -110,6 +110,19 @@ const gentlemanStyles = `
     50%      { transform: translateY(-1.5px); }
   }
 `
+
+function Genie({ show, children }) {
+  const [shouldRender, setShouldRender] = useState(show)
+  useEffect(() => {
+    if (show) setShouldRender(true)
+    else {
+      const timer = setTimeout(() => setShouldRender(false), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [show])
+  if (!shouldRender) return null
+  return <div className={show ? 'genie-enter' : 'genie-exit'}>{children}</div>
+}
 
 function GentlemanLogo() {
   return (
@@ -295,7 +308,7 @@ function AppInner() {
             fontSize: 18, transition: 'all 0.2s',
           }}
         >
-          🎩
+          <DeskIcon size={28} iconSize={16} />
         </button>
         {/* JPCalc toggle */}
         <button
@@ -388,160 +401,174 @@ function AppInner() {
           <ThemeIcon size={28} iconSize={16} />
         </button>
       </div>
-      {showDesk && <div
-      ref={barRef}
-      data-theme={theme}
-      onMouseDown={() => setFocused('desk')}
-      style={{
-        position: 'fixed',
-        left: position.x,
-        top: position.y,
-        width: expanded ? 460 : 340,
-        zIndex: focused === 'desk' ? 9999 : 9990,
-        borderRadius: expanded ? 18 : 12,
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
-        overflow: 'hidden',
-        transition: dragging ? 'none' : 'width 0.25s cubic-bezier(0.34,1.56,0.64,1), border-radius 0.25s ease',
-        cursor: dragging ? 'grabbing' : 'default',
-        userSelect: 'none',
-      }}
-    >
-      {/* Header */}
-      <div
-        onMouseDown={onMouseDown}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '11px 14px',
-          background: 'var(--surface)',
-          borderBottom: expanded ? '1px solid var(--border)' : 'none',
-          cursor: dragging ? 'grabbing' : 'grab',
-        }}
-      >
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <GentlemanLogo />
-          <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
-          </span>
-        </div>
+      <Genie show={showDesk}>
+        <div
+          ref={barRef}
+          data-theme={theme}
+          onMouseDown={() => setFocused('desk')}
+          style={{
+            position: 'fixed',
+            left: position.x,
+            top: position.y,
+            width: expanded ? 460 : 340,
+            zIndex: focused === 'desk' ? 9999 : 9990,
+            borderRadius: expanded ? 18 : 12,
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+            overflow: 'hidden',
+            transition: dragging ? 'none' : 'width 0.25s cubic-bezier(0.34,1.56,0.64,1), border-radius 0.25s ease',
+            cursor: dragging ? 'grabbing' : 'default',
+            userSelect: 'none',
+          }}
+        >
+          {/* Header */}
+          <div
+            onMouseDown={onMouseDown}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '11px 14px',
+              background: 'var(--surface)',
+              borderBottom: expanded ? '1px solid var(--border)' : 'none',
+              cursor: dragging ? 'grabbing' : 'grab',
+            }}
+          >
+            {/* Logo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <DeskIcon size={22} iconSize={13} />
+              <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                JP<span style={{ background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Desk</span>
+              </span>
+            </div>
 
-        <div style={{ flex: 1 }} />
-        <Clock />
+            <div style={{ flex: 1 }} />
+            <Clock />
 
-        {/* User + sign out */}
-        {expanded && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {profile?.username || ''}
-            </span>
-            <button onMouseDown={e => e.stopPropagation()} onClick={signOut} title="Sign out"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, opacity: 0.5, padding: '2px 3px' }}>
-              🚪
+            {/* User + sign out */}
+            {expanded && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: 'var(--text-label)', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {profile?.username || ''}
+                </span>
+                <button onMouseDown={e => e.stopPropagation()} onClick={signOut} title="Sign out"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, opacity: 0.5, padding: '2px 3px' }}>
+                  🚪
+                </button>
+              </div>
+            )}
+
+            {/* Theme toggle */}
+            <button onClick={toggleTheme}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: '2px 4px', opacity: 0.6 }}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+
+            {/* Expand/collapse */}
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={() => setExpanded(v => !v)}
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, transition: 'var(--transition)', flexShrink: 0 }}
+              title={expanded ? 'Minimize' : 'Expand'}>
+              {expanded ? '▼' : '▲'}
             </button>
           </div>
-        )}
 
-        {/* Theme toggle */}
-        <button onClick={toggleTheme}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: '2px 4px', opacity: 0.6 }}
-          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-
-        {/* Expand/collapse */}
-        <button
-          onMouseDown={e => e.stopPropagation()}
-          onClick={() => setExpanded(v => !v)}
-          style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, transition: 'var(--transition)', flexShrink: 0 }}
-          title={expanded ? 'Minimize' : 'Expand'}>
-          {expanded ? '▼' : '▲'}
-        </button>
-      </div>
-
-      {/* Expanded content */}
-      {expanded && (
-        <div className="animate-spring" style={{ display: 'flex', flexDirection: 'column', height: 560 }}>
-          {/* Tabs */}
-          <div style={{ display: 'flex', padding: '8px 12px 0', gap: 2, borderBottom: '1px solid var(--border)', background: 'var(--surface)', flexShrink: 0 }}>
-            {TABS.filter(t => t.id !== 'admin' || isAdmin).map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px',
-                  borderRadius: '8px 8px 0 0', position: 'relative',
-                  background: activeTab === tab.id ? 'var(--bg)' : 'transparent',
-                  border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
-                  borderBottom: activeTab === tab.id ? '1px solid var(--bg)' : '1px solid transparent',
-                  marginBottom: activeTab === tab.id ? -1 : 0,
-                  color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-muted)',
-                  fontSize: 12, fontWeight: activeTab === tab.id ? 700 : 400,
-                  cursor: 'pointer', transition: 'var(--transition)',
-                }}>
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-                {activeTab === tab.id && (
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 2 }} />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Page */}
-          <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }} key={activeTab} className="animate-slideRight">
-            {activeTab === 'notes'   && <NotesPage />}
-            {activeTab === 'scripts' && <ScriptsPage />}
-            {activeTab === 'info'    && <InfoPage />}
-            {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
-            {activeTab === 'admin'   && <AdminPage />}
-          </div>
-
-          {/* Footer */}
-          <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
-            <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.0 · BY JOHN PAUL LACARON</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-
-              {/* Who's online */}
-              <div style={{ position: 'relative' }}>
-                <button onClick={() => setShowOnline(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}>
-                  <UserIcon size={16} iconSize={10} />
-                  <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineUsers.length} online</span>
-                </button>
-                {showOnline && (
-                  <div style={{ position: 'absolute', bottom: 28, right: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 0', minWidth: 160, zIndex: 999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                    <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 12px 6px', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>Online Now</div>
-                    {onlineUsers.length === 0 ? (
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', padding: '4px 12px' }}>No one yet</div>
-                    ) : onlineUsers.map((u, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px' }}>
-                        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 5px #22C55E', flexShrink: 0 }} />
-                        <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-primary)' }}>
-                          {u.username}{u.user_id === user?.id ? ' (you)' : ''}
-                        </span>
-                      </div>
-                    ))}
-                    <button onClick={() => setShowOnline(false)} style={{ width: '100%', marginTop: 4, padding: '4px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'left', borderTop: '1px solid var(--border)' }}>close</button>
-                  </div>
-                )}
+          {/* Expanded content */}
+          {expanded && (
+            <div className="animate-spring" style={{ display: 'flex', flexDirection: 'column', height: 560 }}>
+              {/* Tabs */}
+              <div style={{ display: 'flex', padding: '8px 12px 0', gap: 2, borderBottom: '1px solid var(--border)', background: 'var(--surface)', flexShrink: 0 }}>
+                {TABS.filter(t => t.id !== 'admin' || isAdmin).map(tab => (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px',
+                      borderRadius: '8px 8px 0 0', position: 'relative',
+                      background: activeTab === tab.id ? 'var(--bg)' : 'transparent',
+                      border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
+                      borderBottom: activeTab === tab.id ? '1px solid var(--bg)' : '1px solid transparent',
+                      marginBottom: activeTab === tab.id ? -1 : 0,
+                      color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-muted)',
+                      fontSize: 12, fontWeight: activeTab === tab.id ? 700 : 400,
+                      cursor: 'pointer', transition: 'var(--transition)',
+                    }}>
+                    <span>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                    {activeTab === tab.id && (
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 2 }} />
+                    )}
+                  </button>
+                ))}
               </div>
 
-              <div style={{ width: 1, height: 10, background: 'var(--border)' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
-                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>LIVE</span>
+              {/* Page */}
+              <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }} key={activeTab} className="animate-slideRight">
+                {activeTab === 'notes'   && <NotesPage />}
+                {activeTab === 'scripts' && <ScriptsPage />}
+                {activeTab === 'info'    && <InfoPage />}
+                {activeTab === 'breaks'  && <BreakPage engine={breakEngine} />}
+                {activeTab === 'admin'   && <AdminPage />}
+              </div>
+
+              {/* Footer */}
+              <div style={{ padding: '7px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)', letterSpacing: '0.08em' }}>JPDESK v1.0 · BY JOHN PAUL LACARON</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+
+                  {/* Who's online */}
+                  <div style={{ position: 'relative' }}>
+                    <button onClick={() => setShowOnline(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}>
+                      <UserIcon size={16} iconSize={10} />
+                      <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>{onlineUsers.length} online</span>
+                    </button>
+                    {showOnline && (
+                      <div style={{ position: 'absolute', bottom: 28, right: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 0', minWidth: 160, zIndex: 999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                        <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 12px 6px', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>Online Now</div>
+                        {onlineUsers.length === 0 ? (
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono', padding: '4px 12px' }}>No one yet</div>
+                        ) : onlineUsers.map((u, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px' }}>
+                            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 5px #22C55E', flexShrink: 0 }} />
+                            <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--text-primary)' }}>
+                              {u.username}{u.user_id === user?.id ? ' (you)' : ''}
+                            </span>
+                          </div>
+                        ))}
+                        <button onClick={() => setShowOnline(false)} style={{ width: '100%', marginTop: 4, padding: '4px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', textAlign: 'left', borderTop: '1px solid var(--border)' }}>close</button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ width: 1, height: 10, background: 'var(--border)' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
+                    <span className="mono" style={{ fontSize: 10, color: 'var(--text-label)' }}>LIVE</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
-    </div>}
+      </Genie>
 
-      {showCalc && <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />}
-      {showCal   && <JPCal   focused={focused === 'cal'}   onFocus={() => setFocused('cal')}   />}
-      {showRoute    && <JPRoute    focused={focused === 'route'}    onFocus={() => setFocused('route')}    />}
-      {showPhonetic && <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />}
-      {showTheme    && <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />}
-      {showDict     && <JPDict     focused={focused === 'dict'}     onFocus={() => setFocused('dict')}     />}
+      <Genie show={showCalc}>
+        <JPCalc focused={focused === 'calc'} onFocus={() => setFocused('calc')} />
+      </Genie>
+      <Genie show={showCal}>
+        <JPCal   focused={focused === 'cal'}   onFocus={() => setFocused('cal')}   />
+      </Genie>
+      <Genie show={showRoute}>
+        <JPRoute    focused={focused === 'route'}    onFocus={() => setFocused('route')}    />
+      </Genie>
+      <Genie show={showPhonetic}>
+        <JPPhonetic focused={focused === 'phonetic'} onFocus={() => setFocused('phonetic')} />
+      </Genie>
+      <Genie show={showTheme}>
+        <JPTheme    focused={focused === 'theme'}    onFocus={() => setFocused('theme')}    />
+      </Genie>
+      <Genie show={showDict}>
+        <JPDict     focused={focused === 'dict'}     onFocus={() => setFocused('dict')}     />
+      </Genie>
       <ShiftBanner shift={breakEngine.shift} />
 
     {/* Hydration reminder modal */}

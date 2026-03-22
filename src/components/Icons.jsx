@@ -132,3 +132,12 @@ export const DictIcon = (props) => (
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </BadgeIcon>
 )
+
+export const DeskIcon = (props) => (
+  <BadgeIcon {...props} gradient="linear-gradient(135deg, #1E293B, #0F172A)">
+    <path d="M5 16h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2z" />
+    <path d="M15 21a1 1 0 0 0 0-2h-6a1 1 0 0 0 0 2" />
+    <path d="M8 19v2" />
+    <path d="M16 19v2" />
+  </BadgeIcon>
+)
