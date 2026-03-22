@@ -418,18 +418,16 @@ function AppInner() {
           <ThemeIcon size={28} iconSize={16} />
         </button>
       </div>
-      <WindowTransition show={showDesk}>
+      <WindowTransition show={showDesk} zIndex={getZIndex('desk')} onMouseDown={() => setFocused('desk')}>
         <div
           ref={barRef}
           data-theme={theme}
-          onMouseDown={() => setFocused('desk')}
           className="glass-solid"
           style={{
             position: 'fixed',
             left: position.x,
             top: position.y,
             width: expanded ? 460 : 340,
-            zIndex: getZIndex('desk'),
             borderRadius: expanded ? 18 : 12,
             boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
             backgroundColor: '#111827',
