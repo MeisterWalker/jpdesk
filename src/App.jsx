@@ -14,7 +14,6 @@ import JPCalc from './JPCalc'
 import JPCal from './JPCal'
 import JPRoute from './JPRoute'
 import JPPhonetic from './JPPhonetic'
-import JPPhonetic from './JPPhonetic'
 import JPTheme from './JPTheme'
 import ShiftBanner from './ShiftBanner'
 
