@@ -266,10 +266,10 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                  <learnTerm.icon size={36} iconSize={20} />
                </div>
                <h3 style={{ margin: 0, fontSize: 18, color: 'var(--text-primary)' }}>{learnTerm.label}</h3>
-               <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, margin: '10px 0' }}>{learnTerm.def}</p>
+               <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, margin: '10px 0' }} dangerouslySetInnerHTML={{ __html: learnTerm.def }} />
                <div style={{ padding: 10, background: 'var(--bg)', borderRadius: 8, fontSize: 11, borderLeft: '3px solid var(--accent)' }}>
                  <div style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 9, marginBottom: 4, textTransform: 'uppercase' }}>Example</div>
-                 <span dangerouslySetInnerHTML={{ __html: learnTerm.example }} />
+                 <span dangerouslySetInnerHTML={{ __html: learnTerm.example.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') }} />
                </div>
             </div>
             <button 
@@ -443,9 +443,9 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                     </div>
                     {/* Back */}
                     <div className="card-back" style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', background: '#0A0E1A', border: '1px solid var(--accent)', borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, transform: 'rotateY(180deg)' }}>
-                      <p style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6, margin: 0 }}>{GRAMMAR_TIPS[fcIndex].def}</p>
-                      <div style={{ marginTop: 15, padding: 10, background: 'var(--surface-2)', borderRadius: 8, fontSize: 11, color: 'var(--text-muted)', italic: 'true' }}>
-                        "{GRAMMAR_TIPS[fcIndex].example.replace(/\*\*/g, '')}"
+                      <p style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6, margin: 0 }} dangerouslySetInnerHTML={{ __html: GRAMMAR_TIPS[fcIndex].def }} />
+                      <div style={{ marginTop: 15, padding: 10, background: 'var(--surface-2)', borderRadius: 8, fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        "<span dangerouslySetInnerHTML={{ __html: GRAMMAR_TIPS[fcIndex].example.replace(/\*\*/g, '') }} />"
                       </div>
                     </div>
                   </div>
@@ -458,10 +458,15 @@ export default function JPDictionary({ focused, onFocus, onClose }) {
                 <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: 20, border: '1px solid var(--border)', marginBottom: 20 }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Fill in the Blank</div>
                   <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 20 }}>
-                    "{quizQ.tip.example.split(new RegExp(`\\*\\*${quizQ.tip.label}\\*\\*`, 'i')).map((part, i, arr) => (
+                    "{quizQ.tip.example.split(/\*\*(.*?)\*\*/g).map((part, i) => (
                       <span key={i}>
-                        {part}
-                        {i < arr.length - 1 && <span style={{ padding: '2px 8px', borderBottom: '2px solid var(--accent)', color: quizAnswer ? (quizAnswer === quizQ.tip.label ? '#10B981' : '#EF4444') : 'var(--accent)', fontWeight: 800 }}>{quizAnswer || '______'}</span>}
+                        {i % 2 === 0 ? (
+                          <span dangerouslySetInnerHTML={{ __html: part }} />
+                        ) : (
+                          <span style={{ padding: '2px 8px', borderBottom: '2px solid var(--accent)', color: quizAnswer ? (quizAnswer === quizQ.tip.label ? '#10B981' : '#EF4444') : 'var(--accent)', fontWeight: 800 }}>
+                            {quizAnswer ? (quizAnswer === quizQ.tip.label ? part : part) : '______'}
+                          </span>
+                        )}
                       </span>
                     ))}"
                   </div>
