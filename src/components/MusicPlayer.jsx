@@ -49,6 +49,8 @@ export default function MusicPlayer() {
     if (track) {
       const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(track.filename)
       setAudioUrl(publicUrl)
+      // Debugging: Log the URL so user can check it
+      console.log(`MusicPlayer: Loading track "${currentId}" from ${publicUrl}`)
     }
   }, [currentId])
 
