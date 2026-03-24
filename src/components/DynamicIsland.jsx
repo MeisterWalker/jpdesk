@@ -10,6 +10,8 @@ function fmtCountdown(secs) {
   return `${pad(h)}:${pad(m)}:${pad(s)}`
 }
 
+const getPHDate = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }))
+
 export default function DynamicIsland({ shift, xpProgress, level }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -26,7 +28,7 @@ export default function DynamicIsland({ shift, xpProgress, level }) {
   
   // Payday Logic (5th and 20th)
   const getPaydayInfo = () => {
-    const now = new Date()
+    const now = getPHDate()
     const year = now.getFullYear()
     const month = now.getMonth()
     const date = now.getDate()

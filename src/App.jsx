@@ -200,9 +200,11 @@ function AppInner() {
   const { xp, level, xpProgress, addXP, showLevelUp, resetLevelUp } = useXPEngine()
   const [showCommandCenter, setShowCommandCenter] = useState(false)
 
+  const getPHDate = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }))
+
   // ── Payday Logic (5th and 20th) ──────────────────────────────────────────
   const getPaydayDaysLeft = () => {
-    const now = new Date()
+    const now = getPHDate()
     const year = now.getFullYear()
     const month = now.getMonth()
     const date = now.getDate()
